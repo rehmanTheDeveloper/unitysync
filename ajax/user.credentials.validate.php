@@ -2,7 +2,7 @@
 
 session_start();
 require("../auth/config.php");
-$conn = conn('localhost', 'root', '', 'pine-valley');
+$conn = conn('localhost', 'root', '', "communiSync");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];

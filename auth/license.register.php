@@ -25,8 +25,8 @@ if (empty($project)) {
 $data['created_date'] = $created_date;
 $data['status'] = 1;
 $data['role'] = "super-admin";
-$data['id'] = voucherId(conn("localhost", "root", "", "pine-valley"), "users", "u_id", "UI", 3);
-$data['project'] = voucherId(conn("localhost", "root", "", "pine-valley"), "project", "pro_id", "PJ", 3);
+$data['id'] = voucherId(conn("localhost", "root", "", "communiSync"), "users", "u_id", "UI", 3);
+$data['project'] = voucherId(conn("localhost", "root", "", "communiSync"), "project", "pro_id", "PJ", 3);
 $license_detail['registered_date'] = date("Y-m-d h:ia", strtotime($created_date));
 $license_detail['productKey'] = $data['productKey'];
 $license_detail['license_key'] = $data['license_key'];
@@ -53,7 +53,7 @@ $conn->close();
 // print_r($db_activity);
 // exit();
 
-$conn = conn('localhost', 'root', '', 'pine-valley');
+$conn = conn('localhost', 'root', '', "communiSync");
 insertUserData($conn, $data);
 insertProjectData($conn, $project);
 activity($conn, $db_activity);

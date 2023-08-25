@@ -11,7 +11,7 @@ require("temp/validate.license.temp.php"); #
 ####################### Database Connection #######################
 require("auth/config.php"); #
 require("auth/functions.php"); #
-$conn = conn("localhost", "root", "", "pine-valley");             #
+$conn = conn("localhost", "root", "", "communiSync");             #
 ####################### Database Connection #######################
 
 $query = "SELECT * FROM `users` WHERE `project_id` = '" . $_SESSION['project'] . "' AND `role` != 'super-admin' AND `u_id` != '".$_SESSION['id']."';";

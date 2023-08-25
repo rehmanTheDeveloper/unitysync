@@ -12,7 +12,7 @@ $databaseHandler_license = new DatabaseHandler($servername, $username, $password
 $servername = 'localhost';
 $username = 'root';
 $password = '';
-$dbname = 'pine-valley';
+$dbname = "communiSync";
 
 $databaseHandler_product = new DatabaseHandler($servername, $username, $password, $dbname);
 
