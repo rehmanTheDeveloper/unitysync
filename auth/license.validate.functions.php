@@ -18,7 +18,7 @@ function validateLicenseKey($licenseKey, $productKey)
     $servername = 'localhost';
     $username = 'root';
     $password = '';
-    $dbname = 'approve_system';
+    $dbname = "licensingSystem";
     $conn = new mysqli($servername, $username, $password, $dbname);
     if ($conn->connect_error) {
         die('Connection failed: ' . $conn->connect_error);
@@ -107,70 +107,71 @@ function insertUserData($conn, $data)
     $stmt->execute();
     $stmt->close();
 
-    $query = "SELECT * FROM `users` ORDER BY `id` DESC LIMIT 1;";
-    $selected_user = mysqli_fetch_assoc(mysqli_query($conn, $query));
+    // $query = "SELECT * FROM `users` ORDER BY `id` DESC LIMIT 1;";
+    // $selected_user = mysqli_fetch_assoc(mysqli_query($conn, $query));
 
-    $permissions = array
-    (
-        "view-user-management",
-        "add-user",
-        "view-user",
-        "edit-user",
-        "delete-user",
-        "add-user-role",
-        "view-user-role",
-        "edit-user-role",
-        "delete-user-role",
-        "view-project",
-        "edit-project",
-        "add-account",
-        "view-account",
-        "edit-account",
-        "delete-account",
-        "add-property",
-        "edit-property",
-        "view-property",
-        "delete-property",
-        "dashboard",
-        "print",
-        "view-ledger",
-        "view-activity",
-        "add-sale-property",
-        "view-sale-property",
-        "edit-sale-property",
-        "delete-sale-property",
-        "add-transfer-property",
-        "view-transfer-property",
-        "add-return-property",
-        "view-return-property",
-        "add-payment-pay",
-        "view-payment-pay",
-        "delete-payment-pay",
-        "add-payment-receive",
-        "view-payment-receive",
-        "delete-payment-receive",
-        "add-payment-transfer",
-        "view-payment-transfer",
-        "delete-payment-transfer"
-    );
-    $query = "INSERT INTO `roles`(`name`, `project_id`, `created_date`, `created_by`) VALUES (?,?,?,?);";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("ssss", $data['role'], $data['project'], $data['created_date'], $selected_user['u_id']);
-    $stmt->execute();
-    $stmt->close();
+    // $permissions = array
+    // (
+    //     "view-user-management",
+    //     "add-user",
+    //     "view-user",
+    //     "edit-user",
+    //     "delete-user",
+    //     "add-user-role",
+    //     "view-user-role",
+    //     "edit-user-role",
+    //     "delete-user-role",
+    //     "view-project",
+    //     "edit-project",
+    //     "add-account",
+    //     "view-account",
+    //     "edit-account",
+    //     "delete-account",
+    //     "add-property",
+    //     "edit-property",
+    //     "view-property",
+    //     "delete-property",
+    //     "dashboard",
+    //     "print",
+    //     "view-ledger",
+    //     "view-activity",
+    //     "add-sale-property",
+    //     "view-sale-property",
+    //     "edit-sale-property",
+    //     "delete-sale-property",
+    //     "add-transfer-property",
+    //     "view-transfer-property",
+    //     "add-return-property",
+    //     "view-return-property",
+    //     "add-payment-pay",
+    //     "view-payment-pay",
+    //     "delete-payment-pay",
+    //     "add-payment-receive",
+    //     "view-payment-receive",
+    //     "delete-payment-receive",
+    //     "add-payment-transfer",
+    //     "view-payment-transfer",
+    //     "delete-payment-transfer"
+    // );
 
-    $query = "SELECT * FROM `roles` ORDER BY `id` DESC LIMIT 1;";
-    $selected_role = mysqli_fetch_assoc(mysqli_query($conn, $query));
+    // $query = "INSERT INTO `roles`(`name`, `project_id`, `created_date`, `created_by`) VALUES (?,?,?,?);";
+    // $stmt = $conn->prepare($query);
+    // $stmt->bind_param("ssss", $data['role'], $data['project'], $data['created_date'], $selected_user['u_id']);
+    // $stmt->execute();
+    // $stmt->close();
 
-    foreach ($permissions as $value) {
-        if (empty($selected_permission)) {
-            $query = "INSERT INTO `role_permissions`(`role`, `permission`, `project_id`, `created_date`, `created_by`) VALUES (?,?,?,?,?);";
-            $stmt = $conn->prepare($query);
-            $stmt->bind_param("sssss", $selected_role['id'], $value, $data['project'], $data['created_date'], $selected_user['u_id']);
-            $stmt->execute();
-            $stmt->close();
-        }
-    }
+    // $query = "SELECT * FROM `roles` ORDER BY `id` DESC LIMIT 1;";
+    // $selected_role = mysqli_fetch_assoc(mysqli_query($conn, $query));
+
+    // foreach ($permissions as $value) {
+    //     if (empty($selected_permission)) {
+    //         $query = "INSERT INTO `role_permissions`(`role`, `permission`, `project_id`, `created_date`, `created_by`) VALUES (?,?,?,?,?);";
+    //         $stmt = $conn->prepare($query);
+    //         $stmt->bind_param("sssss", $selected_role['id'], $value, $data['project'], $data['created_date'], $selected_user['u_id']);
+    //         $stmt->execute();
+    //         $stmt->close();
+    //     }
+    // }
 }
 
 function verficationLicenseKey($license)
@@ -178,7 +179,7 @@ function verficationLicenseKey($license)
     $servername = 'localhost';
     $username = 'root';
     $password = '';
-    $dbname = 'approve_system';
+    $dbname = "licensingSystem";
     $conn = new mysqli($servername, $username, $password, $dbname);
     if ($conn->connect_error) {
         die('Connection failed: ' . $conn->connect_error);
@@ -201,7 +202,7 @@ function updateLicenseFile($license, $license_path)
     $servername = 'localhost';
     $username = 'root';
     $password = '';
-    $dbname = 'approve_system';
+    $dbname = "licensingSystem";
     $conn = new mysqli($servername, $username, $password, $dbname);
     if ($conn->connect_error) {
         die('Connection failed: ' . $conn->connect_error);

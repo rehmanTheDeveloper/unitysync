@@ -16,11 +16,8 @@ $conn = conn("localhost", "root", "", "communiSync");             #
 
 $query = "SELECT * FROM `users` WHERE `project_id` = '" . $_SESSION['project'] . "' AND `role` != 'super-admin' AND `u_id` != '".$_SESSION['id']."';";
 $users = fetch_Data($conn, $query);
-$query = "SELECT * FROM `roles` WHERE `project_id` = '" . $_SESSION['project'] . "' AND `name` != 'super-admin' AND `name` != '".$_SESSION['role']."';";
-$roles = fetch_Data($conn, $query);
 
 $title = "All Users";
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -66,7 +63,7 @@ $title = "All Users";
                 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "add-user-role, view-user-role") === true) {
                 ################################ Role Validation ################################
                 ?>
-                <a class="btn btn-outline-gray-600" href="user.role.all.php">View User Roles</a>
+                <!-- <a class="btn btn-outline-gray-600" href="user.role.all.php">View User Roles</a> -->
                 <?php } ?>
             </div>
         </div>
@@ -88,7 +85,7 @@ $title = "All Users";
                                 </th>
                                 <th class="border-bottom">Name</th>
                                 <th class="border-bottom">Date Created</th>
-                                <th class="border-bottom">Role</th>
+                                <!-- <th class="border-bottom">Role</th> -->
                                 <th class="border-bottom">Status</th>
                                 <th class="border-bottom">Action</th>
                             </tr>
@@ -118,13 +115,6 @@ $title = "All Users";
                                     <span class="fw-normal">
                                         <?= date("d M Y", strtotime($user['created_date'])) ?>
                                     </span>
-                                </td>
-                                <td>
-                                    <?php foreach ($roles as $role) {
-                                        if ($role['id'] == $user['role']) {
-                                            echo $role['name'];
-                                        }
-                                    } ?>
                                 </td>
                                 <td>
                                     <?php if ($user['status'] == 1) { ?>
@@ -303,7 +293,7 @@ $title = "All Users";
                                 </th>
                                 <th class="border-bottom">Name</th>
                                 <th class="border-bottom">Date Created</th>
-                                <th class="border-bottom">Role</th>
+                                <!-- <th class="border-bottom">Role</th> -->
                                 <th class="border-bottom">Status</th>
                                 <th class="border-bottom">Action</th>
                             </tr>
@@ -438,7 +428,7 @@ $title = "All Users";
         <?php } elseif ($_GET['message'] == 'user_edit_not_allow') { ?>
             notify("error", "You are currently not Allowed to Edit Role ...");
         <?php } elseif ($_GET['message'] == 'edit_true') { ?>
-            notify("success", "Role Has been Modified ...");
+            notify("success", "User Has been Modified ...");
         <?php } elseif ($_GET['message'] == 'edit_false') { ?>
             notify("error", "Something's Wrong, Report Error ...");
         <?php } elseif ($_GET['message'] == 'user_delete_not_allow') { ?>

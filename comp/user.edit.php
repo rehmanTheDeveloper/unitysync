@@ -21,6 +21,13 @@ if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "edit-user") 
 }
 ################################ Role Validation ################################
 
+$phone_format = array(
+    "(",
+    ")",
+    " ",
+    "-"
+);
+
 if (isset($_GET['id']) && empty($_GET['id'])) {
     header("Location: ../user.all.php");
     exit();
@@ -90,6 +97,7 @@ if (isset($_GET['status']) && $_GET['status'] == "1") {
     foreach ($_POST as $key => $value) {
         $data[$key] = sanitize($conn, $value);
     }
+    $data['phoneNo'] = str_replace($phone_format,"",$data['phoneNo']);
 
     if ($data['password'] !== $data['confirm_password']) {
         if (empty($data['page'])) {
@@ -127,9 +135,9 @@ if (isset($_GET['status']) && $_GET['status'] == "1") {
     }
 
     if (empty($data['page'])) {
-        $query = "UPDATE `users` SET `prefix`=?, `f_name`=?, `s_name`=?, `email`=?, `phone_no`=?, `status`=?, `role`=?, `password`=?, `date_of_birth`=?, `gender`=?, `martial_status`=?, `blood_group`=? WHERE `u_id` =? AND `project_id` = '" . $_SESSION['project'] . "';";
+        $query = "UPDATE `users` SET `prefix`=?, `f_name`=?, `s_name`=?, `phone_no`=?, `status`=?, `password`=?, `date_of_birth`=?, `gender`=?, `martial_status`=?, `blood_group`=? WHERE `u_id` =? AND `project_id` = '" . $_SESSION['project'] . "';";
         $stmt = $conn->prepare($query);
-        $stmt->bind_param("sssssssssssss", $data['prefix'], $data['fName'], $data['lName'], $data['email'], $data['phoneNo'], $data['status'], $data['role'], $data['password'], $data['dateOfBirth'], $data['gender'], $data['martialStatus'], $data['bloodGroup'], $data['id']);
+        $stmt->bind_param("sssssssssss", $data['prefix'], $data['fName'], $data['lName'], $data['phoneNo'], $data['status'], $data['password'], $data['dateOfBirth'], $data['gender'], $data['martialStatus'], $data['bloodGroup'], $data['id']);
         if ($stmt->execute()) {
             header("Location: ../user.all.php?message=edit_true");
             exit();

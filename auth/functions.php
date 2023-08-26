@@ -77,23 +77,24 @@ function fetch_Data($conn, $query)
 // Role Validation
 function validationRole($DatabaseConnection, $project, $userRole, $hasPermission)
 {
-	$permissionId = "";
-	$permission_boolean = false;
-	$query = "SELECT `id` FROM `roles` WHERE `name` = '$userRole' AND `project_id` = '".$project."';";
-	$role_id = mysqli_fetch_assoc(mysqli_query($DatabaseConnection, $query));
-	$permissions = explode(", ", $hasPermission);
-	foreach ($permissions as $value) {
-		$query = "SELECT `id` FROM `role_permissions` WHERE `role` = ? AND `permission` = ? AND `project_id` = '".$project."';";
-		$RP = $DatabaseConnection->prepare($query);
-		$RP->bind_param("ss", $role_id['id'], $value);
-		$RP->execute();
-		$RP->bind_result($permissionId);
-		$RP->fetch();
-		if (!empty($permissionId)) {
-			$permission_boolean = true;
-			return $permission_boolean;
-		}
-	}
+	// $permissionId = "";
+	// $permission_boolean = false;
+	// $query = "SELECT `id` FROM `roles` WHERE `name` = '$userRole' AND `project_id` = '".$project."';";
+	// $role_id = mysqli_fetch_assoc(mysqli_query($DatabaseConnection, $query));
+	// $permissions = explode(", ", $hasPermission);
+	// foreach ($permissions as $value) {
+	// 	$query = "SELECT `id` FROM `role_permissions` WHERE `role` = ? AND `permission` = ? AND `project_id` = '".$project."';";
+	// 	$RP = $DatabaseConnection->prepare($query);
+	// 	$RP->bind_param("ss", $role_id['id'], $value);
+	// 	$RP->execute();
+	// 	$RP->bind_result($permissionId);
+	// 	$RP->fetch();
+	// 	if (!empty($permissionId)) {
+	// 		$permission_boolean = true;
+	// 		return $permission_boolean;
+	// 	}
+	// }
+	return TRUE;
 }
 // Role Validation
 

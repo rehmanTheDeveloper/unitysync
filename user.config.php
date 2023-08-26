@@ -21,10 +21,6 @@ if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "view-user") 
 }
 ################################ Role Validation ################################
 
-$query = "SELECT * FROM `roles` WHERE `project_id` = '".$_SESSION['project']."' AND `name` != 'super-admin';";
-$roles = fetch_Data($conn, $query);
-
-
 $title = "Add User";
 ?>
 <!DOCTYPE html>
@@ -94,19 +90,24 @@ $title = "Add User";
                     <div class="col-md-4 col-sm-4">
                         <div class="mb-3">
                             <label for="email">Email</label>
-                            <input class="form-control" id="email" name="email" type="text" required />
+                            <div class="input-group">
+                                <input class="form-control w-75" id="email" name="email" type="text" required />
+                                <select name="email_format" id="email_format" class="form-select  w-25">
+                                    <option value="@gmail.com" selected>@gmail.com</option>
+                                    <option value="@outlook.com">@outlook.com</option>
+                                    <option value="@icloud.com">@icloud.com</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="col-lg-3">
                         <div class="mb-3">
                             <label for="phoneNo">Contact No.</label>
-                            <input type="tel" name="phoneNo" id="phoneNo" class="form-control" value="+92" />
-                        </div>
-                    </div>
-                    <div class="col-lg-3">
-                        <div class="mb-3">
-                            <label for="altPhoneNo">Alternative Contact No.</label>
-                            <input type="tel" name="altPhoneNo" id="altPhoneNo" class="form-control" />
+                            <div class="input-group">
+                                <span class="input-group-text text-primary">+92</span>
+                                <input type="text" name="phoneNo" id="phoneNo" class="form-control phone_no_format"
+                                    placeholder="(333) 333-3333" />
+                            </div>
                         </div>
                     </div>
                     <div class="col-sm-2">
@@ -126,7 +127,7 @@ $title = "Add User";
                     <div class="col-lg-3">
                         <div class="mb-3">
                             <label for="role">Role</label>
-                            <?php if (!empty($roles)) { ?>
+                            <?php if (!empty($roles) || FALSE) { ?>
                             <select class="form-select" name="role" id="role" required>
                                 <option value="" selected>Select</option>
                                 <?php foreach ($roles as $key => $value) { ?>
@@ -134,6 +135,9 @@ $title = "Add User";
                                 <?php } ?>
                             </select>
                             <?php } ?>
+                            <select class="form-select" name="role" id="role">
+                                <option value="admin" selected>Admin</option>
+                            </select>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-4 col-sm-6">

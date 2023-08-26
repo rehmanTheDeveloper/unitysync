@@ -26,10 +26,10 @@ if (empty($_GET['id'])) {
     exit();
 }
 
-$query = "SELECT * FROM `roles` WHERE `project_id` = '".$_SESSION['project']."' AND `name` != 'super-admin';";
-$roles = fetch_Data($conn, $query);
+// $query = "SELECT * FROM `roles` WHERE `project_id` = '".$_SESSION['project']."' AND `name` != 'super-admin';";
+// $roles = fetch_Data($conn, $query);
 
-$query = "SELECT * FROM `users` WHERE `id` = '".$_GET['id']."' AND `project_id` = '".$_SESSION['project']."' AND `role` != 'super-admin';";
+$query = "SELECT * FROM `users` WHERE `u_id` = '".$_GET['id']."' AND `project_id` = '".$_SESSION['project']."' AND `role` != 'super-admin';";
 $user = mysqli_fetch_assoc(mysqli_query($conn, $query));
 
 if (empty($user)) {
@@ -118,16 +118,19 @@ $title = "Edit User - ".$user['f_name'];
                     </div>
                     <div class="col-md-4 col-sm-4">
                         <div class="mb-3">
-                            <label for="email">Email</label>
-                            <input class="form-control" id="email" name="email" type="email" value="<?=$user['email']?>"
-                                required />
+                            <label for="email">Email <span class="text-danger">(<b>Unchangeable</b>)</span></label>
+                            <input class="form-control bg-white" id="email" name="email" type="text"
+                                value="<?=$user['email']?>" readonly />
                         </div>
                     </div>
                     <div class="col-lg-3">
                         <div class="mb-3">
                             <label for="phoneNo">Contact No.</label>
-                            <input type="tel" name="phoneNo" id="phoneNo" class="form-control"
-                                value="<?=$user['phone_no']?>" />
+                            <div class="input-group">
+                                <span class="input-group-text text-primary">+92</span>
+                                <input type="text" name="phoneNo" id="phoneNo" class="form-control phone_no_format"
+                                    placeholder="(333) 333-3333" value="<?=phone_no_format($user['phone_no'])?>" />
+                            </div>
                         </div>
                     </div>
                     <div class="col-sm-2">
@@ -148,12 +151,7 @@ $title = "Edit User - ".$user['f_name'];
                         <div class="mb-3">
                             <label for="role">Role</label>
                             <select class="form-select" name="role" id="role" required>
-                                <?php foreach ($roles as $role) { 
-                                    if ($user['role'] == $role['id']) {?>
-                                <option value="<?=$role['id']?>" selected><?=$role['name']?></option>
-                                <?php } else { ?>
-                                <option value="<?=$role['id']?>"><?=$role['name']?></option>
-                                <?php } } ?>
+                                <option value="<?=$user['role']?>" selected><?=$user['role']?></option>
                             </select>
                         </div>
                     </div>
@@ -270,9 +268,9 @@ $title = "Edit User - ".$user['f_name'];
     });
     <?php if (isset($_GET['message'])) { ?>
 
-        <?php if ($_GET['message'] == 'pass_not_match') { ?>
-            notify("error", "Password Doesn't Match ...");
-        <?php } ?>
+    <?php if ($_GET['message'] == 'pass_not_match') { ?>
+    notify("error", "Password Doesn't Match ...");
+    <?php } ?>
 
     <?php } ?>
     </script>

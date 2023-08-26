@@ -52,7 +52,7 @@ $title = "Register Plato Account";
                                                 Check
                                             </button>
                                         </div>
-                                        <input type="hidden" name="productKey" id="product_key" value="1ORLHC4T" />
+                                        <input type="hidden" name="productKey" id="product_key" value="T1XC8I6V" />
                                         <div id="licenseKeyFeedback" class="form-text"></div>
                                     </div>
                                 </div>

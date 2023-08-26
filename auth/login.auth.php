@@ -63,7 +63,7 @@ if ($stmt = $conn->prepare('SELECT `u_id`, `password`,`f_name`,`s_name`,`role`,`
 }
 $conn->close();
 
-$conn = conn("localhost", "root", "", "approve_system");
+$conn = conn("localhost", "root", "", "licensingSystem");
 if ($stmt = $conn->prepare('SELECT `license` FROM `clients` WHERE `username` = ? AND `product` = ?;')) {
     // Bind parameters
     if ($role == 'super-admin') {

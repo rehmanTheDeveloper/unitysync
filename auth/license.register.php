@@ -6,7 +6,7 @@ require("license.validate.functions.php");
 
 $project = [];
 $data = [];
-$conn = conn('localhost', 'root', '', 'approve_system');
+$conn = conn('localhost', 'root', '', "licensingSystem");
 foreach ($_POST as $key => $value) {
     if ($key == "project") {
         foreach ($value as $pro_key => $pro) {
@@ -16,6 +16,18 @@ foreach ($_POST as $key => $value) {
         $data[$key] = sanitize($conn, $value);
     }
 }
+
+$phone_format = array(
+    "(",
+    ")",
+    " ",
+    "-"
+);
+$data['phone_no'] = str_replace($phone_format,"",$data['phone_no']);
+$project['phone_no'] = str_replace($phone_format,"",$project['phone_no']);
+$project['whatsapp_no'] = str_replace($phone_format,"",$project['whatsapp_no']);
+$project['helpline_no'] = str_replace($phone_format,"",$project['helpline_no']);
+$data['email'] = $data['email'].$data['email_format'];
 
 if (empty($project)) {
     header("Location: ../sign-up.php?message=missing_data");

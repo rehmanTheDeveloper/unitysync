@@ -1,5 +1,8 @@
 <?php
 
+header("Location: user.all.php");
+exit();
+
 session_start();
 #################### Login & License Validation ####################
 require("temp/validate.login.temp.php");                           #

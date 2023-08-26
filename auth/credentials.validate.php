@@ -5,7 +5,7 @@ require_once 'DB.handler.php';
 $servername = 'localhost';
 $username = 'root';
 $password = '';
-$dbname = 'approve_system';
+$dbname = "licensingSystem";
 
 $databaseHandler_license = new DatabaseHandler($servername, $username, $password, $dbname);
 

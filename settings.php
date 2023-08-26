@@ -16,10 +16,7 @@ $conn = conn("localhost", "root", "", "communiSync");             #
 
 // echo "<pre>";
 // print_r($_SESSION);
-// exit();
-
-$query = "SELECT * FROM `roles` WHERE `project_id` = '".$_SESSION['project']."' AND `name` != 'super-admin';";
-$roles = fetch_Data($conn, $query);
+// exit(); 
 
 $query = "SELECT * FROM `users` WHERE `username` = '".$_SESSION['username']."' AND `project_id` = '".$_SESSION['project']."';";
 $user = mysqli_fetch_assoc(mysqli_query($conn, $query));

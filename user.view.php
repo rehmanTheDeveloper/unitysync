@@ -26,10 +26,7 @@ if (empty($_GET['id'])) {
     exit();
 }
 
-$query = "SELECT * FROM `roles` WHERE `project_id` = '".$_SESSION['project']."' AND `name` != 'super-admin';";
-$roles = fetch_Data($conn, $query);
-
-$query = "SELECT * FROM `users` WHERE `id` = '".$_GET['id']."' AND `project_id` = '".$_SESSION['project']."' AND `role` != 'super-admin';";
+$query = "SELECT * FROM `users` WHERE `u_id` = '".$_GET['id']."' AND `project_id` = '".$_SESSION['project']."' AND `role` != 'super-admin';";
 $user = mysqli_fetch_assoc(mysqli_query($conn, $query));
 if (empty($user)) {
     header("Location: user.all.php?message=no user");
@@ -140,15 +137,7 @@ $title = "User - ".$user['f_name'];
                                     alt="<?=$user['f_name']?> Portrait">
                                 <h4 class="h3"><?=$user['f_name']." ".$user['s_name']?></h4>
                                 <h5 class="fw-normal text-capitalize">
-                                    <?php if ($user['role'] != 'super-admin') {
-                                    foreach ($roles as $value) {
-                                        if ($user['role'] == $value['id']) {
-                                            echo $value['name'];
-                                        }
-                                    }
-                                } else {
-                                    echo $user['role'];
-                                } ?>
+                                    <?=$user['role']?>
                                 </h5>
                                 <p class="text-gray mb-4 text-capitalize"><?=$user['country']?></p>
                             </div>
@@ -174,12 +163,8 @@ $title = "User - ".$user['f_name'];
                                         </tr>
                                         <tr>
                                             <td>Role</td>
-                                            <td class="fw-bolder text-end">
-                                                <?php foreach ($roles as $role) {
-                                                    if ($user['role'] == $role['id']){
-                                                        echo $role['name'];
-                                                    }
-                                                } ?>
+                                            <td class="fw-bolder text-capitalize text-end">
+                                                <?php echo $user['role']; ?>
                                             </td>
                                         </tr>
                                         <tr>

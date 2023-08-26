@@ -37,6 +37,20 @@ if (empty($data['status'])) {
     $data['status'] = 0;
 }
 
+$phone_format = array(
+    "(",
+    ")",
+    " ",
+    "-"
+);
+$data['phoneNo'] = str_replace($phone_format,"",$data['phoneNo']);
+$data['altPhoneNo'] = str_replace($phone_format,"",$data['altPhoneNo']);
+$data['email'] = $data['email'].$data['email_format'];
+
+// echo "<pre>";
+// print_r($data);
+// exit();
+
 $db_activity['date'] = date("d-m-Y", strtotime($created_date));
 $db_activity['user_id'] = $_SESSION['id'];
 $db_activity['activity'] = "User &quot;" . $data['fName'] . "&quot; has been Created.";
