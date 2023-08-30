@@ -16,7 +16,7 @@ $conn = conn("localhost", "root", "", "communiSync"); #
 
 ################################ Role Validation ################################
 if ($_SESSION['role'] !== "super-admin") {
-    header("Location: ../dashboard.php?message=not_allow");
+    header("Location: ../Dashboard?message=not_allow");
     exit();
 }
 ################################ Role Validation ################################

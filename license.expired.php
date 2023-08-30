@@ -11,7 +11,7 @@ $license_json = json_decode(file_get_contents($license_path), true);
 
 $title = "License | Expired";
 if (validateLicenseKey($license_json['key'], $license_json['product']) != "expired" || $license_json['status'] != "2") {
-    header("Location: dashboard.php");
+    header("Location: Dashboard");
     exit();
 }
 ?>

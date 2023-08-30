@@ -71,4 +71,4 @@ insertProjectData($conn, $project);
 activity($conn, $db_activity);
 $conn->close();
 
-header("Location: ../index.php?message=registered");
+header("Location: ../Login?message=registered");

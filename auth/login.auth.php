@@ -5,7 +5,7 @@ include('functions.php');
 // Now we check if the data from the login form was submitted, isset() will check if the data exists.
 if (!isset($_POST['username'], $_POST['password'])) {
     // Could not get the data that should have been sent.
-    header('Location: ../dashboard.php?message=true');
+    header('Location: ../Dashboard?message=true');
 }
 
 $conn = conn("localhost", "root", "", "communiSync");
@@ -22,7 +22,7 @@ if ($stmt = $conn->prepare('SELECT `u_id`, `password`,`f_name`,`s_name`,`role`,`
         // Account exists, now we verify the password.
         if ($_POST['password'] != $password) {
             // Incorrect password
-            header('Location: ../index.php?message=p_wrong_pass');
+            header('Location: ../Login?message=p_wrong_pass');
             exit();
         }
     } else {
@@ -37,16 +37,16 @@ if ($stmt = $conn->prepare('SELECT `u_id`, `password`,`f_name`,`s_name`,`role`,`
             if ($status == "1") {
                 if ($_POST['password'] != $password) {
                     // Incorrect password
-                    header('Location: ../index.php?message=p_wrong_pass');
+                    header('Location: ../Login?message=p_wrong_pass');
                     exit();
                 }
             } else {
-                header("Location: ../index.php?message=p_user_inactive");
+                header("Location: ../Login?message=p_user_inactive");
                 exit();
             }
         } else {
             // Incorrect username
-            header('Location: ../index.php?message=p_not_exist');
+            header('Location: ../Login?message=p_not_exist');
             exit();
         }
         $stmt->close();
@@ -97,7 +97,7 @@ if ($stmt = $conn->prepare('SELECT `license` FROM `clients` WHERE `username` = ?
         }
     } else {
         // Incorrect username
-        header('Location: ../index.php?message=l_not_reg');
+        header('Location: ../Login?message=l_not_reg');
         exit();
     }
 }
@@ -135,7 +135,7 @@ if (is_int($license['status'])) {
         file_put_contents($filePath, $jsonString);
     }
 
-    header('Location: ../dashboard.php?message=login_true');
+    header('Location: ../Dashboard?message=login_true');
     exit();
 
 }

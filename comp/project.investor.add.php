@@ -16,7 +16,7 @@ $conn = conn("localhost", "root", "", "communiSync"); #
 
 ################################ Role Validation ################################
 if ($_SESSION['role'] != 'super-admin') {
-    header("Location: ../dashboard.php?message=masti");
+    header("Location: ../Dashboard?message=masti");
     exit();
 }
 ################################ Role Validation ################################
@@ -34,7 +34,7 @@ foreach ($_POST as $key => $value) {
 
 $documents = $_FILES['docs'];
 
-// echo "<pre>";
+echo "<pre>";
 
 // print_r($_FILES);
 $query = "SELECT `id`,`name` FROM `investor` WHERE `acc_id` = '" . $data['investor'] . "' AND `project_id` = '" . $_SESSION['project'] . "';";
@@ -51,9 +51,8 @@ if ($result) {
             if ($doc['ex'] == "pdf" || $doc['ex'] == "jpg" || $doc['ex'] == "jpeg" || $doc['ex'] == "png") {
                 if (file_exists($cache_directory . $doc['name'] . "-" . $_SESSION['project'])) {
                     $upload_file["from"] = $cache_directory . $doc['name'] . "-" . $_SESSION['project'];
-                    $upload_file['name'] = $_POST['file_names'][$i] . "." . $doc['ex_str_lower'];
+                    $upload_file['name'] = uniqid($_POST['file_names'][$i]."-UNI-",true) . "." . $doc['ex_str_lower'];
                     $upload_file['path'] = $upload_directory . $upload_file['name'];
-                    rename($upload_file['from'], $upload_file['path']);
                     if (rename($upload_file['from'], $upload_file['path'])) {
                         $query = "INSERT INTO `document`(`acc_id`, `name`, `project_id`, `created_date`, `created_by`) VALUES (?,?,?,?,?);";
                         $stmt = $conn->prepare($query);
@@ -68,7 +67,7 @@ if ($result) {
             }
         }
     }
-
+    
     // Activity Record
     $db_activity['date'] = date("d-m-Y", strtotime($created_date));
     $db_activity['user_id'] = $_SESSION['id'];
@@ -85,10 +84,10 @@ if ($result) {
     $stmt = $conn->prepare($query);
     $stmt->bind_param("ssssssss", $data['kanal'], $data['marla'], $data['feet'], $data['ratio'], $data['investor'], $_SESSION['project'], $created_date, $created_by);
     if ($stmt->execute()) {
-        header("Location: ../project.view.php?message=add_true");
+        header("Location: ../project.view.php?message=investor_add_true");
         exit();
     } else {
-        header("Location: ../project.view.php?message=add_false");
+        header("Location: ../project.view.php?message=investor_add_false");
         exit();
     }
 } else {

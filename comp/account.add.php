@@ -39,6 +39,7 @@ $data['phoneNo'] = str_replace($phone_format,"",$data['phoneNo']);
 $data['cnic'] = str_replace("-","",$data['cnic']);
 $data['nextKinCnic'] = str_replace("-","",$data['nextKinCnic']);
 $data['whtsNo'] = str_replace($phone_format,"",$data['whtsNo']);
+$data['openingBalance'] = str_replace(",","",$data['openingBalance']);
 $data['email'] = $data['email'].$data['email-format'];
 // print_r($data);
 // exit();

@@ -14,7 +14,7 @@ $conn = conn("localhost", "root", "", "communiSync");             #
 ####################### Database Connection #######################
 
 if ($_SESSION['role'] !== 'super-admin') {
-    header("Location: dashboard.php?message=masti");
+    header("Location: Dashboard?message=masti");
     exit();
 }
 
@@ -62,6 +62,7 @@ $view_sellers = fetch_Data($conn, $query);
 $query = "SELECT * FROM `seller` WHERE `acc_id` NOT IN (";
 if (!empty($area_sellers)) {
     foreach ($area_sellers as $key => $area_seller) {
+        $area_sellers[$key]['total_sqft'] = (($area_seller['kanal'] * 20) * 272.25) + ($area_seller['marla'] * 272.25) + $area_seller['feet'];
         $query .= "'".$area_seller['acc_id']."'";
         if ($key != (count($area_sellers) - 1)) {
             $query .= ", ";
@@ -73,8 +74,13 @@ if (!empty($area_sellers)) {
 $query .= ") AND `project_id` = '".$_SESSION['project']."';";
 $insert_sellers = fetch_Data($conn, $query);
 
-$query = "SELECT COALESCE(SUM(`kanal`), 0) as `kanal`, COALESCE(SUM(`marla`), 0) as `marla`, COALESCE(SUM(`feet`), 0) as `feet`, COALESCE(SUM(`ratio`), 0) as `ratio` FROM `area_investor` WHERE `project_id` = '".$_SESSION['project']."';";
+$query = "SELECT COALESCE(SUM(`kanal`), 0) as `kanal`, COALESCE(SUM(`marla`), 0) as `marla`, COALESCE(SUM(`feet`), 0) as `feet`, COALESCE(SUM(`amount`), 0) as `amount` FROM `area_seller` WHERE `project_id` = '".$_SESSION['project']."';";
 $total_area_sellers = mysqli_fetch_assoc(mysqli_query($conn, $query));
+
+// echo "<pre>";
+// print_r($insert_investors);
+// print_r($area_sellers);
+// exit();
 
 $title = "Project - ".$project['name'];
 ?>
@@ -114,9 +120,11 @@ $title = "Project - ".$project['name'];
                     <a class="btn btn-outline-gray-800" data-bs-toggle="modal" data-bs-target="#addSeller">
                         Add Seller
                     </a>
+                    <?php if (!empty($area_sellers)) { ?>
                     <a class="btn btn-outline-gray-800" data-bs-toggle="modal" data-bs-target="#addInvestor">
                         Add Investor
                     </a>
+                    <?php } ?>
                     <a href="project.edit.php?id=<?=$project['id']?>" class="btn btn-outline-gray-800">
                         Edit Project
                     </a>
@@ -218,8 +226,8 @@ $title = "Project - ".$project['name'];
                                             <td>Kanal</td>
                                             <td class="text-end">
                                                 <span data-bs-toggle="tooltip"
-                                                    data-bs-original-title="<?=number_format($total_area_investors['kanal'])?> kanals.">
-                                                    <?=number_format($total_area_investors['kanal'])?> k.
+                                                    data-bs-original-title="<?=number_format($total_area_sellers['kanal'])?> kanals.">
+                                                    <?=number_format($total_area_sellers['kanal'])?> k.
                                                 </span>
                                             </td>
                                         </tr>
@@ -227,8 +235,8 @@ $title = "Project - ".$project['name'];
                                             <td>Marla</td>
                                             <td class="text-end">
                                                 <span data-bs-toggle="tooltip"
-                                                    data-bs-original-title="<?=number_format($total_area_investors['marla'])?> marlas.">
-                                                    <?=number_format($total_area_investors['marla'])?> m.
+                                                    data-bs-original-title="<?=number_format($total_area_sellers['marla'])?> marlas.">
+                                                    <?=number_format($total_area_sellers['marla'])?> m.
                                                 </span>
                                             </td>
                                         </tr>
@@ -236,34 +244,34 @@ $title = "Project - ".$project['name'];
                                             <td>Feet</td>
                                             <td class="text-end">
                                                 <span data-bs-toggle="tooltip"
-                                                    data-bs-original-title="<?=number_format($total_area_investors['feet'])?> feets.">
-                                                    <?=number_format($total_area_investors['feet'])?> Ft.
+                                                    data-bs-original-title="<?=number_format($total_area_sellers['feet'])?> feets.">
+                                                    <?=number_format($total_area_sellers['feet'])?> Ft.
                                                 </span>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>Total Area Sqft.</td>
                                             <td class="text-end">
-                                                <?=number_format((($total_area_investors['kanal'] * 20) * 272.25) + ($total_area_investors['marla'] * 272.25) + $total_area_investors['feet'])?>
+                                                <?=number_format((($total_area_sellers['kanal'] * 20) * 272.25) + ($total_area_sellers['marla'] * 272.25) + $total_area_sellers['feet'])?>
                                                 Sqft.
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>Commercial SqFt</td>
                                             <td class="text-end">
-                                                <?=number_format($project['commercial_sqft'])?> Sqft.
+                                                <?=(!empty($project['commercial_sqft']))?number_format($project['commercial_sqft']):"0"?> Sqft.
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>Residential SqFt</td>
                                             <td class="text-end">
-                                                <?=number_format($project['residential_sqft'])?> Sqft.
+                                                <?=(!empty($project['residential_sqft']))?number_format($project['residential_sqft']):"0"?> Sqft.
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>Wastage SqFt</td>
                                             <td class="text-end">
-                                                <?=number_format(((($total_area_investors['kanal'] * 20) * 272.25) + ($total_area_investors['marla'] * 272.25) + $total_area_investors['feet']) - ($project['commercial_sqft'] + $project['residential_sqft']))?>
+                                                <?=(!empty($project['commercial_sqft']) && !empty($project['residential_sqft']))?number_format(((($total_area_sellers['kanal'] * 20) * 272.25) + ($total_area_sellers['marla'] * 272.25) + $total_area_sellers['feet']) - ($project['commercial_sqft'] + $project['residential_sqft'])):"0";?>
                                                 Sqft.
                                             </td>
                                         </tr>
@@ -281,7 +289,7 @@ $title = "Project - ".$project['name'];
                         <h2 class="mb-0 text-center">Area SqFt.</h2>
                     </div>
                     <div class="card-body d-flex justify-content-center align-items-center flex-column">
-                        <?php if (($project['commercial_sqft'] + $project['residential_sqft']) > 0) { ?>
+                        <?php if ((!empty($project['commercial_sqft']) && !empty($project['residential_sqft'])) && ($project['commercial_sqft'] + $project['residential_sqft']) >= 0) { ?>
                         <div class="w-100" id="totalSqft"></div>
                         <?php } else { ?>
                         <svg width="126.795" height="129.387">
@@ -337,35 +345,37 @@ $title = "Project - ".$project['name'];
             <div class="col-6">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h2 class="text-center mb-3">All Sellers</h2>
+                        <h2 class="text-center mb-3">Sellers</h2>
                         <table class="table table-centered table-hover table-nowrap mb-0 rounded" id="">
                             <thead class="thead-light">
                                 <tr>
                                     <th class="border-0 rounded-start">Sr.</th>
-                                    <th class="border-0">Seller Name</th>
+                                    <th class="border-0">Seller</th>
                                     <th class="border-0 text-center">Kanal</th>
                                     <th class="border-0 text-center">Marla</th>
                                     <th class="border-0 text-center">Feet</th>
-                                    <th class="border-0 text-center">Total Amount</th>
-                                    <th class="border-0 text-end">Payment Period</th>
                                     <th class="border-0 rounded-end text-end">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php if(TRUE){
-                                        for ($i = 0; $i < 4; $i++) { ?>
+                                <?php if(!empty($area_sellers)){
+                                        foreach ($area_sellers as $key => $area_seller) { ?>
                                 <tr>
                                     <td class="fw-bolder">
-                                        <?=$i+1?>
+                                        <?=$key+1?>
                                     </td>
-                                    <td>Ali Abdullah</td>
-                                    <td class="fw-bold text-center">3</td>
-                                    <td class="fw-bold text-center">16</td>
-                                    <td class="fw-bold text-center">98</td>
-                                    <td class="fw-bold text-center" data-bs-toggle="tooltip"
-                                        data-bs-original-title="Rs. <?=number_format("45000000")?>">Rs.
-                                        <?=number_format_thousands("45000000")?></td>
-                                    <td class="fw-bold text-end">36 months</td>
+                                    <td>
+                                        <?php 
+                                        foreach ($view_sellers as $seller) {
+                                            if ($area_seller['acc_id'] == $seller['acc_id']) {
+                                                echo $seller['name'];
+                                            }
+                                        }
+                                        ?>
+                                    </td>
+                                    <td class="fw-bold text-center"><?=$area_seller['kanal']?></td>
+                                    <td class="fw-bold text-center"><?=$area_seller['marla']?></td>
+                                    <td class="fw-bold text-center"><?=$area_seller['feet']?></td>
                                     <td style="column-gap: 15px;" class="d-flex justify-content-end align-items-center">
                                         <button
                                             class="btn btn-link text-dark dropdown-toggle dropdown-toggle-split m-0 p-0"
@@ -380,19 +390,6 @@ $title = "Project - ".$project['name'];
                                         </button>
                                         <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
                                             style="">
-                                            <a class="dropdown-item d-flex align-items-center" data-bs-toggle="modal"
-                                                data-bs-target="#editSeller">
-                                                <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor"
-                                                    viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                    <path
-                                                        d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z">
-                                                    </path>
-                                                    <path fill-rule="evenodd"
-                                                        d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                                                        clip-rule="evenodd"></path>
-                                                </svg>
-                                                Edit
-                                            </a>
                                             <a class="dropdown-item d-flex align-items-center" href="docs.view.php">
                                                 <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor"
                                                     viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -403,7 +400,8 @@ $title = "Project - ".$project['name'];
                                                 </svg>
                                                 Docs
                                             </a>
-                                            <a class="dropdown-item d-flex align-items-center" href="account.view.php">
+                                            <a class="dropdown-item d-flex align-items-center"
+                                                href="account.view.php?id=<?=$area_seller['acc_id']?>">
                                                 <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor"
                                                     viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
@@ -414,6 +412,7 @@ $title = "Project - ".$project['name'];
                                                 View
                                             </a>
                                         </div>
+                                        <?php if ($total_area_investors['kanal'] == 0 && $total_area_investors['marla'] == 0 && $total_area_investors['feet'] == 0) { ?>
                                         <div class="btn-group">
                                             <button class="btn btn-link dropdown-toggle dropdown-toggle-split m-0 p-0"
                                                 data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
@@ -428,7 +427,7 @@ $title = "Project - ".$project['name'];
                                             </button>
                                             <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
                                                 style="">
-                                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                                <a class="dropdown-item d-flex align-items-center" href="comp/project.seller.delete.php?id=<?=$area_seller['acc_id']?>">
                                                     <svg class="icon icon-xs dropdown-icon text-success me-2"
                                                         fill="currentColor" viewBox="0 0 20 20"
                                                         xmlns="http://www.w3.org/2000/svg">
@@ -452,6 +451,7 @@ $title = "Project - ".$project['name'];
                                                 </a>
                                             </div>
                                         </div>
+                                        <?php } ?>
                                     </td>
                                 </tr>
                                 <?php } ?>
@@ -460,12 +460,12 @@ $title = "Project - ".$project['name'];
                                         Total:
                                     </td>
                                     <td class="border-0"></td>
-                                    <td class="fw-bold text-center">12</td>
-                                    <td class="fw-bold text-center">64</td>
-                                    <td class="fw-bold text-center">392</td>
-                                    <td class="fw-bold text-center">Rs. 180,000,000</td>
-                                    <td class="border-0"></td>
-                                    <td class="border-0"></td>
+                                    <td class="fw-bold text-center"><?=$total_area_sellers['kanal']?></td>
+                                    <td class="fw-bold text-center"><?=$total_area_sellers['marla']?></td>
+                                    <td class="fw-bold text-center"><?=$total_area_sellers['feet']?></td>
+                                    <td class="fw-bold text-end border-0">
+                                        <?=number_format(((($total_area_sellers['kanal'] * 20) * 272.25) + ($total_area_sellers['marla'] * 272.25) + $total_area_sellers['feet']))?>
+                                        Sqft.</td>
                                 </tr>
                                 <?php } else { ?>
                                 <tr>
@@ -480,7 +480,7 @@ $title = "Project - ".$project['name'];
             <div class="col-6">
                 <div class="card h-100">
                     <div class="card-body">
-                        <h2 class="text-center mb-3">All Investors</h2>
+                        <h2 class="text-center mb-3">Investors</h2>
                         <table class="table table-centered table-hover table-nowrap mb-0 rounded" id="">
                             <thead class="thead-light">
                                 <tr>
@@ -525,21 +525,8 @@ $title = "Project - ".$project['name'];
                                         </button>
                                         <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
                                             style="">
-                                            <a class="dropdown-item d-flex align-items-center" data-bs-toggle="modal"
-                                                data-bs-target="#editInvestor">
-                                                <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor"
-                                                    viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                    <path
-                                                        d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z">
-                                                    </path>
-                                                    <path fill-rule="evenodd"
-                                                        d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                                                        clip-rule="evenodd"></path>
-                                                </svg>
-                                                Edit
-                                            </a>
                                             <a class="dropdown-item d-flex align-items-center"
-                                                href="docs.view.php?id=<?=$investor['acc_id']?>">
+                                                href="docs.view.php?id=<?=$area_investor['acc_id']?>">
                                                 <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor"
                                                     viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"></path>
@@ -574,7 +561,7 @@ $title = "Project - ".$project['name'];
                                             </button>
                                             <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
                                                 style="">
-                                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                                <a class="dropdown-item d-flex align-items-center" href="comp/project.investor.delete.php?id=<?=$area_investor['acc_id']?>">
                                                     <svg class="icon icon-xs dropdown-icon text-success me-2"
                                                         fill="currentColor" viewBox="0 0 20 20"
                                                         xmlns="http://www.w3.org/2000/svg">
@@ -605,11 +592,13 @@ $title = "Project - ".$project['name'];
                                     <td class="fw-bolder">
                                         Total:
                                     </td>
-                                    <td></td>
+                                    <td class="border-0"></td>
                                     <td class="fw-bold text-center"><?=$total_area_investors['kanal']?></td>
                                     <td class="fw-bold text-center"><?=$total_area_investors['marla']?></td>
                                     <td class="fw-bold text-center"><?=$total_area_investors['feet']?></td>
-                                    <td></td>
+                                    <td class="fw-bold text-end border-0">
+                                        <?=number_format(((($total_area_investors['kanal'] * 20) * 272.25) + ($total_area_investors['marla'] * 272.25) + $total_area_investors['feet']))?>
+                                        Sqft.</td>
                                 </tr>
                                 <?php } else { ?>
                                 <tr>
@@ -624,7 +613,7 @@ $title = "Project - ".$project['name'];
             <div class="col-4">
                 <div class="card h-100">
                     <div class="card-header p-3">
-                        <h2 class="mb-0 text-center">Sellers SqFt.</h2>
+                        <h2 class="mb-0 text-center">Sellers Amount</h2>
                     </div>
                     <div class="card-body d-flex justify-content-center align-items-center flex-column">
                         <?php if (!empty($area_sellers)) { ?>
@@ -685,7 +674,7 @@ $title = "Project - ".$project['name'];
                     <div class="card-header p-3">
                         <h2 class="mb-0 text-center">Investors SqFt.</h2>
                     </div>
-                    <div class="card-body d-flex justify-content-center align-items-center">
+                    <div class="card-body d-flex justify-content-center align-items-center flex-column">
                         <?php if (!empty($area_investors)) { ?>
                         <div class="w-100" id="investorSqft"></div>
                         <?php } else { ?>
@@ -744,8 +733,8 @@ $title = "Project - ".$project['name'];
                     <div class="card-header p-3">
                         <h2 class="mb-0 text-center">Investors Ratio %</h2>
                     </div>
-                    <div class="card-body d-flex justify-content-center align-items-center">
-                        <?php if (($project['commercial_sqft'] + $project['residential_sqft']) > 0) { ?>
+                    <div class="card-body d-flex justify-content-center align-items-center flex-column">
+                        <?php if ((!empty($project['commercial_sqft']) && !empty($project['residential_sqft'])) && ($project['commercial_sqft'] + $project['residential_sqft']) > 0 && !empty($total_area_investors['ratio'])) { ?>
                         <div class="w-100" id="investorRatio"></div>
                         <?php } else { ?>
                         <svg width="126.795" height="129.387">
@@ -817,8 +806,8 @@ $title = "Project - ".$project['name'];
                                     <?php if (!empty($insert_sellers)) { ?>
                                     <div class="col-12">
                                         <div class="mb-3">
-                                            <label for="addSellerSeller">Seller</label>
-                                            <select class="form-select" name="seller" id="addSellerSeller" required>
+                                            <label for="addSeller">Seller</label>
+                                            <select class="form-select" name="seller" id="addSeller" required>
                                                 <option value="" selected>Select Seller</option>
                                                 <?php foreach ($insert_sellers as $key => $seller) { 
                                                     ?>
@@ -912,7 +901,7 @@ $title = "Project - ".$project['name'];
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <div class="d-none" id="sellerSelectedFilesTable">
+                                        <div class="d-none" id="sellerFilesTable">
                                             <table class="table table-centered table-nowrap mb-0 rounded">
                                                 <thead class="thead-light">
                                                     <tr>
@@ -927,7 +916,9 @@ $title = "Project - ".$project['name'];
                                         </div>
                                     </div>
                                     <?php } else { ?>
-                                    <h4 class="text-center">No Seller Available ...</h4>
+                                        <div class="text-center">
+                                        <h4>No Seller Available ...</h4>
+                                        </div>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -935,7 +926,11 @@ $title = "Project - ".$project['name'];
                                 <button type="button" class="btn btn-link text-gray-600 ms-auto"
                                     data-bs-dismiss="modal">Close
                                 </button>
+                                <?php if (!empty($insert_sellers)) { ?>
                                 <button type="submit" class="btn btn-success text-white fw-bolder">Add Seller</button>
+                                <?php } else { ?>
+                                    <a href="account.config.php" class="btn btn-primary text-white fw-bolder">Add Seller</a>
+                                <?php } ?>
                             </div>
                         </form>
                     </div>
@@ -1038,28 +1033,83 @@ $title = "Project - ".$project['name'];
                                     </div>
                                     <div class="col-12">
                                         <div class="mb-3">
-                                            <label for="addRatio">Partnership Ratio (%)</label>
+                                            <label class="d-flex justify-content-between" for="addRatio">
+                                                Ratio
+                                                <span class="fw-bolder">
+                                                    <?=100-$total_area_investors['ratio']?>%
+                                                    <svg class="icon icon-xs me-2" data-bs-toggle="tooltip"
+                                                        data-bs-original-title="Remaining Ratio is <?=100-$total_area_investors['ratio']?>%."
+                                                        fill="currentColor" viewBox="0 0 20 20"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <path fill-rule="evenodd"
+                                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                                            clip-rule="evenodd"></path>
+                                                    </svg>
+                                                </span>
+                                            </label>
                                             <input type="number" name="ratio" id="addRatio" class="form-control"
                                                 required />
                                         </div>
                                     </div>
                                     <div class="col-4">
                                         <div class="mb-3">
-                                            <label for="addKanal">Kanal</label>
+                                            <label class="d-flex justify-content-between" for="addKanal">
+                                                Kanal
+                                                <span class="fw-bolder">
+                                                    <?=$total_area_sellers['kanal']-$total_area_investors['kanal']?>
+                                                    Kanals
+                                                    <svg class="icon icon-xs me-2" data-bs-toggle="tooltip"
+                                                        data-bs-original-title="<?=$total_area_sellers['kanal']-$total_area_investors['kanal']?> Kanals are Purchased."
+                                                        fill="currentColor" viewBox="0 0 20 20"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <path fill-rule="evenodd"
+                                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                                            clip-rule="evenodd"></path>
+                                                    </svg>
+                                                </span>
+                                            </label>
                                             <input type="text" name="kanal" id="addKanal" class="form-control"
                                                 required />
                                         </div>
                                     </div>
                                     <div class="col-4">
                                         <div class="mb-3">
-                                            <label for="addMarla">Marla</label>
+                                            <label class="d-flex justify-content-between" for="addMarla">
+                                                Marla
+                                                <span class="fw-bolder">
+                                                    <?=$total_area_sellers['marla']-$total_area_investors['marla']?>
+                                                    Marlas
+                                                    <svg class="icon icon-xs me-2" data-bs-toggle="tooltip"
+                                                        data-bs-original-title="<?=$total_area_sellers['marla']-$total_area_investors['marla']?> Marlas are Purchased."
+                                                        fill="currentColor" viewBox="0 0 20 20"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <path fill-rule="evenodd"
+                                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                                            clip-rule="evenodd"></path>
+                                                    </svg>
+                                                </span>
+                                            </label>
                                             <input type="text" name="marla" id="addMarla" class="form-control"
                                                 required />
                                         </div>
                                     </div>
                                     <div class="col-4">
                                         <div class="mb-3">
-                                            <label for="addFeet">Feet</label>
+                                            <label class="d-flex justify-content-between" for="addMarla">
+                                                Feet
+                                                <span class="fw-bolder">
+                                                    <?=$total_area_sellers['feet']-$total_area_investors['feet']?>
+                                                    Feets
+                                                    <svg class="icon icon-xs me-2" data-bs-toggle="tooltip"
+                                                        data-bs-original-title="<?=$total_area_sellers['feet']-$total_area_investors['feet']?> Feets are Purchased."
+                                                        fill="currentColor" viewBox="0 0 20 20"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <path fill-rule="evenodd"
+                                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                                            clip-rule="evenodd"></path>
+                                                    </svg>
+                                                </span>
+                                            </label>
                                             <input type="text" name="feet" id="addFeet" class="form-control" required />
                                         </div>
                                     </div>
@@ -1135,7 +1185,9 @@ $title = "Project - ".$project['name'];
                                     data-bs-dismiss="modal">Close
                                 </button>
                                 <?php if (!empty($insert_investors)) { ?>
-                                <button type="submit" class="btn btn-success text-white">Add Investor</button>
+                                <button type="submit" class="btn btn-success text-white fw-bolder">Add Investor</button>
+                                <?php } else { ?>
+                                    <a href="account.config.php" class="btn btn-primary text-white fw-bolder">Add Investor</a>
                                 <?php } ?>
                             </div>
                         </form>
@@ -1219,11 +1271,27 @@ $title = "Project - ".$project['name'];
     notify("success", "Project Settings Updated ...");
     <?php } elseif ($_GET['message'] == 'edit_false') { ?>
     notify("error", "Something's Wrong, Report Error ...");
+    <?php } elseif ($_GET['message'] == 'seller_add_true') { ?>
+    notify("success", "Seller Added Successfully ...");
+    <?php } elseif ($_GET['message'] == 'seller_add_false') { ?>
+    notify("error", "Something's Wrong, Report Error ...");
+    <?php } elseif ($_GET['message'] == 'investor_add_true') { ?>
+    notify("success", "Investor Added Successfully ...");
+    <?php } elseif ($_GET['message'] == 'investor_add_false') { ?>
+    notify("error", "Something's Wrong, Report Error ...");
+    <?php } elseif ($_GET['message'] == 'investor_delete_true') { ?>
+    notify("success", "Investor Removed Successfully ...");
+    <?php } elseif ($_GET['message'] == 'investor_delete_false') { ?>
+    notify("error", "Something's Wrong, Report Error ...");
+    <?php } elseif ($_GET['message'] == 'seller_delete_true') { ?>
+    notify("success", "Seller Removed Successfully ...");
+    <?php } elseif ($_GET['message'] == 'seller_delete_false') { ?>
+    notify("error", "Something's Wrong, Report Error ...");
     <?php } ?>
     <?php } ?>
     var optionsPieChart = {
         series: [<?=$project['commercial_sqft']?>, <?=$project['residential_sqft']?>,
-            <?=((($total_area_investors['kanal'] * 20) * 272.25) + ($total_area_investors['marla'] * 272.25) + $total_area_investors['feet'])-($project['commercial_sqft'] + $project['residential_sqft'])?>
+            <?=(!empty($project['commercial_sqft']) && !empty($project['residential_sqft']) && !empty($total_area_sellers['kanal'] && $total_area_sellers['marla']))?((($total_area_sellers['kanal'] * 20) * 272.25) + ($total_area_sellers['marla'] * 272.25) + $total_area_sellers['feet'])-($project['commercial_sqft'] + $project['residential_sqft']):0?>
         ],
         chart: {
             type: 'pie',
@@ -1342,7 +1410,16 @@ $title = "Project - ".$project['name'];
     }
 
     var optionsPieChart = {
-        series: [180000000, 180000000, 180000000, 180000000],
+        series: [<?php 
+        if (!empty($area_sellers)) {
+                foreach ($area_sellers as $key => $area_seller) {
+                    echo $area_seller['amount'];
+                    if ($key != (count($area_sellers) - 1)) {
+                        echo ", ";
+                    }
+                }
+            }
+            ?>],
         chart: {
             type: 'pie',
             height: 360,
@@ -1353,7 +1430,20 @@ $title = "Project - ".$project['name'];
                 color: '#1F2937',
             }
         },
-        labels: ['Ali Abdullah', 'Ali Abdullah', 'Ali Abdullah', 'Ali Abdullah'],
+        labels: [<?php 
+        if (!empty($area_sellers)) {
+                foreach ($area_sellers as $key => $area_seller) {
+                    foreach ($view_sellers as $seller) {
+                        if ($area_seller['acc_id'] == $seller['acc_id']) {
+                            echo "'".$seller['name']."'";
+                        }
+                    }
+                    if ($key != (count($area_sellers) - 1)) {
+                        echo ", ";
+                    }
+                }
+            }
+            ?>],
         responsive: [{
             breakpoint: 480,
             options: {
@@ -1383,7 +1473,7 @@ $title = "Project - ".$project['name'];
         }
     };
 
-    var pieChartEl = document.getElementById('sellerAmounts');
+    var pieChartEl = document.getElementById('sellerSqft');
     if (pieChartEl) {
         var pieChart = new ApexCharts(pieChartEl, optionsPieChart);
         pieChart.render();
@@ -1464,7 +1554,7 @@ $title = "Project - ".$project['name'];
     }
 
     <?php if (!empty($insert_investors)) { ?>
-    $("#ratio").on("input", function() {
+    $("#addRatio").on("input", function() {
         if ($(this).val() > (100 - <?=$total_area_investors['ratio']?>)) {
             notify("error", "Ratio Must be in between <?=(100-$total_area_investors['ratio'])?>%");
             $(this).val("");
@@ -1510,109 +1600,48 @@ $title = "Project - ".$project['name'];
             validFilesArray.forEach((file) => {
                 validFilesList.items.add(file);
                 $("#investorFileUploadProgress").removeClass('d-none');
-                uploadFile(file);
+                uploadFile(file, 'investor');
                 all_file_names += file['name'] + "-<?=$_SESSION['project']?>,";
 
             });
             var fileInput = $('#investorDocs')[0]; // Get the DOM element from jQuery object
             fileInput.files = validFilesList.files;
 
-            updateSelectedFilesTable(validFilesArray);
+            updateSelectedFilesTable(validFilesArray, 'investor');
 
             errorMessages.forEach(errorMessage => {
                 notify("error", errorMessage);
             });
         });
-
-        function updateSelectedFilesTable(validFiles) {
-            var table = $('#investorFilesTable');
-            var tableBody = $('#investorFilesTable tbody');
-
-            // console.log(validFiles);
-            table.removeClass('d-none').addClass('d-block');
-            tableBody.empty();
-
-            for (var i = 0; i < validFiles.length; i++) {
-                var fileNameWithExt = validFiles[i]['name'];
-                var fileNameWithoutExt = fileNameWithExt.split('.').slice(0, -1).join('.');
-                var fileExt = fileNameWithExt.split('.').pop();
-
-                tableBody.append('<tr><td>' + parseInt(i + 1) +
-                    '</td><td class="text-end"><input class="border-0 text-end" type="text" name="file_names[]" value="' +
-                    fileNameWithoutExt +
-                    '" />.' + fileExt + '</td></tr>');
+        var inv_measure_validation = [{
+                type: "Kanal",
+                measure: <?=$total_area_sellers['kanal']-$total_area_investors['kanal']?>
+            },
+            {
+                type: "Marla",
+                measure: <?=$total_area_sellers['marla']-$total_area_investors['marla']?>
+            },
+            {
+                type: "Feet",
+                measure: <?=$total_area_sellers['feet']-$total_area_investors['feet']?>
             }
-            $("#investorFileUploadProgress").addClass('d-none');
-        }
+        ];
+        console.log(inv_measure_validation);
 
-        function uploadFile(file) {
-            var formData = new FormData();
-            formData.append('file', file);
-
-            var xhr = new XMLHttpRequest();
-
-            xhr.upload.addEventListener("progress", function(e) {
-                if (e.lengthComputable) {
-                    var percentComplete = ((e.loaded / e.total) * 100);
-
-                    // e.loaded is in bytes, convert it to kb, mb, or gb
-                    var mbTotal = Math.floor(e.total / (1024));
-                    var mbLoaded = Math.floor(e.loaded / (1024));
-
-                    // calculate data transfer per sec
-                    var time = (new Date().getTime() - startTime) / 1000;
-                    var bps = e.loaded / time;
-                    var Mbps = Math.floor(bps / (1024 * 1024));
-
-                    // calculate remaining time
-                    var remTime = (e.total - e.loaded) / bps;
-                    var seconds = Math.floor(remTime % 60);
-                    var minutes = Math.floor(remTime / 60);
-
-                    // give output
-                    $('#investorDataTransferred').html(`${mbLoaded}/${mbTotal} KBs`);
-                    $('#investorMbps').html(`${Mbps} Mbps`);
-                    $('#investorTimeLeft').html(`${minutes}:${seconds}s`);
-                    $("#investorPercent").html(Math.floor(percentComplete) + '%');
-                    $(".investor-progress-bar").width(percentComplete + '%');
-
-                    // cancel button only works when the file is uploading
-                    if (percentComplete > 0 && percentComplete < 100) {
-                        $('#investorCancel').prop('disabled', false);
-                    } else {
-                        $('#investorCancel').prop('disabled', true);
-                    }
-                }
-            }, false);
-
-            var startTime = new Date().getTime();
-
-            xhr.open('POST', 'ajax/docs.upload.php', true);
-            xhr.send(formData);
-
-            xhr.onload = function() {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    if (xhr.responseText == "valid") {
-                        notify("success", "Document '" + file['name'] + "' Uploaded ...");
-                    } else if (xhr.responseText == "invalid") {
-                        notify("error", "Document '" + file['name'] + "' not Uploaded ...");
-                    }
-                    // console.log('Response from server:', xhr.responseText);
-                } else {
-                    console.error('An error occurred:', xhr.statusText);
-                }
-            };
-
-            xhr.onerror = function() {
-                console.error('An error occurred during the request.');
-            };
-
-            // for cancel file transfer
-            $('#investorCancel').on("click", () => {
-                xhr.abort();
-                $("#investorPercent").html('Canceled');
-                $(".investor-progress-bar").width('0%');
+        inv_measure_validation.forEach(element => {
+            $("#add" + element.type).on("input", function() {
+                measures_validation(element.type, element.measure);
             });
+        });
+
+        function measures_validation(id, measure) {
+            if ($("#add" + id).val() > measure) {
+                notify("error", id + " Must be in between " + measure + " " + id + "s.");
+                $("#add" + id).val("");
+                $("#add" + id).addClass("is-invalid");
+            } else {
+                $("#add" + id).removeClass("is-invalid");
+            }
         }
         <?php } ?>
         <?php if (!empty($insert_sellers)) { ?>
@@ -1652,23 +1681,24 @@ $title = "Project - ".$project['name'];
             validFilesArray.forEach((file) => {
                 validFilesList.items.add(file);
                 $("#sellerFileUploadProgress").removeClass('d-none');
-                uploadFile(file);
+                uploadFile(file, 'seller');
                 all_file_names += file['name'] + "-<?=$_SESSION['project']?>,";
 
             });
             var fileInput = $('#sellerDocs')[0]; // Get the DOM element from jQuery object
             fileInput.files = validFilesList.files;
 
-            updateSelectedFilesTable(validFilesArray);
+            updateSelectedFilesTable(validFilesArray, 'seller');
 
             errorMessages.forEach(errorMessage => {
                 notify("error", errorMessage);
             });
         });
+        <?php } ?>
 
-        function updateSelectedFilesTable(validFiles) {
-            var table = $('#sellerFilesTable');
-            var tableBody = $('#sellerFilesTable tbody');
+        function updateSelectedFilesTable(validFiles, type) {
+            var table = $('#' + type + 'FilesTable');
+            var tableBody = $('#' + type + 'FilesTable tbody');
 
             // console.log(validFiles);
             table.removeClass('d-none').addClass('d-block');
@@ -1684,10 +1714,10 @@ $title = "Project - ".$project['name'];
                     fileNameWithoutExt +
                     '" />.' + fileExt + '</td></tr>');
             }
-            $("#sellerFileUploadProgress").addClass('d-none');
+            $("#" + type + "FileUploadProgress").addClass('d-none');
         }
 
-        function uploadFile(file) {
+        function uploadFile(file, type) {
             var formData = new FormData();
             formData.append('file', file);
 
@@ -1712,17 +1742,17 @@ $title = "Project - ".$project['name'];
                     var minutes = Math.floor(remTime / 60);
 
                     // give output
-                    $('#sellerDataTransferred').html(`${mbLoaded}/${mbTotal} KBs`);
-                    $('#sellerMbps').html(`${Mbps} Mbps`);
-                    $('#sellerTimeLeft').html(`${minutes}:${seconds}s`);
-                    $("#sellerPercent").html(Math.floor(percentComplete) + '%');
-                    $(".seller-progress-bar").width(percentComplete + '%');
+                    $('#' + type + 'DataTransferred').html(`${mbLoaded}/${mbTotal} KBs`);
+                    $('#' + type + 'Mbps').html(`${Mbps} Mbps`);
+                    $('#' + type + 'TimeLeft').html(`${minutes}:${seconds}s`);
+                    $("#" + type + "Percent").html(Math.floor(percentComplete) + '%');
+                    $("." + type + "-progress-bar").width(percentComplete + '%');
 
                     // cancel button only works when the file is uploading
                     if (percentComplete > 0 && percentComplete < 100) {
-                        $('#sellerCancel').prop('disabled', false);
+                        $('#' + type + 'Cancel').prop('disabled', false);
                     } else {
-                        $('#sellerCancel').prop('disabled', true);
+                        $('#' + type + 'Cancel').prop('disabled', true);
                     }
                 }
             }, false);
@@ -1750,13 +1780,13 @@ $title = "Project - ".$project['name'];
             };
 
             // for cancel file transfer
-            $('#sellerCancel').on("click", () => {
+            $('#' + type + 'Cancel').on("click", () => {
                 xhr.abort();
-                $("#sellerPercent").html('Canceled');
-                $(".seller-progress-bar").width('0%');
+                $("#" + type + "Percent").html('Canceled');
+                $("." + type + "-progress-bar").width('0%');
             });
         }
-        <?php } ?>
+
     });
     </script>
 </body>

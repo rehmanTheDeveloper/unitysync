@@ -1,0 +1,6 @@
+RewriteEngine on
+
+RewriteRule ^Expired license.expired.php [NC,L]
+RewriteRule ^Deactivated license.deactivated.php [NC,L]
+RewriteRule ^Dashboard dashboard.php [NC,L]
+RewriteRule ^Login index.php [NC,L]

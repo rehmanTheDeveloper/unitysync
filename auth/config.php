@@ -49,3 +49,20 @@ function licenseExpirationDate($registrationDate, $validity)
     $expirationDate = date('Y-m-d h:ia', $expirationTimestamp);
     return $expirationDate;
 }
+
+function encyptor($action, $string) {
+    $output = FALSE;
+    $method = "AES-256-CBC";
+    $secret_key = '';
+    $secret_iv = '';
+    $key = hash('sha256', $secret_key);
+    $iv = substr(hash('sha256', $secret_iv),0 ,16);
+
+    if ($action == 'encrypt') {
+        $output = openssl_encrypt($string, $method, $key, 0, $iv);
+        $output = base64_encode($output);
+    } elseif ('decrypt') {
+        $output = openssl_decrypt(base64_decode($string), $method, $key, 0, $iv);
+    }
+    return $output;
+}

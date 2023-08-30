@@ -3,7 +3,7 @@
 session_start();
 // If the user is logged in redirect to the Dashboard page...
 if ($_SESSION['loggedin'] == TRUE) {
-    header('Location: dashboard.php');
+    header('Location: Dashboard');
     exit;
 }
 
@@ -60,7 +60,7 @@ $title = "Register Plato Account";
                             <div class="d-flex justify-content-center align-items-center mt-4">
                                 <span class="fw-normal">
                                     Already have registered?
-                                    <a href="index.php" class="fw-bold">Login here</a>
+                                    <a href="Login" class="fw-bold">Login here</a>
                                 </span>
                             </div>
                         </div>

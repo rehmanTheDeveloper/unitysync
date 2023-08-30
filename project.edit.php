@@ -14,7 +14,7 @@ $conn = conn("localhost", "root", "", "communiSync");             #
 ####################### Database Connection #######################
 
 if ($_SESSION['role'] !== 'super-admin') {
-    header("Location: dashboard.php?message=masti");
+    header("Location: Dashboard?message=masti");
 }
 
 $cities = array(
@@ -127,8 +127,8 @@ $countries = array(
 $query = "SELECT * FROM `project` WHERE `pro_id` = '".$_SESSION['project']."';";
 $project = mysqli_fetch_assoc(mysqli_query($conn, $query));
 
-$query = "SELECT COALESCE(SUM(`kanal`), 0) as `kanal`, COALESCE(SUM(`marla`), 0) as `marla`, COALESCE(SUM(`feet`), 0) as `feet`, COALESCE(SUM(`ratio`), 0) as `ratio` FROM `area_investor` WHERE `project_id` = '".$_SESSION['project']."';";
-$total_area_investors = mysqli_fetch_assoc(mysqli_query($conn, $query));
+$query = "SELECT COALESCE(SUM(`kanal`), 0) as `kanal`, COALESCE(SUM(`marla`), 0) as `marla`, COALESCE(SUM(`feet`), 0) as `feet` FROM `area_seller` WHERE `project_id` = '".$_SESSION['project']."';";
+$total_area_sellers = mysqli_fetch_assoc(mysqli_query($conn, $query));
 
 $title = "Edit Project";
 ?>
@@ -355,38 +355,38 @@ $title = "Edit Project";
                             </div>
                             <div class="col-3">
                                 <div class="mb-3 mt-2">
-                                    <label for="total_land_sq_ft">Total Land Sq. Ft.</label>
+                                    <label for="total_land_sq_ft">Total Land Sqft.</label>
                                     <input type="text" id="total_land_sq_ft" class="form-control bg-white"
-                                        value="<?=(($total_area_investors['kanal'] * 20) * 272.25) + ($total_area_investors['marla'] * 272.25) + $total_area_investors['feet']?>"
+                                        value="<?=number_format((($total_area_sellers['kanal'] * 20) * 272.25) + ($total_area_sellers['marla'] * 272.25) + $total_area_sellers['feet'])?>"
                                         readonly />
                                 </div>
                             </div>
                             <div class="col-2">
                                 <div class="mb-3 mt-2">
-                                    <label for="commercial_sqft">Commercial Sq. Ft.</label>
+                                    <label for="commercial_sqft">Commercial Sqft.</label>
                                     <input type="number" name="commercial_sqft" id="commercial_sqft"
-                                        class="form-control" value="<?=$project['commercial_sqft']?>" />
+                                        class="form-control" value="<?=(empty($project['commercial_sqft']))?0:$project['commercial_sqft']?>" />
                                 </div>
                             </div>
                             <div class="col-2">
                                 <div class="mb-3 mt-2">
-                                    <label for="residential_sqft">Residential Sq. Ft.</label>
+                                    <label for="residential_sqft">Residential Sqft.</label>
                                     <input type="number" name="residential_sqft" id="residential_sqft"
-                                        class="form-control" value="<?=$project['residential_sqft']?>" />
+                                        class="form-control" value="<?=(empty($project['residential_sqft']))?0:$project['residential_sqft']?>" />
                                 </div>
                             </div>
                             <div class="col-2">
                                 <div class="mb-3 mt-2">
-                                    <label for="wastage_sqft">Wastage Sq. Ft.</label>
-                                    <input type="number" name="wastage_sqft" id="wastage_sqft"
+                                    <label for="wastage_sqft">Wastage Sqft.</label>
+                                    <input type="text" name="wastage_sqft" id="wastage_sqft"
                                         class="form-control  bg-white"
-                                        value="<?=(((($total_area_investors['kanal'] * 20) * 272.25) + ($total_area_investors['marla'] * 272.25) + $total_area_investors['feet'])-($project['commercial_sqft'] + $project['residential_sqft']))?>"
+                                        value="<?=(!empty($project['commercial_sqft']) && !empty($project['residential_sqft']))?number_format(((($total_area_sellers['kanal'] * 20) * 272.25) + ($total_area_sellers['marla'] * 272.25) + $total_area_sellers['feet'])-($project['commercial_sqft'] + $project['residential_sqft'])):"0"?>"
                                         readonly />
                                 </div>
                             </div>
                             <div class="col-3">
                                 <div class="mb-3 mt-2">
-                                    <label for="sqft_per_marla">Sq. Ft. per marla</label>
+                                    <label for="sqft_per_marla">Sqft. per marla</label>
                                     <input type="number" name="sqft_per_marla" id="sqft_per_marla" class="form-control"
                                         value="<?=$project['sqft_per_marla']?>" />
                                 </div>
@@ -411,7 +411,7 @@ $title = "Edit Project";
 
         function wastage_sqft() {
             var wastage =
-                <?=(($total_area_investors['kanal'] * 20) * 272.25) + ($total_area_investors['marla'] * 272.25) + $total_area_investors['feet']?> -
+                <?=(($total_area_sellers['kanal'] * 20) * 272.25) + ($total_area_sellers['marla'] * 272.25) + $total_area_sellers['feet']?> -
                 (parseInt($("#residential_sqft").val()) + parseInt($("#commercial_sqft").val()));
             return wastage;
         }
@@ -426,7 +426,7 @@ $title = "Edit Project";
         }
 
         $("#residential_sqft").on("keyup keydown", () => {
-            if ((<?=(($total_area_investors['kanal'] * 20) * 272.25) + ($total_area_investors['marla'] * 272.25) + $total_area_investors['feet']?> -
+            if ((<?=(($total_area_sellers['kanal'] * 20) * 272.25) + ($total_area_sellers['marla'] * 272.25) + $total_area_sellers['feet']?> -
                     (parseInt($("#residential_sqft").val()) + parseInt($("#commercial_sqft").val()))) <=
                 0) {
                 $("#residential_sqft").val("0");

@@ -18,10 +18,14 @@ $accounts = [];
 $query = "SELECT * FROM `accounts` WHERE `project_id` = '".$_SESSION['project']."' ORDER BY `id` DESC;";
 $allAcc = fetch_Data($conn, $query);
 
-foreach ($allAcc as $key => $Acc) {
-    $query = "SELECT * FROM `".$Acc['type']."` WHERE `acc_id` = '".$Acc['acc_id']."' AND `project_id` = '".$_SESSION['project']."';";
-    $accounts[$key] = mysqli_fetch_assoc(mysqli_query($conn, $query));
-    $accounts[$key]['category'] = $Acc['type'];
+if (!empty($allAcc)) {
+    foreach ($allAcc as $key => $Acc) {
+        $query = "SELECT * FROM `".$Acc['type']."` WHERE `acc_id` = '".$Acc['acc_id']."' AND `project_id` = '".$_SESSION['project']."';";
+        $accounts[$key] = mysqli_fetch_assoc(mysqli_query($conn, $query));
+        $accounts[$key]['category'] = $Acc['type'];
+    }
+} else {
+    $accounts = [];
 }
 
 // echo "<pre>";
@@ -205,7 +209,7 @@ $title = "All Accounts";
                         <?php } ?>
                         <?php } else { ?>
                             <tr>
-                                <td colspan="4">No Account Created ...</td>
+                                <td class="text-center border-bottom" colspan="5">No Account Created ...</td>
                             </tr>
                         <?php } ?>
                     </tbody>

@@ -113,8 +113,8 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
                 </a>
             </li>
             <li role="separator" class="dropdown-divider mt-4 mb-3 border-gray-700"></li>
-            <li class="nav-item <?php active('dashboard.php'); ?>">
-                <a href="dashboard.php" class="nav-link d-flex align-items-center justify-content-between">
+            <li class="nav-item <?php active('Dashboard'); ?>">
+                <a href="Dashboard" class="nav-link d-flex align-items-center justify-content-between">
                     <span>
                         <span class="sidebar-icon">
                             <svg class="icon icon-xs me-2" fill="currentColor" viewbox="0 0 20 20"

@@ -1,6 +1,6 @@
 <?php 
 if ($_SESSION['loggedin'] != TRUE) {
-    header('Location: index.php');
+    header('Location: Login');
     exit;
 }
 ?>
