@@ -56,6 +56,6 @@ if (isset($documents) && !empty($documents)) {
     }
 
     
-    header("Location: ../docs.view.php?i=".$_POST['acc_id']);
+    header("Location: ../docs.view.php?m=add_true&i=".$_POST['acc_id']);
     exit();
 }

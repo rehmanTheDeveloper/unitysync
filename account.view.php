@@ -59,9 +59,6 @@ $ledger = fetch_Data($conn, $query);
 // print_r($ledger);
 // exit();
 
-$query = "SELECT * FROM `document` WHERE `acc_id` = '".encryptor("decrypt", $_GET['i'])."' AND `project_id` = '".$_SESSION['project']."';";
-$documents = fetch_Data($conn, $query);
-
 $title = "Account - ".$account['name'];
 ?>
 <!DOCTYPE html>

@@ -86,7 +86,7 @@ $title = "Docs - ".$account['name'];
                     <a data-bs-toggle="modal" data-bs-target="#uploadDoc" class="btn btn-outline-gray-800">
                         Upload Docs.
                     </a>
-                    <a id="back" class="btn btn-outline-gray-800">
+                    <a href="account.view.php?i=<?=$_GET['i']?>" class="btn btn-outline-gray-800">
                         Back
                     </a>
                 </div>
@@ -126,36 +126,51 @@ $title = "Docs - ".$account['name'];
                                     </label>
                                 </div>
                                 <?php } else { ?>
-                                <div style="min-height:250px; gap: 20px;" class="d-flex justify-content-center align-items-center flex-column">
-                                    <img class="img-fluid" data-bs-toggle="tooltip" data-bs-original-title="Click to View"
-                                        src="uploads/docs/<?=$document['name']?>" alt=""
-                                        id="img-<?=$key+1?>" />
+                                <div style="min-height:250px; gap: 20px;"
+                                    class="d-flex justify-content-center align-items-center flex-column">
+                                    <img class="img-fluid" data-bs-toggle="tooltip"
+                                        data-bs-original-title="Click to View" src="uploads/docs/<?=$document['name']?>"
+                                        alt="" id="img-<?=$key+1?>" />
                                     <label class="d-flex align-items-center justify-content-between mt-2 w-100"
                                         for="img-<?=$key+1?>">
                                         <span data-bs-toggle="tooltip"
                                             data-bs-original-title="<?=$refined_document_name[0]?>"><?=(!empty(strstr(substr($document['name'],0,18), '-UNI', true)))?strstr(substr($document['name'],0,18), '-UNI', true):substr($document['name'],0,12)?></span>
                                         <div class="btn-group">
-                                            <button class="btn p-1" data-bs-toggle="tooltip"
-                                                data-bs-original-title="Edit">
-                                                <svg class="icon icon-xs text-teritary" fill="currentColor"
-                                                    viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <button
+                                                class="btn btn-link text-dark dropdown-toggle dropdown-toggle-split m-0 p-0"
+                                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <svg class="icon icon-xs" fill="currentColor" viewBox="0 0 20 20"
+                                                    xmlns="http://www.w3.org/2000/svg">
                                                     <path
-                                                        d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z">
+                                                        d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z">
                                                     </path>
-                                                    <path fill-rule="evenodd"
-                                                        d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                                                        clip-rule="evenodd"></path>
                                                 </svg>
+                                                <span class="visually-hidden">Toggle Dropdown</span>
                                             </button>
-                                            <button class="btn p-1" data-bs-toggle="tooltip"
-                                                data-bs-original-title="Delete">
-                                                <svg class="icon icon-xs text-danger" fill="currentColor"
-                                                    viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                    <path fill-rule="evenodd"
-                                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                                        clip-rule="evenodd"></path>
-                                                </svg>
-                                            </button>
+                                            <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
+                                                style="">
+                                                <a class="dropdown-item d-flex align-items-center text-success"
+                                                    href="uploads/docs/<?=$document['name']?>" download>
+                                                    <svg class="dropdown-icon me-2" xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fill-rule="evenodd"
+                                                            d="M2 9.5A3.5 3.5 0 005.5 13H9v2.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 15.586V13h2.5a4.5 4.5 0 10-.616-8.958 4.002 4.002 0 10-7.753 1.977A3.5 3.5 0 002 9.5zm9 3.5H9V8a1 1 0 012 0v5z"
+                                                            clip-rule="evenodd"></path>
+                                                    </svg>
+                                                    Download
+                                                </a>
+                                                <div role="separator" class="dropdown-divider my-1"></div>
+                                                <a class="dropdown-item d-flex align-items-center text-danger deleteBtn"
+                                                    data-id="<?=encryptor("encrypt", $document['id'])?>" data-name="<?=$document['name']?>">
+                                                    <svg class="dropdown-icon me-2" fill="currentColor"
+                                                        viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                        <path fill-rule="evenodd"
+                                                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                                            clip-rule="evenodd"></path>
+                                                    </svg>
+                                                    Delete
+                                                </a>
+                                            </div>
                                         </div>
                                     </label>
                                 </div>
@@ -182,7 +197,7 @@ $title = "Docs - ".$account['name'];
                             </div>
                             <div class="modal-body">
                                 <div class="row">
-                                <div class="col-12">
+                                    <div class="col-12">
                                         <div class="mb-2">
                                             <label class="btn btn-outline-primary w-100" for="documentsDocs">Upload
                                                 Document</label>
@@ -253,7 +268,27 @@ $title = "Docs - ".$account['name'];
                                 </button>
                                 <button type="submit" class="btn btn-success text-white">Upload</button>
                             </div>
-                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="deleteDoc" tabindex="-1" role="dialog" aria-labelledby="delete document"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <form method="POST" action="comp/docs.delete.php" class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="h6 modal-title">Delete Document</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete Document ( <span id="selectedDocument"></span> ) ?</p>
+                        <input type="hidden" id="doc_id" name="i" value="" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link" data-bs-dismiss="modal">No</button>
+                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
                     </div>
                 </div>
             </div>
@@ -264,6 +299,16 @@ $title = "Docs - ".$account['name'];
     <?php include('temp/script.temp.php'); ?>
     <script>
     $(function() {
+        <?php if (isset($_GET['m'])) { ?>
+    <?php if ($_GET['m'] == 'add_true') { ?>
+    notify("success", "Documents uploaded Successfully ...");
+    <?php } elseif ($_GET['m'] == 'add_false') { ?>
+    notify("error", "Something's Wrong, Report Error ...");
+    <?php } elseif ($_GET['m'] == 'delete_true') { ?>
+    notify("success", "Document Deleted Successfully ...");
+    <?php } elseif ($_GET['m'] == 'delete_false') { ?>
+    notify("error", "Something's Wrong, Report Error ...");
+    <?php } } ?>
         var fileUpload = $("#documentsDocs");
 
         fileUpload.change(function() {
@@ -405,8 +450,17 @@ $title = "Docs - ".$account['name'];
             });
         }
 
-        $("#back").on("click", function() {
-            window.history.back();
+        $('.deleteBtn').click(function() {
+            var docId = $(this).data('id');
+            var docName = $(this).data('name');
+
+            $('#doc_id').val(docId);
+            $('#selectedDocument').text(docName);
+
+            console.log(docName);
+            console.log(docId);
+
+            $('#deleteDoc').modal('show');
         });
     });
     const gallery = document.getElementById('gallery');
