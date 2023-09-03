@@ -136,11 +136,11 @@ $title = "Dashboard";
     <?php include('temp/script.temp.php'); ?>
     <script>
     $(function() {
-        <?php if (isset($_GET['message'])) { ?>
+        <?php if (isset($_GET['m'])) { ?>
 
-            <?php if ($_GET['message'] == "login_true") { ?>
+            <?php if ($_GET['m'] == "login_true") { ?>
                 notify("success", "Hi <?=$_SESSION['name']?>, You are successfully logged In.");
-            <?php }elseif ($_GET['message'] == "masti") { ?>
+            <?php }elseif ($_GET['m'] == "masti") { ?>
                 notify("error", "Masti kr rya shorya.");
             <?php } ?>
 

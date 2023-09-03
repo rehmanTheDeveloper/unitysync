@@ -16,7 +16,7 @@ $conn = conn("localhost", "root", "", "communiSync"); #
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "edit-user") != true) {
-    header("Location: ../user.all.php?message=user_edit_not_allow");
+    header("Location: ../user.all.php?m=user_edit_not_allow");
     exit();
 }
 ################################ Role Validation ################################
@@ -28,7 +28,7 @@ $phone_format = array(
     "-"
 );
 
-if (isset($_GET['id']) && empty($_GET['id'])) {
+if (isset($_GET['i']) && empty($_GET['i'])) {
     header("Location: ../user.all.php");
     exit();
 }
@@ -38,15 +38,15 @@ if (isset($_POST['id']) && empty($_POST['id'])) {
 }
 
 $query = "SELECT * FROM `users` WHERE `u_id` = '";
-if (isset($_GET['id']) && !empty($_GET['id'])) {
-    $query .= $_GET['id'];
+if (isset($_GET['i']) && !empty($_GET['i'])) {
+    $query .= $_GET['i'];
 } elseif (isset($_POST['id']) && !empty($_POST['id'])) {
     $query .= $_POST['id'];
 }
 $query .= "' AND `project_id` = '" . $_SESSION['project'] . "';";
 $selected_user = mysqli_fetch_assoc(mysqli_query($conn, $query));
 if (empty($selected_user)) {
-    header("Location: ../user.all.php?message=not_found");
+    header("Location: ../user.all.php?m=not_found");
     exit();
 }
 
@@ -62,12 +62,12 @@ if (isset($_GET['status']) && $_GET['status'] == "1") {
     $status = '1';
     $query = "UPDATE `users` SET `status`=? WHERE `u_id` =? AND `project_id` = '" . $_SESSION['project'] . "';";
     $stmt = $conn->prepare($query);
-    $stmt->bind_param("ss", $status, $_GET['id']);
+    $stmt->bind_param("ss", $status, $_GET['i']);
     if ($stmt->execute()) {
-        header("Location: ../user.all.php?message=status_updated_true");
+        header("Location: ../user.all.php?m=status_updated_true");
         exit();
     } else {
-        header("Location: ../user.all.php?message=status_updated_false");
+        header("Location: ../user.all.php?m=status_updated_false");
         exit();
     }
 } elseif (isset($_GET['status']) && $_GET['status'] == "0") {
@@ -82,12 +82,12 @@ if (isset($_GET['status']) && $_GET['status'] == "1") {
     $status = '0';
     $query = "UPDATE `users` SET `status`=? WHERE `u_id` =? AND `project_id` = '" . $_SESSION['project'] . "';";
     $stmt = $conn->prepare($query);
-    $stmt->bind_param("ss", $status, $_GET['id']);
+    $stmt->bind_param("ss", $status, $_GET['i']);
     if ($stmt->execute()) {
-        header("Location: ../user.all.php?message=status_updated_true");
+        header("Location: ../user.all.php?m=status_updated_true");
         exit();
     } else {
-        header("Location: ../user.all.php?message=status_updated_false");
+        header("Location: ../user.all.php?m=status_updated_false");
         exit();
     }
 } else {
@@ -102,16 +102,16 @@ if (isset($_GET['status']) && $_GET['status'] == "1") {
     if ($data['password'] !== $data['confirm_password']) {
         if (empty($data['page'])) {
             $location = "Location: ../user.edit.php?id=";
-            if (isset($_GET['id']) && !empty($_GET['id'])) {
-                $location .= $_GET['id'];
+            if (isset($_GET['i']) && !empty($_GET['i'])) {
+                $location .= $_GET['i'];
             } elseif (isset($_POST['id']) && !empty($_POST['id'])) {
                 $location .= $_POST['id'];
             }
-            $location .= "&message=pass_not_match";
+            $location .= "&m=pass_not_match";
             header($location);
             exit();
         } else {
-            header("Location: ../".$data['page']."?message=pass_not_match");
+            header("Location: ../".$data['page']."?m=pass_not_match");
             exit();
         }
     }
@@ -139,16 +139,16 @@ if (isset($_GET['status']) && $_GET['status'] == "1") {
         $stmt = $conn->prepare($query);
         $stmt->bind_param("sssssssssss", $data['prefix'], $data['fName'], $data['lName'], $data['phoneNo'], $data['status'], $data['password'], $data['dateOfBirth'], $data['gender'], $data['martialStatus'], $data['bloodGroup'], $data['id']);
         if ($stmt->execute()) {
-            header("Location: ../user.all.php?message=edit_true");
+            header("Location: ../user.all.php?m=edit_true");
             exit();
         } else {
             $location = "Location: ../user.edit.php?id=";
-            if (isset($_GET['id']) && !empty($_GET['id'])) {
-                $location .= $_GET['id'];
+            if (isset($_GET['i']) && !empty($_GET['i'])) {
+                $location .= $_GET['i'];
             } elseif (isset($_POST['id']) && !empty($_POST['id'])) {
                 $location .= $_POST['id'];
             }
-            $location .= "&message=edit_false";
+            $location .= "&m=edit_false";
             header($location);
             exit();
         }
@@ -158,10 +158,10 @@ if (isset($_GET['status']) && $_GET['status'] == "1") {
         $stmt = $conn->prepare($query);
         $stmt->bind_param("sssssssssss", $data['prefix'], $data['fName'], $data['lName'], $data['email'], $data['phoneNo'], $data['password'], $data['dateOfBirth'], $data['gender'], $data['martialStatus'], $data['bloodGroup'], $data['id']);
         if ($stmt->execute()) {
-            header("Location: ../".$data['page']."?message=edit_true");
+            header("Location: ../".$data['page']."?m=edit_true");
             exit();
         } else {
-            header("Location: ../".$data['page']."?message=edit_false");
+            header("Location: ../".$data['page']."?m=edit_false");
             exit();
         }
     }

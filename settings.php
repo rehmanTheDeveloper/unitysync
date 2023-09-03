@@ -415,13 +415,13 @@ $title = "Profile - ".$user['f_name'];
         setInterval(() => {
             $("#licenseValidity").load("ajax/license.validity.php");
         }, 3000);
-        <?php if (isset($_GET['message'])) { ?>
+        <?php if (isset($_GET['m'])) { ?>
 
-        <?php if ($_GET['message'] == 'pass_not_match') { ?>
+        <?php if ($_GET['m'] == 'pass_not_match') { ?>
         notify("error", "Password Doesn't Match ...");
-        <?php } elseif ($_GET['message'] == 'edit_true') { ?>
+        <?php } elseif ($_GET['m'] == 'edit_true') { ?>
         notify("success", "Successfully Changed Profile ...");
-        <?php } elseif ($_GET['message'] == 'edit_false') { ?>
+        <?php } elseif ($_GET['m'] == 'edit_false') { ?>
         notify("error", "Something's Wrong, Report Error ...");
         <?php } ?>
 

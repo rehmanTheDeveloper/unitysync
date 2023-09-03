@@ -16,7 +16,7 @@ $conn = conn("localhost", "root", "", "communiSync"); #
 
 ################################ Role Validation ################################
 if ($_SESSION['role'] != 'super-admin') {
-    header("Location: ../Dashboard?message=masti");
+    header("Location: ../Dashboard?m=masti");
     exit();
 }
 ################################ Role Validation ################################
@@ -36,7 +36,7 @@ $data['kanal'] = str_replace(",","",$data['kanal']);
 $data['marla'] = str_replace(",","",$data['marla']);
 $data['feet'] = str_replace(",","",$data['feet']);
 
-echo "<pre>";
+// echo "<pre>";
 // print_r($data);
 // print_r($documents);
 // exit();
@@ -72,6 +72,19 @@ if ($result) {
         }
     }
 
+    $ledger = [
+        'v-id' => ledgerVoucherId($conn),
+        'type' => 'ProjectSeller',
+        'source' => $data['seller'],
+        'remarks' => number_format((($data['kanal'] * 20) * 272.25) + ($data['marla'] * 272.25) + $data['feet']).' Sqft. are purchased from &quot'.$result['name'].'&quot',
+        'credit' => $data['amount'],
+        'debit' => '',
+        'project' => $_SESSION['project'],
+        'created_date' => $created_date,
+        'created_by' => $created_by,
+    ];
+    ledger($conn, $ledger);
+
     // Activity Record
     $db_activity['date'] = date("d-m-Y", strtotime($created_date));
     $db_activity['user_id'] = $_SESSION['id'];
@@ -84,23 +97,18 @@ if ($result) {
 
     // print_r($db_activity);
 
-    $query = "UPDATE `seller` SET `balance`=`balance`+? WHERE `acc_id` = ? AND `project_id` = ?;";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("iss", $data['amount'], $data['seller'], $_SESSION['project']);
-    $stmt->execute();
-
     $query = "INSERT INTO `area_seller`(`kanal`, `marla`, `feet`, `amount`, `period`, `acc_id`, `project_id`, `created_date`, `created_by`) VALUES (?,?,?,?,?,?,?,?,?);";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("sssssssss", $data['kanal'], $data['marla'], $data['feet'], $data['amount'], $data['period'], $data['seller'], $_SESSION['project'], $created_date, $created_by);
     // print_r($stmt);
     if ($stmt->execute()) {
-        header("Location: ../project.view.php?message=seller_add_true");
+        header("Location: ../project.view.php?m=seller_add_true");
         exit();
     } else {
-        header("Location: ../project.view.php?message=seller_add_false");
+        header("Location: ../project.view.php?m=seller_add_false");
         exit();
     }
 } else {
-    header("Location: ../project.view.php?message=not_found");
+    header("Location: ../project.view.php?m=not_found");
     exit();
 }

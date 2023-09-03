@@ -13,31 +13,33 @@ require("auth/functions.php");                                    #
 $conn = conn("localhost", "root", "", "communiSync");             #
 ####################### Database Connection #######################
 
-if (empty($_GET['id'])) {
-    header("Location: account.all.php?message=not_found");
+if (empty($_GET['i'])) {
+    header("Location: Accounts?m=not_found");
     exit();
 }
 
-$query = "SELECT `id`,`type` FROM `accounts` WHERE `acc_id` = '" . $_GET['id'] . "' AND `project_id` = '" . $_SESSION['project'] . "';";
+$query = "SELECT `id`,`type` FROM `accounts` WHERE `acc_id` = '" . encryptor("decrypt", $_GET['i']) . "' AND `project_id` = '" . $_SESSION['project'] . "';";
 $result = mysqli_fetch_assoc(mysqli_query($conn, $query));
+
 if (empty($result)) {
-    header("Location: account.all.php?message=not_found");
+    header("Location: Accounts?m=not_found");
     exit();
 }
 
-$query = "SELECT * FROM `".$result['type']."` WHERE `acc_id` = '".$_GET['id']."' AND `project_id` = '".$_SESSION['project']."';";
+$query = "SELECT * FROM `".$result['type']."` WHERE `acc_id` = '".encryptor("decrypt", $_GET['i'])."' AND `project_id` = '".$_SESSION['project']."';";
 $account = mysqli_fetch_assoc(mysqli_query($conn, $query));
 
-// echo "<pre>";
-// print_r($account);
-// exit();
-
-$query = "SELECT * FROM `document` WHERE `acc_id` = '".$_GET['id']."' AND `project_id` = '".$_SESSION['project']."';";
+$query = "SELECT * FROM `document` WHERE `acc_id` = '".encryptor("decrypt", $_GET['i'])."' AND `project_id` = '".$_SESSION['project']."';";
 $documents = fetch_Data($conn, $query);
 
+// echo "<pre>";
+// print_r($documents);
+// exit();
+
 $title = "Docs - ".$account['name'];
+
 ?>
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html lang="en">
 
 <head>
@@ -81,6 +83,9 @@ $title = "Docs - ".$account['name'];
                     </li>
                 </ol>
                 <div class="btn-group">
+                    <a data-bs-toggle="modal" data-bs-target="#uploadDoc" class="btn btn-outline-gray-800">
+                        Upload Docs.
+                    </a>
                     <a id="back" class="btn btn-outline-gray-800">
                         Back
                     </a>
@@ -104,7 +109,7 @@ $title = "Docs - ".$account['name'];
                                         style="height: 200px;" src="uploads/docs/pdf-icon.png" alt="" />
                                     <label class="d-flex align-items-center justify-content-between mt-2 w-75">
                                         <span data-bs-toggle="tooltip"
-                                            data-bs-original-title="<?=$refined_document_name[0]?>"><?=substr($document['name'],0,12)." ..."?></span>
+                                            data-bs-original-title="<?=$refined_document_name[0]?>"><?=substr($document['name'],0,12)?></span>
                                         <div class="btn-group">
                                             <a class="btn p-1" data-bs-toggle="tooltip"
                                                 data-bs-original-title="Download PDF"
@@ -121,15 +126,14 @@ $title = "Docs - ".$account['name'];
                                     </label>
                                 </div>
                                 <?php } else { ?>
-                                <div class="d-flex justify-content-center align-items-center flex-column">
-                                    <img data-bs-toggle="tooltip" data-bs-original-title="Click to View"
-                                        style="height: 200px;" src="uploads/docs/<?=$document['name']?>" alt=""
+                                <div style="min-height:250px; gap: 20px;" class="d-flex justify-content-center align-items-center flex-column">
+                                    <img class="img-fluid" data-bs-toggle="tooltip" data-bs-original-title="Click to View"
+                                        src="uploads/docs/<?=$document['name']?>" alt=""
                                         id="img-<?=$key+1?>" />
-                                    <label class="d-flex align-items-center justify-content-between mt-2 w-75"
+                                    <label class="d-flex align-items-center justify-content-between mt-2 w-100"
                                         for="img-<?=$key+1?>">
                                         <span data-bs-toggle="tooltip"
-                                            data-bs-original-title="Lorem ipsum dolor sit, amet consectetur adipisicing elit. Est, magni.">Img
-                                            <?=$key+1?></span>
+                                            data-bs-original-title="<?=$refined_document_name[0]?>"><?=(!empty(strstr(substr($document['name'],0,18), '-UNI', true)))?strstr(substr($document['name'],0,18), '-UNI', true):substr($document['name'],0,12)?></span>
                                         <div class="btn-group">
                                             <button class="btn p-1" data-bs-toggle="tooltip"
                                                 data-bs-original-title="Edit">
@@ -165,23 +169,81 @@ $title = "Docs - ".$account['name'];
             </div>
         </div>
 
-        <!-- <div class="modal fade" id="viewDoc" tabindex="-1" aria-labelledby="viewDoc" style="display: none;"
+        <div class="modal fade" id="uploadDoc" tabindex="-1" aria-labelledby="uploadDoc" style="display: none;"
             aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-body p-0">
-                        <div class="card">
+                        <form method="POST" enctype="multipart/form-data" action="comp/docs.upload.php" class="card">
                             <div class="modal-header">
-                                <h2 class="h6 modal-title">Click Document to View</h2>
+                                <h2 class="h6 modal-title">Upload Document</h2>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <div class="row">
-                                    <div class="col-12 text-center" id="gallery">
-                                        <img class="selected-image"
-                                            src="https://wallpaperaccess.com/download/4k-phone-95166" alt=""
-                                            srcset="" />
+                                <div class="col-12">
+                                        <div class="mb-2">
+                                            <label class="btn btn-outline-primary w-100" for="documentsDocs">Upload
+                                                Document</label>
+                                            <input class="form-control" type="file" name="docs[]" id="documentsDocs"
+                                                multiple hidden />
+                                            <input type="hidden" name="acc_id" value="<?=$_GET['i']?>" />
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="row d-none" id="documentsFileUploadProgress">
+                                            <div class="col-3">
+                                                <button class="btn btn-primary w-100" id="documentsPercent" disabled>
+                                                    0%
+                                                </button>
+                                            </div>
+                                            <div class="col-3">
+                                                <button class="btn btn-primary w-100" id="documentsDataTransferred"
+                                                    disabled>
+                                                    Total / Loaded
+                                                </button>
+                                            </div>
+                                            <div class="col-3">
+                                                <button class="btn btn-primary w-100" id="documentsMbps" disabled>
+                                                    0 Mbps
+                                                </button>
+                                            </div>
+                                            <div class="col-3">
+                                                <button class="btn btn-primary w-100" id="documentsTimeLeft" disabled>
+                                                    Time Left
+                                                </button>
+                                            </div>
+                                            <div class="col-12 pt-3">
+                                                <div class="progress-wrapper">
+                                                    <div class="progress progress-xl">
+                                                        <div class="progress-bar documents-progress-bar bg-primary"
+                                                            role="progressbar" style="width: 0%;" aria-valuenow="25"
+                                                            aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 pt-2">
+                                                <button class="btn btn-primary w-100" id="documentsCancel" disabled>
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="d-none" id="documentsFilesTable">
+                                            <table class="table table-centered table-nowrap mb-0 rounded">
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th class="border-0 rounded-start">#</th>
+                                                        <th class="border-0 rounded-end text-end">Doc Name
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="fw-bolder">
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -189,19 +251,160 @@ $title = "Docs - ".$account['name'];
                                 <button type="button" class="btn btn-link text-gray-600 ms-auto"
                                     data-bs-dismiss="modal">Close
                                 </button>
-                                <button class="btn btn-success text-white" data-bs-dismiss="modal">Okay</button>
+                                <button type="submit" class="btn btn-success text-white">Upload</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div> -->
+        </div>
 
         <?php include('temp/footer.temp.php'); ?>
     </main>
     <?php include('temp/script.temp.php'); ?>
     <script>
     $(function() {
+        var fileUpload = $("#documentsDocs");
+
+        fileUpload.change(function() {
+            var all_file_names = "";
+            var files = this.files;
+            var errorMessages = [];
+            var validFiles = [];
+            var maxSize = 10000000; // in bytes
+
+            var validFilesArray = Array.from(files).filter(file => {
+                var fileName = file.name;
+                var fileExtension = fileName.split('.').pop().toLowerCase();
+                var fileSize = file.size;
+
+                if (fileSize > maxSize) {
+                    // Handle file size exceeding threshold
+                    errorMessages.push("File size of '" + fileName + "' is larger than 10 MB.");
+                    return false; // Exclude the file from the valid files array
+                }
+
+                if (fileExtension !== 'pdf' && fileExtension !== 'jpg' && fileExtension !==
+                    'jpeg' &&
+                    fileExtension !== 'png') {
+                    // Handle invalid extensions
+                    errorMessages.push("Invalid extension for file '" + fileName +
+                        "'. Use only PDF, JPG, JPEG, or PNG.");
+                    return false; // Exclude the file from the valid files array
+                }
+
+                return true; // File matches all conditions and is valid
+            });
+
+            var validFilesList = new DataTransfer();
+            validFilesArray.forEach((file) => {
+                validFilesList.items.add(file);
+                $("#documentsFileUploadProgress").removeClass('d-none');
+                uploadFile(file, 'documents');
+                all_file_names += file['name'] + "-<?=$_SESSION['project']?>,";
+
+            });
+            var fileInput = $('#documentsDocs')[0]; // Get the DOM element from jQuery object
+            fileInput.files = validFilesList.files;
+
+            updateSelectedFilesTable(validFilesArray, 'documents');
+
+            errorMessages.forEach(errorMessage => {
+                notify("error", errorMessage);
+            });
+        });
+
+        function updateSelectedFilesTable(validFiles, type) {
+            var table = $('#' + type + 'FilesTable');
+            var tableBody = $('#' + type + 'FilesTable tbody');
+
+            // console.log(validFiles);
+            table.removeClass('d-none').addClass('d-block');
+            tableBody.empty();
+
+            for (var i = 0; i < validFiles.length; i++) {
+                var fileNameWithExt = validFiles[i]['name'];
+                var fileNameWithoutExt = fileNameWithExt.split('.').slice(0, -1).join('.');
+                var fileExt = fileNameWithExt.split('.').pop();
+
+                tableBody.append('<tr><td>' + parseInt(i + 1) +
+                    '</td><td class="text-end"><input class="border-0 text-end" type="text" name="file_names[]" value="' +
+                    fileNameWithoutExt +
+                    '" />.' + fileExt + '</td></tr>');
+            }
+            $("#" + type + "FileUploadProgress").addClass('d-none');
+        }
+
+        function uploadFile(file, type) {
+            var formData = new FormData();
+            formData.append('file', file);
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.upload.addEventListener("progress", function(e) {
+                if (e.lengthComputable) {
+                    var percentComplete = ((e.loaded / e.total) * 100);
+
+                    // e.loaded is in bytes, convert it to kb, mb, or gb
+                    var mbTotal = Math.floor(e.total / (1024));
+                    var mbLoaded = Math.floor(e.loaded / (1024));
+
+                    // calculate data transfer per sec
+                    var time = (new Date().getTime() - startTime) / 1000;
+                    var bps = e.loaded / time;
+                    var Mbps = Math.floor(bps / (1024 * 1024));
+
+                    // calculate remaining time
+                    var remTime = (e.total - e.loaded) / bps;
+                    var seconds = Math.floor(remTime % 60);
+                    var minutes = Math.floor(remTime / 60);
+
+                    // give output
+                    $('#' + type + 'DataTransferred').html(`${mbLoaded}/${mbTotal} KBs`);
+                    $('#' + type + 'Mbps').html(`${Mbps} Mbps`);
+                    $('#' + type + 'TimeLeft').html(`${minutes}:${seconds}s`);
+                    $("#" + type + "Percent").html(Math.floor(percentComplete) + '%');
+                    $("." + type + "-progress-bar").width(percentComplete + '%');
+
+                    // cancel button only works when the file is uploading
+                    if (percentComplete > 0 && percentComplete < 100) {
+                        $('#' + type + 'Cancel').prop('disabled', false);
+                    } else {
+                        $('#' + type + 'Cancel').prop('disabled', true);
+                    }
+                }
+            }, false);
+
+            var startTime = new Date().getTime();
+
+            xhr.open('POST', 'ajax/docs.upload.php', true);
+            xhr.send(formData);
+
+            xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    if (xhr.responseText == "valid") {
+                        notify("success", "Document '" + file['name'] + "' Uploaded ...");
+                    } else if (xhr.responseText == "invalid") {
+                        notify("error", "Document '" + file['name'] + "' not Uploaded ...");
+                    }
+                    console.log('Response from server:', xhr.responseText);
+                } else {
+                    console.error('An error occurred:', xhr.statusText);
+                }
+            };
+
+            xhr.onerror = function() {
+                console.error('An error occurred during the request.');
+            };
+
+            // for cancel file transfer
+            $('#' + type + 'Cancel').on("click", () => {
+                xhr.abort();
+                $("#" + type + "Percent").html('Canceled');
+                $("." + type + "-progress-bar").width('0%');
+            });
+        }
+
         $("#back").on("click", function() {
             window.history.back();
         });

@@ -16,7 +16,7 @@ $conn = conn("localhost", "root", "", "communiSync");              #
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "view-user") != true && validationRole($conn, $_SESSION['project'], $_SESSION['role'], "add-user") != true) {
-    header("Location: user.all.php?message=role_add_not_allow");
+    header("Location: user.all.php?m=role_add_not_allow");
     exit();
 }
 ################################ Role Validation ################################

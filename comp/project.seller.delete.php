@@ -16,18 +16,21 @@ $conn = conn("localhost", "root", "", "communiSync");              #
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "delete-user") != true) {
-    header("Location: ../user.all.php?message=not_allowed");
+    header("Location: ../user.all.php?m=not_allowed");
     exit();
 }
 ################################ Role Validation ################################
 
-if (empty($_GET['id'])) {
-    header("Location: ../project.view.php?message=not_found");
+if (empty($_GET['i'])) {
+    header("Location: ../project.view.php?m=not_found");
     exit();
 }
 
-$query = "SELECT `name` FROM `seller` WHERE `acc_id` = '".$_GET['id']."' AND `project_id` = '".$_SESSION['project']."';";
+$query = "SELECT * FROM `seller` WHERE `acc_id` = '".$_GET['i']."' AND `project_id` = '".$_SESSION['project']."';";
 $result = mysqli_fetch_assoc(mysqli_query($conn, $query));
+
+$query = "SELECT * FROM `area_seller` WHERE `acc_id` = '".$_GET['i']."' AND `project_id` = '".$_SESSION['project']."';";
+$area_seller = mysqli_fetch_assoc(mysqli_query($conn, $query));
 
 // Activity Record
 $db_activity['date'] = date("d-m-Y", strtotime($created_date));
@@ -39,22 +42,31 @@ $db_activity['created_by'] = $created_by;
 activity($conn, $db_activity);
 // Activity Record
 
-// echo "<pre>";
-// print_r($db_activity);
-// exit();
+$ledger = [
+    'v-id' => ledgerVoucherId($conn),
+    'type' => 'ProjectSeller',
+    'source' => $result['acc_id'],
+    'remarks' => number_format((($area_seller['kanal'] * 20) * 272.25) + ($area_seller['marla'] * 272.25) + $area_seller['feet']).' Sqft. are returned to &quot'.$result['name'].'&quot',
+    'credit' => '',
+    'debit' => $area_seller['amount'],
+    'project' => $_SESSION['project'],
+    'created_date' => $created_date,
+    'created_by' => $created_by,
+];
+ledger($conn, $ledger);
 
 $query = "UPDATE `project` SET `commercial_sqft` = '0', `residential_sqft` = '0', `sqft_per_marla` = '0' WHERE `pro_id` = '".$_SESSION['project']."';";
 mysqli_query($conn, $query);
 
 $query = "DELETE FROM `area_seller` WHERE `acc_id` = ? AND `project_id` = '".$_SESSION['project']."';";
 $stmt = $conn->prepare($query);
-$stmt->bind_param("s", $_GET['id']);
+$stmt->bind_param("s", $_GET['i']);
 if ($stmt->execute()) {
     $stmt->close();
-    header("Location: ../project.view.php?message=seller_delete_true");
+    header("Location: ../project.view.php?m=seller_delete_true");
     exit();
 } else {
     $stmt->close();
-    header("Location: ../project.view.php?message=seller_delete_false");
+    header("Location: ../project.view.php?m=seller_delete_false");
     exit();
 }

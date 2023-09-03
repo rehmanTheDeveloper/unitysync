@@ -16,17 +16,17 @@ $conn = conn("localhost", "root", "", "communiSync");              #
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "delete-user") != true) {
-    header("Location: ../user.all.php?message=not_allowed");
+    header("Location: ../user.all.php?m=not_allowed");
     exit();
 }
 ################################ Role Validation ################################
 
-if (empty($_GET['id'])) {
-    header("Location: ../project.view.php?message=not_found");
+if (empty($_GET['i'])) {
+    header("Location: ../project.view.php?m=not_found");
     exit();
 }
 
-$query = "SELECT `name` FROM `investor` WHERE `acc_id` = '".$_GET['id']."' AND `project_id` = '".$_SESSION['project']."';";
+$query = "SELECT `name` FROM `investor` WHERE `acc_id` = '".$_GET['i']."' AND `project_id` = '".$_SESSION['project']."';";
 $result = mysqli_fetch_assoc(mysqli_query($conn, $query));
 
 // Activity Record
@@ -48,13 +48,13 @@ mysqli_query($conn, $query);
 
 $query = "DELETE FROM `area_investor` WHERE `acc_id` = ? AND `project_id` = '".$_SESSION['project']."';";
 $stmt = $conn->prepare($query);
-$stmt->bind_param("s", $_GET['id']);
+$stmt->bind_param("s", $_GET['i']);
 if ($stmt->execute()) {
     $stmt->close();
-    header("Location: ../project.view.php?message=investor_delete_true");
+    header("Location: ../project.view.php?m=investor_delete_true");
     exit();
 } else {
     $stmt->close();
-    header("Location: ../project.view.php?message=investor_delete_false");
+    header("Location: ../project.view.php?m=investor_delete_false");
     exit();
 }

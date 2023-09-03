@@ -8,9 +8,9 @@ $title?></title>
 <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
 <meta name="title" content="<?=
 $title?> - Plato">
-<meta name="author" content="RehmanDev">
-<!-- <meta name="description"
-    content="Volt Pro is a Premium Bootstrap 5 Admin Dashboard featuring over 800 components, 10+ plugins and 20 example pages using Vanilla JS."> -->
+<meta name="author" content="RTD & WattooBiz">
+<meta name="description"
+    content="In today's housing societies, good management is essential. Meet Plato, a smart software that helps housing societies stay organized and efficient. Plato offers tools for clear finances, smooth communication, and easy living for residents, staff, and administrators.">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon/favicon-32x32.png">
 <link type="text/css" href="vendor/sweetalert2/dist/sweetalert2.min.css" rel="stylesheet">
 <link type="text/css" href="vendor/notyf/notyf.min.css" rel="stylesheet">
@@ -19,7 +19,7 @@ $title?> - Plato">
 <link type="text/css" href="vendor/dropzone/dist/min/dropzone.min.css" rel="stylesheet">
 <link type="text/css" href="vendor/choices.js/public/assets/styles/choices.min.css" rel="stylesheet">
 <link type="text/css" href="vendor/leaflet/dist/leaflet.css" rel="stylesheet">
-<link type="text/css" href="assets/css/volt.css" rel="stylesheet">
+<link type="text/css" href="assets/css/RTD.css" rel="stylesheet">
 <style>
 @media screen and (max-width: 500px) {
     .dropdown-menu-lg {

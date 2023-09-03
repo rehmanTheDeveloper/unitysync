@@ -16,24 +16,24 @@ $conn = conn("localhost", "root", "", "communiSync");              #
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "edit-user") != true) {
-    header("Location: user.all.php?message=user_edit_not_allow");
+    header("Location: user.all.php?m=user_edit_not_allow");
     exit();
 }
 ################################ Role Validation ################################
 
-if (empty($_GET['id'])) {
-    header("Location: user.all.php?message=not_found");
+if (empty($_GET['i'])) {
+    header("Location: user.all.php?m=not_found");
     exit();
 }
 
 // $query = "SELECT * FROM `roles` WHERE `project_id` = '".$_SESSION['project']."' AND `name` != 'super-admin';";
 // $roles = fetch_Data($conn, $query);
 
-$query = "SELECT * FROM `users` WHERE `u_id` = '".$_GET['id']."' AND `project_id` = '".$_SESSION['project']."' AND `role` != 'super-admin';";
+$query = "SELECT * FROM `users` WHERE `u_id` = '".$_GET['i']."' AND `project_id` = '".$_SESSION['project']."' AND `role` != 'super-admin';";
 $user = mysqli_fetch_assoc(mysqli_query($conn, $query));
 
 if (empty($user)) {
-    header("Location: user.all.php?message=no_user");
+    header("Location: user.all.php?m=no_user");
     exit();
 }
 
@@ -233,7 +233,7 @@ $title = "Edit User - ".$user['f_name'];
                         </div>
                     </div>
                     <div class="col-12 text-center">
-                        <input type="hidden" name="id" value="<?=$_GET['id']?>" />
+                        <input type="hidden" name="id" value="<?=$_GET['i']?>" />
                         <input type="submit" name="submit" value="Edit User" class="btn btn-outline-gray-600 my-3" />
                     </div>
                 </div>
@@ -266,9 +266,9 @@ $title = "Edit User - ".$user['f_name'];
             $('#form-row').off('submit').submit();
         }
     });
-    <?php if (isset($_GET['message'])) { ?>
+    <?php if (isset($_GET['m'])) { ?>
 
-    <?php if ($_GET['message'] == 'pass_not_match') { ?>
+    <?php if ($_GET['m'] == 'pass_not_match') { ?>
     notify("error", "Password Doesn't Match ...");
     <?php } ?>
 

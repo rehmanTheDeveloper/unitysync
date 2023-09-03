@@ -15,28 +15,52 @@ $conn = conn("localhost", "root", "", "communiSync");             #
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "view-account") != true) {
-    header("Location: account.all.php?message=account_view_not_allow");
+    header("Location: Accounts?m=account_view_not_allow");
     exit();
 }
 ################################ Role Validation ################################
 
-if (empty($_GET['id'])) {
-    header("Location: account.all.php?message=not_found");
+if (empty($_GET['i'])) {
+    header("Location: Accounts?m=not_found");
     exit();
 }
 
-$query = "SELECT `type` FROM `accounts` WHERE `acc_id` = '".$_GET['id']."' AND `project_id` = '".$_SESSION['project']."';";
+$query = "SELECT `type` FROM `accounts` WHERE `acc_id` = '".encryptor("decrypt", $_GET['i'])."' AND `project_id` = '".$_SESSION['project']."';";
 $type = mysqli_fetch_assoc(mysqli_query($conn, $query));
 
-$query = "SELECT * FROM `".$type['type']."` WHERE `acc_id` = '".$_GET['id']."' AND `project_id` = '".$_SESSION['project']."';";
+$query = "SELECT * FROM `".$type['type']."` WHERE `acc_id` = '".encryptor("decrypt", $_GET['i'])."' AND `project_id` = '".$_SESSION['project']."';";
 $account = mysqli_fetch_assoc(mysqli_query($conn, $query));
+$account['delete'] = 1;
 
-$query = "SELECT * FROM `document` WHERE `acc_id` = '".$_GET['id']."' AND `project_id` = '".$_SESSION['project']."';";
-$documents = fetch_Data($conn, $query);
+if (empty($account)) {
+    header("Location: Accounts?m=not_found");
+    exit();
+}
+
+if ($type['type'] == 'seller') {
+    $query = "SELECT * FROM `area_seller` WHERE `acc_id` = '".encryptor("decrypt", $_GET['i'])."' AND `project_id` = '".$_SESSION['project']."';";
+    $result = mysqli_query($conn, $query);
+    if (mysqli_num_rows($result) > 0) {
+        $account['delete'] = 0;
+    }
+} elseif ($type['type'] == 'investor') {
+    $query = "SELECT * FROM `area_investor` WHERE `acc_id` IN ('".encryptor("decrypt", $_GET['i'])."') AND `project_id` = '".$_SESSION['project']."';";
+    $result = mysqli_query($conn, $query);
+    if (mysqli_num_rows($result) > 0) {
+        $account['delete'] = 0;
+    }
+}
+
+$query = "SELECT `v-id`,`type`,`remarks`,`credit`,`debit`, @balance := @balance - credit + debit AS balance
+FROM `ledger`, (SELECT @balance := 0) AS vars WHERE `source` = '".encryptor("decrypt", $_GET['i'])."' AND `project_id` = '".$_SESSION['project']."';";
+$ledger = fetch_Data($conn, $query);
 
 // echo "<pre>";
-// print_r($account);
+// print_r($ledger);
 // exit();
+
+$query = "SELECT * FROM `document` WHERE `acc_id` = '".encryptor("decrypt", $_GET['i'])."' AND `project_id` = '".$_SESSION['project']."';";
+$documents = fetch_Data($conn, $query);
 
 $title = "Account - ".$account['name'];
 ?>
@@ -104,8 +128,8 @@ $title = "Account - ".$account['name'];
                     </button>
                     <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1" style="">
                         <?php if (!empty($documents)) { ?>
-                        <a class="dropdown-item d-flex align-items-center justify-content-center" data-bs-toggle="modal"
-                            data-bs-target="#documents">
+                        <a class="dropdown-item d-flex align-items-center justify-content-center"
+                            href="docs.view.php?i=<?=$_GET['i']?>">
                             Docs
                         </a>
                         <?php } ?>
@@ -115,23 +139,24 @@ $title = "Account - ".$account['name'];
                         ################################ Role Validation ################################
                         ?>
                         <a class="dropdown-item d-flex align-items-center justify-content-center fw-bold text-success"
-                            href="account.edit.php?id=<?=$account['acc_id']?>">
+                            href="account.edit.php?i=<?=$_GET['i']?>">
                             Edit Account
                         </a>
                         <?php } ?>
                         <?php
                         ################################ Role Validation ################################
                         if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "delete-account") === true) {
+                            if ($account['delete'] == 1) {
                         ################################ Role Validation ################################
                         ?>
                         <div role="separator" class="dropdown-divider my-1"></div>
                         <a class="dropdown-item d-flex align-items-center justify-content-center fw-bold text-danger deleteBtn"
-                            data-id="<?=$account['acc_id']?>" data-name="<?=$account['name']?>">
+                            data-id="<?=$_GET['i']?>" data-name="<?=$account['name']?>">
                             Delete Account
                         </a>
-                        <?php } ?>
+                        <?php } } ?>
                     </div>
-                    <a class="btn btn-outline-gray-800" href="account.all.php">Manage Accounts</a>
+                    <a class="btn btn-outline-gray-800" href="Accounts">Manage Accounts</a>
                 </div>
             </nav>
         </div>
@@ -145,13 +170,8 @@ $title = "Account - ".$account['name'];
                                 <h2 class="text-center mb-3"><?=$account['name']?></h2>
                             </div>
                             <div class="col-4 d-flex justify-content-center align-items-center">
-                                <?php if (!empty($account['img']) && file_exists("uploads/acc-profiles/".$account['img'])) { ?>
-                                <img src="uploads/acc-profiles/<?=$account['img']?>" alt="" srcset=""
-                                    class="img-fluid rounded rounded-circle" />
-                                <?php } else { ?>
-                                <img src="uploads/profiles/profile.png" alt="" srcset=""
-                                    class="img-fluid rounded rounded-circle" />
-                                <?php } ?>
+                                <img src="<?=(file_exists("uploads/acc-profiles/".$account['img']))?"uploads/acc-profiles/".$account['img']:"uploads/profiles/profile.png"?>"
+                                    alt="" srcset="" class="img-fluid rounded rounded-circle" />
                             </div>
                             <div class="col-8">
                                 <table class="table table-centered table-nowrap mb-0 rounded">
@@ -180,16 +200,12 @@ $title = "Account - ".$account['name'];
                                             <td class="text-end"><?=$account['address']?></td>
                                         </tr>
                                         <tr>
-                                            <td>Total Amount</td>
-                                            <td class="text-end">Rs. 34,000</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Paid Amount</td>
-                                            <td class="text-success text-end">Rs. 12,000</td>
+                                            <td>Recieved Amount</td>
+                                            <td class="text-success text-end">Rs. <?=(!empty($ledger))?number_format(getSumOfId($ledger, "debit")):"0"?></td>
                                         </tr>
                                         <tr>
                                             <td>Pending Amount</td>
-                                            <td class="text-danger text-end">Rs. 545,000</td>
+                                            <td class="text-danger text-end">Rs. <?=(!empty($ledger))?number_format(getSumOfId($ledger, "credit") - getSumOfId($ledger, "debit")):"0"?></td>
                                         </tr>
                                         <?php if ($account['balance'] < 0) { ?>
                                         <tr>
@@ -200,8 +216,21 @@ $title = "Account - ".$account['name'];
                                         <?php } else { ?>
                                         <tr>
                                             <td>Balance</td>
-                                            <td class="text-end text-success">
-                                                <?=$arrow_up."Rs. ".number_format($account['balance'])?></td>
+                                            <?php 
+                                            if (!empty($ledger)) {
+                                                if ($ledger[count($ledger)-1]['balance'] == 0) { ?>
+                                                    <td class="text-end text-success">
+                                                        <?=$arrow_up."Rs. 0"?></td>
+                                                <?php } elseif ($ledger[count($ledger)-1]['balance'] > 0) { ?>
+                                                    <td class="text-end text-success">
+                                                        <?=$arrow_up."Rs. ".number_format($ledger[count($ledger)-1]['balance'])?></td>
+                                                <?php } else { ?>
+                                                    <td class="text-end text-danger">
+                                                        <?=$arrow_down."Rs. ".number_format($ledger[count($ledger)-1]['balance'])?></td>
+                                                <?php } 
+                                            } else { ?>
+                                                <td class="text-end">Rs. 0</td>
+                                            <?php } ?>
                                         </tr>
                                         <?php } ?>
                                     </tbody>
@@ -301,23 +330,76 @@ $title = "Account - ".$account['name'];
             <div class="card-body">
                 <div class="row">
                     <div class="col-12">
+                        
+                    </div>
+                    <div class="col-12">
                         <table class="table table-centered table-nowrap mb-0 rounded" id="datatable">
                             <thead class="thead-light">
                                 <tr>
                                     <th class="border-0 rounded-start">#</th>
                                     <th class="border-0 text-center">V-ID</th>
-                                    <th class="border-0 text-center">Type</th>
-                                    <th class="border-0 text-center">Source</th>
                                     <th class="border-0">Remarks</th>
-                                    <th class="border-0 text-end">Credit</th>
+                                    <th class="border-0">Credit</th>
                                     <th class="border-0 text-end">Debit</th>
                                     <th class="border-0 text-end rounded-end">Balance</th>
                                 </tr>
                             </thead>
-                            <tbody class="fw-bold">
+                            <tbody>
+                                <?php if(!empty($ledger)){
+                                    foreach ($ledger as $key => $led) { ?>
                                 <tr>
-                                    <td class="text-center" colspan="8">No Details ...</td>
+                                    <td class="fw-bolder">
+                                        <?=$key+1?>
+                                    </td>
+                                    <td><?=$led['v-id']?></td>
+                                    <td><?=$led['remarks']?></td>
+                                    <?php if (!empty($led['debit'])) { ?>
+                                    <td class="text-success"><?=$arrow_up?> Rs. <?=number_format($led['debit'])?></td>
+                                    <td></td>
+                                    <?php } else { ?>
+                                    <td></td>
+                                    <td class="text-end text-danger">Rs. <?=number_format($led['credit'])?>
+                                        <?=$arrow_down?></td>
+                                    <?php } ?>
+                                    <?php if ($led['balance'] == 0) { ?>
+                                    <td class="fw-bold text-end text-success">
+                                        Rs. <?=number_format($led['balance'])?>
+                                        <svg class="icon icon-xs me-1" viewBox="0 0 24 24" width="24" height="24"
+                                            stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
+                                            stroke-linejoin="round" class="css-i6dzq1">
+                                            <circle cx="12" cy="12" r="4"></circle>
+                                            <line x1="1.05" y1="12" x2="7" y2="12"></line>
+                                            <line x1="17.01" y1="12" x2="22.96" y2="12"></line>
+                                        </svg>
+
+                                    </td>
+                                    <?php } elseif ($led['balance'] > 0) { ?>
+                                    <td class="fw-bold text-end text-success">
+                                        Rs. <?=number_format($led['balance'])?>
+                                        <svg class="icon icon-xs me-1" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor"
+                                            stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
+                                            class="css-i6dzq1">
+                                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                                            <polyline points="17 6 23 6 23 12"></polyline>
+                                        </svg>
+                                    </td>
+                                    <?php } else { ?>
+                                    <td class="fw-bold text-end text-danger">
+                                        Rs. <?=number_format($led['balance'])?>
+                                        <svg class="icon icon-xs me-1" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor"
+                                            stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
+                                            class="css-i6dzq1">
+                                            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+                                            <polyline points="17 18 23 18 23 12"></polyline>
+                                        </svg>
+                                    </td>
+                                    <?php } ?>
                                 </tr>
+                                <?php } } else { ?>
+                                <tr>
+                                    <td class="text-center" colspan="7">No ledger history ...</td>
+                                </tr>
+                                <?php } ?>
                             </tbody>
                         </table>
                     </div>
@@ -326,133 +408,110 @@ $title = "Account - ".$account['name'];
         </div>
         <?php } ?>
 
-        <?php if (!empty($documents)) { ?>
-        <div class="modal fade" id="documents" tabindex="-1" aria-labelledby="documents" style="display: none;"
-            aria-hidden="true" data-bs-backdrop="static">
-            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-                <div class="modal-content">
-                    <div class="modal-header justify-content-center">
-                        <h2 class="h5 modal-title mb-0">Documents</h2>
-                    </div>
-                    <div class="modal-body">
-                        <div style="row-gap: 15px;" class="row" id="gallery">
-                            <?php foreach ($documents as $key => $document) { 
-                                $refined_document_name = explode(".",$document['name']);?>
-                            <div class="col-2">
-                                <?php if ($refined_document_name[1] == "pdf") { ?>
-                                <div class="d-flex justify-content-center align-items-center flex-column">
-                                    <img data-bs-toggle="tooltip" class="img-fluid"
-                                        data-bs-original-title="Download to View" style="max-height: 200px;"
-                                        src="uploads/docs/pdf-icon.png" alt="" />
-                                    <label class="d-flex align-items-center justify-content-between mt-2 w-75">
-                                        <span data-bs-toggle="tooltip"
-                                            data-bs-original-title="<?=$refined_document_name[0]?>"><?=substr($refined_document_name[0],0,12)." ..."?></span>
-                                        <div class="btn-group">
-                                            <a class="btn p-1" data-bs-toggle="tooltip"
-                                                data-bs-original-title="Download PDF"
-                                                href="uploads/docs/<?=$document['name']?>" download>
-                                                <svg class="icon icon-xs text-teritary"
-                                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                    fill="currentColor">
-                                                    <path fill-rule="evenodd"
-                                                        d="M2 9.5A3.5 3.5 0 005.5 13H9v2.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 15.586V13h2.5a4.5 4.5 0 10-.616-8.958 4.002 4.002 0 10-7.753 1.977A3.5 3.5 0 002 9.5zm9 3.5H9V8a1 1 0 012 0v5z"
-                                                        clip-rule="evenodd"></path>
-                                                </svg>
-                                            </a>
-                                        </div>
-                                    </label>
-                                </div>
-                                <?php } else { ?>
-                                <div class="d-flex justify-content-between align-items-center flex-column h-100">
-                                    <div class="document-thumbnail h-100 d-flex align-items-center w-100"
-                                        style="background-image: url('uploads/docs/<?=$document['name']?>'); background-repeat: no-repeat; background-size: cover; background-position: center; border-radius: 50%;"
-                                        data-bs-toggle="tooltip" data-bs-original-title="Click to View" id="thumbnail-<?=$key+1?>">
-                                        <img  src="uploads/docs/<?=$document['name']?>"
-                                            id="img-<?=$key+1?>" hidden />
-                                    </div>
-                                    <label class="d-flex align-items-center justify-content-between mt-2"
-                                        for="img-<?=$key+1?>">
-                                        <span data-bs-toggle="tooltip"
-                                            data-bs-original-title="<?=$refined_document_name[0]?>"><?=substr($refined_document_name[0],0,12)." ..."?></span>
-                                        <div class="dropdown">
-                                            <button class="btn p-1 dropdown-toggle" data-bs-toggle="dropdown"
-                                                aria-haspopup="true" aria-expanded="false">
-                                                <svg class="icon icon-xs" fill="currentColor" viewBox="0 0 20 20"
-                                                    xmlns="http://www.w3.org/2000/svg">
-                                                    <path
-                                                        d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z">
-                                                    </path>
-                                                </svg>
-                                            </button>
-                                            <div class="dropdown-menu dropdown-menu-start mt-2 py-1" style="">
-                                                <a class="dropdown-item d-flex align-items-center"
-                                                    data-bs-toggle="tooltip" data-bs-original-title="Download Image"
-                                                    href="uploads/docs/<?=$document['name']?>" download>
-                                                    <svg class="dropdown-icon text-primary me-2" fill="currentColor"
-                                                        viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                        <path fill-rule="evenodd"
-                                                            d="M2 9.5A3.5 3.5 0 005.5 13H9v2.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 15.586V13h2.5a4.5 4.5 0 10-.616-8.958 4.002 4.002 0 10-7.753 1.977A3.5 3.5 0 002 9.5zm9 3.5H9V8a1 1 0 012 0v5z"
-                                                            clip-rule="evenodd"></path>
-                                                    </svg>
-                                                    Download
-                                                </a>
-                                                <a class="dropdown-item d-flex align-items-center"
-                                                    data-bs-toggle="tooltip" data-bs-original-title="Edit" href="#">
-                                                    <svg class="dropdown-icon text-warning me-2" fill="currentColor"
-                                                        viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                        <path
-                                                            d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z">
-                                                        </path>
-                                                        <path fill-rule="evenodd"
-                                                            d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                                                            clip-rule="evenodd"></path>
-                                                    </svg>
-                                                    Edit
-                                                </a>
-                                                <div role="separator" class="dropdown-divider my-1"></div>
-                                                <a class="dropdown-item d-flex align-items-center"
-                                                    data-bs-toggle="tooltip" data-bs-original-title="Delete" href="#">
-                                                    <svg class="dropdown-icon text-danger me-2" fill="currentColor"
-                                                        viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                        <path fill-rule="evenodd"
-                                                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                                            clip-rule="evenodd"></path>
-                                                    </svg>
-                                                    Delete
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </label>
-                                </div>
-                                <?php } ?>
-                            </div>
-                            <?php } ?>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-success" data-bs-dismiss="modal">Done</button>
-                        </div>
-                    </div>
+        <?php include('temp/footer.temp.php'); ?>
+    </main>
+
+    <?php if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "delete-user") === true) { ?>
+    <!-- Modal Content -->
+    <div class="modal fade" id="deleteAccount" tabindex="-1" role="dialog" aria-labelledby="delete account"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="h6 modal-title">Delete User</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete User ( <span id="selectedAccount"></span> ) ?</p>
+                    <input type="hidden" id="accountID" value="" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-bs-dismiss="modal">No</button>
+                    <button type="button" id="confirmDeleteBtn" data-target="#confirmationCode"
+                        class="btn btn-danger">Yes, Delete</button>
                 </div>
             </div>
-            <?php } ?>
+        </div>
+    </div>
+    <div class="modal fade" id="confirmationCode" tabindex="-1" role="dialog" aria-labelledby="delete account"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="h6 modal-title">Confirmation Code</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Please enter the sum of the following numbers:</p>
+                    <p><span class="number1"></span> + <span class="number2"></span> =</p>
+                    <div class="mb-3">
+                        <input class="form-control" type="text" id="confirmation-input" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" id="confirmCodeAns" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End of Modal Content -->
+    <?php } ?>
 
-            <?php include('temp/footer.temp.php'); ?>
-    </main>
     <?php include('temp/script.temp.php'); ?>
     <script>
-    $(function() {
-        <?php if (!empty($documents)) { ?>
-        const gallery = document.getElementById('gallery');
-        const viewer = new Viewer(gallery);
+    <?php if (isset($_GET['m'])) { ?>
+    <?php if ($_GET['m'] == 'edit_true') { ?>
+    notify("success", "Account Updated ...");
+    <?php } ?>
+    <?php } ?>
 
-        // Add a click event handler to each thumbnail
-        $('.document-thumbnail').on('click', function() {
-            const thumbnailId = $(this).attr('id');
-            const imgId = thumbnailId.replace('thumbnail-', 'img-');
-            console.log(imgId);
-            viewer.show(document.getElementById(imgId));
-        });
-        <?php } ?>
+    // Randomly generate two numbers
+    var number1 = Math.floor(Math.random() * 10) + 1;
+    var number2 = Math.floor(Math.random() * 10) + 1;
+    $('.number1').text(number1);
+    $('.number2').text(number2);
+
+    // Show confirmation dialog on delete button click
+    $('.deleteBtn').click(function() {
+        var accountId = $(this).data('id');
+        var userName = $(this).data('name');
+
+        // Set user name in delete confirmation modal
+        $('#selectedAccount').text(userName);
+        $('#accountID').val(accountId);
+
+        console.log(userName);
+        console.log(accountId);
+
+        $('#deleteAccount').modal('show');
+    });
+
+    // Show confirmation code dialog on confirm delete button click
+    $('#confirmDeleteBtn').click(function() {
+        $('#deleteAccount').modal('hide');
+        $('#confirmationCode').modal('show');
+    });
+
+    // Handle confirmation code submission
+    $('#confirmCodeAns').click(function() {
+        // Get user input and calculate expected result
+        var input = $('#confirmation-input').val();
+        var expected = number1 + number2;
+
+        // Check if input is correct
+        if (input == expected) {
+            var accountId = $('#accountID').val();
+            window.location.href = 'comp/account.delete.php?i=' + accountId;
+        } else {
+            // Show error message and generate new numbers
+            notify("error", "The sum is incorrect. Please try again.");
+            number1 = Math.floor(Math.random() * 10) + 1;
+            number2 = Math.floor(Math.random() * 10) + 1;
+            $('.number1').text(number1);
+            $('.number2').text(number2);
+            $('#confirmation-input').val('');
+        }
     });
     </script>
 </body>

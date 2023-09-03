@@ -16,7 +16,7 @@ $conn = conn("localhost", "root", "", "communiSync"); #
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "add-account") != true) {
-    header("Location: ../account.all.php?message=account_add_not_allow");
+    header("Location: ../Accounts?m=account_add_not_allow");
     exit();
 }
 ################################ Role Validation ################################
@@ -24,7 +24,7 @@ if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "add-account"
 foreach ($_POST as $key => $value) {
     $data[$key] = sanitize($conn, $value);
 }
-$data['id'] = voucherId($conn, "accounts", "acc_id", "AI", 3);
+$data['id'] = selectedTableId($conn, "accounts", "acc_id", "AI", 3);
 $data['project'] = $_SESSION['project'];
 
 $phone_format = array(
@@ -78,14 +78,14 @@ if ($data['category'] == "seller") {
     $stmt = $conn->prepare($query);
     $stmt->bind_param("sssssssssssssssss", $data['id'], $data['name'], $data['prefix'], $data['fatherName'], $data['cnic'], $data['address'], $data['city'], $data['province'], $data['country'], $data['phoneNo'], $data['email'], $data['whtsNo'], $data['openingBalance'], $upload['img'], $data['project'], $created_date, $created_by);
     if ($stmt->execute()) {
-        $location = "Location: ../account.all.php?message=add_true";
+        $location = "Location: ../Accounts?m=add_true";
         if (isset($image_err)) {
             $location .= "&image=".$image_err;
         }
         header($location);
         exit();
     } else {
-        header("Location: ../account.all.php?message=add_false");
+        header("Location: ../Accounts?m=add_false");
         exit();
     }
 } elseif ($data['category'] == "investor") {
@@ -104,14 +104,14 @@ if ($data['category'] == "seller") {
     $stmt = $conn->prepare($query);
     $stmt->bind_param("sssssssssssssssss", $data['id'], $data['name'], $data['prefix'], $data['fatherName'], $data['cnic'], $data['address'], $data['city'], $data['province'], $data['country'], $data['phoneNo'], $data['email'], $data['whtsNo'], $data['openingBalance'], $upload['img'], $data['project'], $created_date, $created_by);
     if ($stmt->execute()) {
-        $location = "Location: ../account.all.php?message=add_true";
+        $location = "Location: ../Accounts?m=add_true";
         if (isset($image_err)) {
             $location .= "&image=".$image_err;
         }
         header($location);
         exit();
     } else {
-        header("Location: ../account.all.php?message=add_false");
+        header("Location: ../Accounts?m=add_false");
         exit();
     }
 }

@@ -16,7 +16,7 @@ $conn = conn("localhost", "root", "", "communiSync"); #
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "add-user") != true) {
-    header("Location: ../user.all.php?message=user_add_not_allow");
+    header("Location: ../user.all.php?m=user_add_not_allow");
     exit();
 }
 ################################ Role Validation ################################
@@ -30,7 +30,7 @@ foreach ($_POST as $key => $value) {
     $data[$key] = sanitize($conn, $value);
 }
 $data['license'] = $selected_user['license'];
-$data['id'] = voucherId($conn, "users", "u_id", "UI", 3);
+$data['id'] = selectedTableId($conn, "users", "u_id", "UI", 3);
 $data['project'] = $_SESSION['project'];
 $data['country'] = $selected_user['country'];
 if (empty($data['status'])) {
@@ -64,9 +64,9 @@ VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("sssssssssssssssssss", $data['id'], $data['license'], $data['prefix'], $data['fName'], $data['lName'], $data['email'], $data['country'], $data['phoneNo'], $data['status'], $data['role'], $data['username'], $data['password'], $data['dateOfBirth'], $data['gender'], $data['martialStatus'], $data['bloodGroup'], $data['project'], $created_date, $created_by);
 if ($stmt->execute()) {
-    header("Location: ../user.all.php?message=add_true");
+    header("Location: ../user.all.php?m=add_true");
     exit();
 } else {
-    header("Location: ../user.all.php?message=add_false");
+    header("Location: ../user.all.php?m=add_false");
     exit();
 }

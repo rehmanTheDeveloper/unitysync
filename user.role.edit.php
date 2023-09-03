@@ -20,24 +20,24 @@ $conn = conn("localhost", "root", "", "communiSync");             #
 ################################ Role Validation ################################
 // ! Validation of viewing required page, If you can't view it then how can you edit it .. ??
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "view-user-role") != true) {
-    header("Location: user.role.all.php?message=role_view_not_allow");
+    header("Location: user.role.all.php?m=role_view_not_allow");
     exit();
 }
 ################################ Role Validation ################################
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "edit-user-role") != true) {
-    header("Location: user.role.all.php?message=role_edit_not_allow");
+    header("Location: user.role.all.php?m=role_edit_not_allow");
     exit();
 }
 ################################ Role Validation ################################
 
-if (empty($_GET['id'])) {
-    header("Location: user.role.all.php?message=not_found");
+if (empty($_GET['i'])) {
+    header("Location: user.role.all.php?m=not_found");
     exit();
 }
 
-$query = "SELECT * FROM `roles` WHERE `id` = '".$_GET['id']."' AND `project_id` = '".$_SESSION['project']."';";
+$query = "SELECT * FROM `roles` WHERE `id` = '".$_GET['i']."' AND `project_id` = '".$_SESSION['project']."';";
 $role = mysqli_fetch_assoc(mysqli_query($conn, $query));
 
 if ($role['name'] == 'super-admin' || empty($role)) {
@@ -94,7 +94,7 @@ $title = "Edit Role";
                             <label for="roleName">Role Name</label>
                             <input class="form-control" id="roleName" name="roleName" type="text"
                                 value="<?=$role['name']?>" required />
-                            <input type="hidden" name="id" value="<?=$_GET['id']?>" />
+                            <input type="hidden" name="id" value="<?=$_GET['i']?>" />
                             <div class="form-text text-danger" id="roleNameFeedback"></div>
                         </div>
                     </div>

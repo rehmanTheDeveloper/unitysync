@@ -13,7 +13,16 @@ require("auth/functions.php");                                    #
 $conn = conn("localhost", "root", "", "communiSync");                   #
 ####################### Database Connection #######################
 
+$query = "SELECT `v-id`,`type`,`source`,`remarks`,`credit`,`debit`, @balance := @balance - debit + credit AS balance
+FROM `ledger`, (SELECT @balance := 0) AS vars WHERE `project_id` = '".$_SESSION['project']."';";
+$ledger = fetch_Data($conn, $query);
+
+// echo "<pre>";
+// print_r($ledger);
+// exit();
+
 $title = "Ledger";
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -67,42 +76,70 @@ $title = "Ledger";
                                 <tr>
                                     <th class="border-0 rounded-start">#</th>
                                     <th class="border-0 text-center">V-ID</th>
-                                    <th class="border-0 text-center">Type</th>
                                     <th class="border-0 text-center">Source</th>
                                     <th class="border-0">Remarks</th>
-                                    <th class="border-0 text-end">Credit</th>
+                                    <th class="border-0">Credit</th>
                                     <th class="border-0 text-end">Debit</th>
                                     <th class="border-0 text-end rounded-end">Balance</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php if(TRUE){
-                                    for ($i=0; $i < 10; $i++) { ?>
+                                <?php if(!empty($ledger)){
+                                    foreach ($ledger as $key => $led) { ?>
                                 <tr>
                                     <td class="fw-bolder">
-                                        <?=$i+1?>
+                                        <?=$key+1?>
                                     </td>
-                                    <td>PR-3</td>
-                                    <td>Payment Recieved</td>
-                                    <td class="fw-bold text-center">Ali Abdullah</td>
-                                    <td>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae, nesciunt!</td>
-                                    <td class="text-center text-success"><?=$arrow_up?> Rs. 45,000,000</td>
+                                    <td><?=$led['v-id']?></td>
+                                    <td class="fw-bold text-center"><?=$led['source']?></td>
+                                    <td><?=$led['remarks']?></td>
+                                    <?php if (!empty($led['credit'])) { ?>
+                                    <td class="text-success"><?=$arrow_up?> Rs. <?=number_format($led['credit'])?></td>
                                     <td></td>
-                                    <td class="fw-bold text-end">Rs. 80,000</td>
+                                    <?php } else { ?>
+                                    <td></td>
+                                    <td class="text-end text-danger">Rs. <?=number_format($led['debit'])?>
+                                        <?=$arrow_down?></td>
+                                    <?php } ?>
+                                    <?php if ($led['balance'] == 0) { ?>
+                                    <td class="fw-bold text-end text-success">
+                                        Rs. <?=number_format($led['balance'])?>
+                                        <svg class="icon icon-xs me-1" viewBox="0 0 24 24" width="24" height="24"
+                                            stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
+                                            stroke-linejoin="round" class="css-i6dzq1">
+                                            <circle cx="12" cy="12" r="4"></circle>
+                                            <line x1="1.05" y1="12" x2="7" y2="12"></line>
+                                            <line x1="17.01" y1="12" x2="22.96" y2="12"></line>
+                                        </svg>
+
+                                    </td>
+                                    <?php } elseif ($led['balance'] > 0) { ?>
+                                    <td class="fw-bold text-end text-success">
+                                        Rs. <?=number_format($led['balance'])?>
+                                        <svg class="icon icon-xs me-1" viewBox="0 0 24 24" width="24" height="24"
+                                            stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
+                                            stroke-linejoin="round" class="css-i6dzq1">
+                                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                                            <polyline points="17 6 23 6 23 12"></polyline>
+                                        </svg>
+                                    </td>
+                                    <?php } else { ?>
+                                    <td class="fw-bold text-end text-danger">
+                                        Rs. <?=number_format($led['balance'])?>
+                                        <svg class="icon icon-xs me-1" viewBox="0 0 24 24" width="24" height="24"
+                                            stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
+                                            stroke-linejoin="round" class="css-i6dzq1">
+                                            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+                                            <polyline points="17 18 23 18 23 12"></polyline>
+                                        </svg>
+                                    </td>
+                                    <?php } ?>
                                 </tr>
+                                <?php } } else { ?>
                                 <tr>
-                                    <td class="fw-bolder">
-                                        <?=$i+1?>
-                                    </td>
-                                    <td>PR-3</td>
-                                    <td>Payment Recieved</td>
-                                    <td class="fw-bold text-center">Ali Abdullah</td>
-                                    <td>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quae, nesciunt!</td>
-                                    <td></td>
-                                    <td class="text-center text-danger"><?=$arrow_down?>Rs. 45,000,000</td>
-                                    <td class="fw-bold text-end">Rs. 80,000</td>
+                                    <td class="text-center" colspan="7">No ledger history ...</td>
                                 </tr>
-                                <?php } } ?>
+                                <?php } ?>
                             </tbody>
                         </table>
                     </div>

@@ -92,17 +92,17 @@ $title = "Sign In";
     <?php include('temp/script.temp.php'); ?>
     <script>
     $(function() {
-        <?php if (isset($_GET['message'])) { ?>
+        <?php if (isset($_GET['m'])) { ?>
 
-        <?php if ($_GET['message'] == 'registered') { ?>
+        <?php if ($_GET['m'] == 'registered') { ?>
             notify("success", "License Key has been registered ...");
-        <?php } elseif ($_GET['message'] == 'p_not_exist') { ?>
+        <?php } elseif ($_GET['m'] == 'p_not_exist') { ?>
             notify("error", "Invalid Username ...");
-        <?php } elseif ($_GET['message'] == 'p_wrong_pass') { ?>
+        <?php } elseif ($_GET['m'] == 'p_wrong_pass') { ?>
             notify("error", "Wrong Password ...");
-        <?php } elseif ($_GET['message'] == 'l_not_reg') { ?>
+        <?php } elseif ($_GET['m'] == 'l_not_reg') { ?>
             notify("error", "License Key Isn't Registered ...");
-        <?php } elseif ($_GET['message'] == 'p_user_inactive') { ?>
+        <?php } elseif ($_GET['m'] == 'p_user_inactive') { ?>
             notify("error", "Your Status is Inactive ...");
         <?php } ?>
 

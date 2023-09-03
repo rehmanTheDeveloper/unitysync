@@ -19,7 +19,7 @@ $conn = conn("localhost", "root", "", "communiSync");             #
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "add-user-role, view-user-role") != true) {
-    header("Location: user.all.php?message=not_allowed");
+    header("Location: user.all.php?m=not_allowed");
     exit();
 }
 ################################ Role Validation ################################
@@ -101,7 +101,7 @@ $title = "User Roles";
                                 <?php if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "edit-user-role, delete-user-role") == true) { ?>
                                     <?php if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "edit-user-role") == true) { ?>
                                     <a data-bs-toggle="tooltip" data-bs-original-title="Edit" aria-label="Edit"
-                                        href="user.role.edit.php?id=<?=$role['id']?>">
+                                        href="user.role.edit.php?i=<?=$role['id']?>">
                                         <svg class="icon icon-xs text-gray-700" fill="currentColor" viewBox="0 0 20 20"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path
@@ -130,7 +130,7 @@ $title = "User Roles";
                                         <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
                                             style="">
                                             <a class="dropdown-item d-flex align-items-center"
-                                                href="comp/role.delete.php?id=<?=$role['id']?>">
+                                                href="comp/role.delete.php?i=<?=$role['id']?>">
                                                 <svg class="dropdown-icon text-success me-2 fs-5" fill="currentColor"
                                                     viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                                     <path fill-rule="evenodd"
@@ -187,30 +187,30 @@ $title = "User Roles";
     <?php require('temp/script.temp.php'); ?>
     <script>
     $(document).ready(function() {
-        <?php if (isset($_GET['message'])) { ?>
-        <?php if ($_GET['message'] == 'role_add_not_allow') { ?>
+        <?php if (isset($_GET['m'])) { ?>
+        <?php if ($_GET['m'] == 'role_add_not_allow') { ?>
             notify("error", "You are currently not Allowed to Add role ...");
-        <?php } elseif ($_GET['message'] == 'add_true') { ?>
+        <?php } elseif ($_GET['m'] == 'add_true') { ?>
             notify("success", "Role Created Successfully ...");
-        <?php } elseif ($_GET['message'] == 'add_false') { ?>
+        <?php } elseif ($_GET['m'] == 'add_false') { ?>
             notify("error", "Something's Wrong, Report Error ...");
-        <?php } elseif ($_GET['message'] == 'role_view_not_allow') { ?>
+        <?php } elseif ($_GET['m'] == 'role_view_not_allow') { ?>
             notify("error", "You are currently not Allowed to View Roles ...");
-        <?php } elseif ($_GET['message'] == 'role_edit_not_allow') { ?>
+        <?php } elseif ($_GET['m'] == 'role_edit_not_allow') { ?>
             notify("error", "You are currently not Allowed to Edit Role ...");
-        <?php } elseif ($_GET['message'] == 'not_found') { ?>
+        <?php } elseif ($_GET['m'] == 'not_found') { ?>
             notify("error", "No Role Found ...");
-        <?php } elseif ($_GET['message'] == 'edit_true') { ?>
+        <?php } elseif ($_GET['m'] == 'edit_true') { ?>
             notify("success", "Role Has been Modified ...");
-        <?php } elseif ($_GET['message'] == 'edit_false') { ?>
+        <?php } elseif ($_GET['m'] == 'edit_false') { ?>
             notify("error", "Something's Wrong, Report Error ...");
-        <?php } elseif ($_GET['message'] == 'role_delete_not_allow') { ?>
+        <?php } elseif ($_GET['m'] == 'role_delete_not_allow') { ?>
             notify("error", "You are currently not Allowed to Delete Role ...");
-        <?php } elseif ($_GET['message'] == 'user_exist') { ?>
+        <?php } elseif ($_GET['m'] == 'user_exist') { ?>
             notify("error", "Role Cannot be deleted, User Exist ...");
-        <?php } elseif ($_GET['message'] == 'delete_true') { ?>
+        <?php } elseif ($_GET['m'] == 'delete_true') { ?>
             notify("success", "Role Deleted Successfully ...");
-            <?php } elseif ($_GET['message'] == 'delete_false') { ?>
+            <?php } elseif ($_GET['m'] == 'delete_false') { ?>
             notify("error", "Something's Wrong, Report Error ...");
         <?php } ?>
     <?php } ?>

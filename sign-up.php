@@ -72,8 +72,8 @@ $title = "Register Plato Account";
 
     <?php include('temp/script.temp.php'); ?>
     <script>
-    <?php if (isset($_GET['message'])) { ?>
-        <?php if ($_GET['message'] == "missing_data") { ?>
+    <?php if (isset($_GET['m'])) { ?>
+        <?php if ($_GET['m'] == "missing_data") { ?>
             notify("error", "Missing Details, Click Check After Entering License Key ...");
         <?php } ?>
     <?php } ?>

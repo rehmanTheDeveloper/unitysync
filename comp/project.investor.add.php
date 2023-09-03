@@ -16,7 +16,7 @@ $conn = conn("localhost", "root", "", "communiSync"); #
 
 ################################ Role Validation ################################
 if ($_SESSION['role'] != 'super-admin') {
-    header("Location: ../Dashboard?message=masti");
+    header("Location: ../Dashboard?m=masti");
     exit();
 }
 ################################ Role Validation ################################
@@ -84,13 +84,13 @@ if ($result) {
     $stmt = $conn->prepare($query);
     $stmt->bind_param("ssssssss", $data['kanal'], $data['marla'], $data['feet'], $data['ratio'], $data['investor'], $_SESSION['project'], $created_date, $created_by);
     if ($stmt->execute()) {
-        header("Location: ../project.view.php?message=investor_add_true");
+        header("Location: ../project.view.php?m=investor_add_true");
         exit();
     } else {
-        header("Location: ../project.view.php?message=investor_add_false");
+        header("Location: ../project.view.php?m=investor_add_false");
         exit();
     }
 } else {
-    header("Location: ../project.view.php?message=not_found");
+    header("Location: ../project.view.php?m=not_found");
     exit();
 }

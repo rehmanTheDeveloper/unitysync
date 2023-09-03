@@ -16,17 +16,17 @@ $conn = conn("localhost", "root", "", "communiSync");              #
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "delete-user") != true) {
-    header("Location: ../user.all.php?message=not_allowed");
+    header("Location: ../user.all.php?m=not_allowed");
     exit();
 }
 ################################ Role Validation ################################
 
-if (empty($_GET['id'])) {
-    header("Location: ../user.all.php?message=false");
+if (empty($_GET['i'])) {
+    header("Location: ../user.all.php?m=false");
     exit();
 }
 
-$query = "SELECT `f_name`,`id`,`s_name` FROM `users` WHERE `id` = '".$_GET['id']."' AND `project_id` = '".$_SESSION['project']."';";
+$query = "SELECT `f_name`,`id`,`s_name` FROM `users` WHERE `id` = '".$_GET['i']."' AND `project_id` = '".$_SESSION['project']."';";
 $user = mysqli_fetch_assoc(mysqli_query($conn, $query));
 
 $db_activity['date'] = date("d-m-Y", strtotime($created_date));
@@ -40,14 +40,14 @@ activity($conn, $db_activity);
 
 $query = "DELETE FROM `users` WHERE `id` = ? AND `project_id` = '".$_SESSION['project']."';";
 $stmt = $conn->prepare($query);
-$stmt->bind_param("s", $_GET['id']);
+$stmt->bind_param("s", $_GET['i']);
 if ($stmt->execute()) {
     $stmt->close();
-    header("Location: ../user.all.php?message=deleted_true");
+    header("Location: ../user.all.php?m=deleted_true");
     exit();
 } else {
     $stmt->close();
-    header("Location: ../user.all.php?message=false");
+    header("Location: ../user.all.php?m=false");
     exit();
 }
 

@@ -23,6 +23,20 @@ if (!empty($allAcc)) {
         $query = "SELECT * FROM `".$Acc['type']."` WHERE `acc_id` = '".$Acc['acc_id']."' AND `project_id` = '".$_SESSION['project']."';";
         $accounts[$key] = mysqli_fetch_assoc(mysqli_query($conn, $query));
         $accounts[$key]['category'] = $Acc['type'];
+        $accounts[$key]['delete'] = 1;
+        if ($Acc['type'] == 'seller') {
+            $query = "SELECT * FROM `area_seller` WHERE `acc_id` = '".$Acc['acc_id']."' AND `project_id` = '".$_SESSION['project']."';";
+            $result = mysqli_query($conn, $query);
+            if (mysqli_num_rows($result) > 0) {
+                $accounts[$key]['delete'] = 0;
+            }
+        } elseif ($Acc['type'] == 'investor') {
+            $query = "SELECT * FROM `area_investor` WHERE `acc_id` IN ('".$Acc['acc_id']."') AND `project_id` = '".$_SESSION['project']."';";
+            $result = mysqli_query($conn, $query);
+            if (mysqli_num_rows($result) > 0) {
+                $accounts[$key]['delete'] = 0;
+            }
+        }
     }
 } else {
     $accounts = [];
@@ -75,7 +89,7 @@ $title = "All Accounts";
                     if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "add-account") === true) {
                     ################################ Role Validation ################################
                     ?>
-                    <a href="account.config.php" class="btn btn-outline-gray-800 d-inline-flex align-items-center">
+                    <a href="Account-config" class="btn btn-outline-gray-800 d-inline-flex align-items-center">
                         <svg class="icon icon-xs me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                             xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -116,7 +130,7 @@ $title = "All Accounts";
                             <td><?=$account['name']?></td>
                             <td class="text-end text-capitalize"><?=$account['category']?></td>
                             <td style="column-gap: 15px;" class="d-flex justify-content-end align-items-center">
-                            <?php
+                                <?php
                             ################################ Role Validation ################################
                             if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "view-account, edit-account, delete-account") === true) {
                             ################################ Role Validation ################################
@@ -137,7 +151,8 @@ $title = "All Accounts";
                                     if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "edit-account") === true) {
                                     ################################ Role Validation ################################
                                     ?>
-                                    <a class="dropdown-item d-flex align-items-center" href="account.edit.php">
+                                    <a class="dropdown-item d-flex align-items-center"
+                                        href="account.edit.php?i=<?=encryptor("encrypt", $account['acc_id'])?>">
                                         <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor"
                                             viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                             <path
@@ -150,7 +165,8 @@ $title = "All Accounts";
                                         Edit
                                     </a>
                                     <?php } ?>
-                                    <a class="dropdown-item d-flex align-items-center" href="account.view.php?id=<?=$account['acc_id']?>">
+                                    <a class="dropdown-item d-flex align-items-center"
+                                        href="account.view.php?i=<?=encryptor("encrypt", $account['acc_id'])?>">
                                         <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor"
                                             viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
@@ -170,8 +186,8 @@ $title = "All Accounts";
                                     <button class="btn btn-link dropdown-toggle dropdown-toggle-split m-0 p-0"
                                         data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                         title="Delete">
-                                        <svg class="icon icon-xs text-danger" fill="currentColor" viewBox="0 0 20 20"
-                                            xmlns="http://www.w3.org/2000/svg">
+                                        <svg class="icon icon-xs <?=($account['delete'] == 1)?'text-danger':'text-gray-400'?>"
+                                            fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                             <path fill-rule="evenodd"
                                                 d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
                                                 clip-rule="evenodd"></path>
@@ -180,7 +196,10 @@ $title = "All Accounts";
                                     </button>
                                     <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
                                         style="">
-                                        <a class="dropdown-item d-flex align-items-center" href="#">
+                                        <?php if ($account['delete'] == 1) { ?>
+                                        <a class="dropdown-item d-flex align-items-center deleteBtn"
+                                            data-id="<?=encryptor("encrypt",$account['acc_id'])?>"
+                                            data-name="<?=$account['name']?>">
                                             <svg class="icon icon-xs dropdown-icon text-success me-2"
                                                 fill="currentColor" viewBox="0 0 20 20"
                                                 xmlns="http://www.w3.org/2000/svg">
@@ -197,9 +216,21 @@ $title = "All Accounts";
                                                     d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
                                                     clip-rule="evenodd"></path>
                                             </svg>
-                                            <i class="fa-solid fa-circle-xmark fs-5"></i>
                                             No
                                         </a>
+                                        <?php } else { ?>
+                                        <a class="dropdown-item d-flex align-items-center text-gray-700"
+                                            data-bs-dismiss="dropdown">
+                                            <svg class="icon icon-xs dropdown-icon text-gray-400 me-2"
+                                                fill="currentColor" viewBox="0 0 20 20"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd"
+                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                                    clip-rule="evenodd"></path>
+                                            </svg>
+                                            Not Deletable ...
+                                        </a>
+                                        <?php } ?>
                                     </div>
                                 </div>
                                 <?php } ?>
@@ -208,9 +239,9 @@ $title = "All Accounts";
                         </tr>
                         <?php } ?>
                         <?php } else { ?>
-                            <tr>
-                                <td class="text-center border-bottom" colspan="5">No Account Created ...</td>
-                            </tr>
+                        <tr>
+                            <td class="text-center border-bottom" colspan="5">No Account Created ...</td>
+                        </tr>
                         <?php } ?>
                     </tbody>
                 </table>
@@ -226,21 +257,122 @@ $title = "All Accounts";
         <?php } ?>
     </main>
 
+    <?php if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "delete-user") === true) { ?>
+    <!-- Modal Content -->
+    <div class="modal fade" id="deleteAccount" tabindex="-1" role="dialog" aria-labelledby="delete user"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="h6 modal-title">Delete User</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete User ( <span id="selectedUser"></span> ) ?</p>
+                    <input type="hidden" id="accountID" value="" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-bs-dismiss="modal">No</button>
+                    <button type="button" id="confirmDeleteBtn" data-target="#confirmationCode"
+                        class="btn btn-danger">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="confirmationCode" tabindex="-1" role="dialog" aria-labelledby="delete user"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="h6 modal-title">Confirmation Code</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Please enter the sum of the following numbers:</p>
+                    <p><span class="number1"></span> + <span class="number2"></span> =</p>
+                    <div class="mb-3">
+                        <input class="form-control" type="text" id="confirmation-input" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" id="confirmCodeAns" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End of Modal Content -->
+    <?php } ?>
+
     <?php include('temp/script.temp.php'); ?>
     <script>
-    <?php if (isset($_GET['message'])) { ?>
-        <?php if ($_GET['message'] == 'add_true') { ?>
-            notify("success", "Account Created Successfully ...");
-        <?php } elseif ($_GET['message'] == 'add_false') { ?>
-            notify("error", "Something's Wrong, Report Error ...");
-        <?php } elseif ($_GET['message'] == 'account_add_not_allow') { ?>
-            notify("error", "You are currently not Allowed to Add Account ...");
-        <?php } elseif ($_GET['message'] == 'account_view_not_allow') { ?>
-            notify("error", "You are currently not Allowed to Add Account ...");
-        <?php } elseif ($_GET['message'] == 'not_found') { ?>
-            notify("error", "No Account Found ...");
-        <?php } ?>
+    <?php if (isset($_GET['m'])) { ?>
+    <?php if ($_GET['m'] == 'add_true') { ?>
+    notify("success", "Account Created Successfully ...");
+    <?php } elseif ($_GET['m'] == 'add_false') { ?>
+    notify("error", "Something's Wrong, Report Error ...");
+    <?php } elseif ($_GET['m'] == 'account_add_not_allow') { ?>
+    notify("error", "You are currently not Allowed to Add Account ...");
+    <?php } elseif ($_GET['m'] == 'account_view_not_allow') { ?>
+    notify("error", "You are currently not Allowed to Add Account ...");
+    <?php } elseif ($_GET['m'] == 'not_found') { ?>
+    notify("error", "No Account Found ...");
+    <?php } elseif ($_GET['m'] == 'deleted_true') { ?>
+    notify("success", "Account Deleted Successfully ...");
+    <?php } elseif ($_GET['m'] == 'deleted_false') { ?>
+    notify("error", "Something's Wrong, Report Error ...");
     <?php } ?>
+    <?php } ?>
+
+    $(function() {
+        // Randomly generate two numbers
+        var number1 = Math.floor(Math.random() * 10) + 1;
+        var number2 = Math.floor(Math.random() * 10) + 1;
+        $('.number1').text(number1);
+        $('.number2').text(number2);
+
+        // Show confirmation dialog on delete button click
+        $('.deleteBtn').click(function() {
+            var accountId = $(this).data('id');
+            var userName = $(this).data('name');
+
+            // Set user name in delete confirmation modal
+            $('#selectedUser').text(userName);
+            $('#accountID').val(accountId);
+
+            console.log(userName);
+            console.log(accountId);
+
+            $('#deleteAccount').modal('show');
+        });
+
+        // Show confirmation code dialog on confirm delete button click
+        $('#confirmDeleteBtn').click(function() {
+            $('#deleteAccount').modal('hide');
+            $('#confirmationCode').modal('show');
+        });
+
+        // Handle confirmation code submission
+        $('#confirmCodeAns').click(function() {
+            // Get user input and calculate expected result
+            var input = $('#confirmation-input').val();
+            var expected = number1 + number2;
+
+            // Check if input is correct
+            if (input == expected) {
+                var accountId = $('#accountID').val();
+                window.location.href = 'comp/account.delete.php?i=' + accountId;
+            } else {
+                // Show error message and generate new numbers
+                notify("error", "The sum is incorrect. Please try again.");
+                number1 = Math.floor(Math.random() * 10) + 1;
+                number2 = Math.floor(Math.random() * 10) + 1;
+                $('.number1').text(number1);
+                $('.number2').text(number2);
+                $('#confirmation-input').val('');
+            }
+        });
+    });
     </script>
 </body>
 

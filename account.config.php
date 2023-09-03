@@ -15,10 +15,24 @@ $conn = conn("localhost", "root", "", "communiSync");             #
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "add-account") != true) {
-    header("Location: account.all.php?message=account_add_not_allow");
+    header("Location: Accounts?m=account_add_not_allow");
     exit();
 }
 ################################ Role Validation ################################
+
+$cities = [
+    "Karachi", "Lahore", "Faisalabad", "Rawalpindi", "Gujranwala", "Peshawar", "Multan", "Hyderabad", "Islamabad", "Quetta",
+    "Bahawalpur", "Sargodha", "Sialkot", "Sukkur", "Larkana", "Rahim Yar Khan", "Sheikhupura", "Jhang", "Talagang",
+    "Dera Ghazi Khan", "Gujrat", "Sahiwal", "Wah Cantonment", "Mardan", "Kasur", "Okara", "Mingora", "Nawabshah",
+    "Chiniot", "Kotri", "Kāmoke", "Hafizabad", "Sadiqabad", "Mirpur Khas", "Burewala", "Kohat", "Khanewal", "Dera Ismail Khan",
+    "Turbat", "Muzaffargarh", "Abbottabad", "Mandi Bahauddin", "Shikarpur", "Jacobabad", "Jhelum", "Khanpur", "Khairpur",
+    "Khuzdar", "Pakpattan", "Hub", "Daska", "Gojra", "Dadu", "Muridke", "Bahawalnagar", "Samundri", "Tando Allahyar",
+    "Tando Adam", "Jaranwala", "Chishtian", "Muzaffarabad", "Attock", "Vehari", "Kot Abdul Malik", "Ferozwala", "Chakwal",
+    "Gujranwala Cantonment", "Kamalia", "Umerkot", "Ahmedpur East", "Kot", "Wazirabad", "Mansehra", "Layyah", "Mirpur",
+    "Swabi", "Chaman", "Taxila", "Nowshera", "Khushab", "Shahdadkot", "Mianwali", "Kabal", "Lodhran", "Hasilpur",
+    "Charsadda", "Bhakkar", "Badin", "Arif", "Ghotki", "Sambrial", "Jatoi", "Haroonabad", "Daharki", "Narowal",
+    "Tando Muhammad Khan", "Kamber Ali Khan", "Mirpur Mathelo", "Kandhkot", "Bhalwal"
+];
 
 $title = "Add Account";
 ?>
@@ -27,7 +41,7 @@ $title = "Add Account";
 
 <head>
     <?php include('temp/head.temp.php'); ?>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
+    <link rel="stylesheet" href="vendor/cropperjs/dist/css/cropper.min.css" />
     <style type="text/css">
     .preview {
         overflow: hidden;
@@ -68,7 +82,7 @@ $title = "Add Account";
             <div class="d-flex justify-content-between w-100 flex-wrap align-items-center">
                 <h1 class="h4 mb-0">Add Account</h1>
                 <div>
-                    <a href="account.all.php" class="btn btn-outline-gray-600 d-inline-flex align-items-center">
+                    <a href="Accounts" class="btn btn-outline-gray-600 d-inline-flex align-items-center">
                         All Accounts
                     </a>
                 </div>
@@ -140,106 +154,9 @@ $title = "Add Account";
                                                     <label for="city">City</label>
                                                     <select name="city" id="city" class="form-select" required>
                                                         <option value="" selected>Select City</option>
-                                                        <option value="Karachi">Karachi</option>
-                                                        <option value="Lahore">Lahore</option>
-                                                        <option value="Faisalabad">Faisalabad</option>
-                                                        <option value="Rawalpindi">Rawalpindi</option>
-                                                        <option value="Gujranwala">Gujranwala</option>
-                                                        <option value="Peshawar">Peshawar</option>
-                                                        <option value="Multan">Multan</option>
-                                                        <option value="Hyderabad">Hyderabad</option>
-                                                        <option value="Islamabad">Islamabad</option>
-                                                        <option value="Quetta">Quetta</option>
-                                                        <option value="Bahawalpur">Bahawalpur</option>
-                                                        <option value="Sargodha">Sargodha</option>
-                                                        <option value="Sialkot">Sialkot</option>
-                                                        <option value="Sukkur">Sukkur</option>
-                                                        <option value="LarkAdd Accountana">Larkana</option>
-                                                        <option value="Rahim Yar Khan">Rahim Yar Khan</option>
-                                                        <option value="Sheikhupura">Sheikhupura</option>
-                                                        <option value="Jhang">Jhang</option>
-                                                        <option value="Talagang">Talagang</option>
-                                                        <option value="Dera Ghazi Khan">Dera Ghazi Khan</option>
-                                                        <option value="Gujrat">Gujrat</option>
-                                                        <option value="Sahiwal">Sahiwal</option>
-                                                        <option value="Wah Cantonment">Wah Cantonment</option>
-                                                        <option value="Mardan">Mardan</option>
-                                                        <option value="Kasur">Kasur</option>
-                                                        <option value="Okara">Okara</option>
-                                                        <option value="Mingora">Mingora</option>
-                                                        <option value="Nawabshah">Nawabshah</option>
-                                                        <option value="Chiniot">Chiniot</option>
-                                                        <option value="Kotri">Kotri</option>
-                                                        <option value="Kāmoke">Kāmoke</option>
-                                                        <option value="Hafizabad">Hafizabad</option>
-                                                        <option value="Sadiqabad">Sadiqabad</option>
-                                                        <option value="Mirpur Khas">Mirpur Khas</option>
-                                                        <option value="Burewala">Burewala</option>
-                                                        <option value="Kohat">Kohat</option>
-                                                        <option value="Khanewal">Khanewal</option>
-                                                        <option value="Dera Ismail Khan">Dera Ismail Khan</option>
-                                                        <option value="Turbat">Turbat</option>
-                                                        <option value="Muzaffargarh">Muzaffargarh</option>
-                                                        <option value="Abbottabad">Abbottabad</option>
-                                                        <option value="Mandi Bahauddin">Mandi Bahauddin</option>
-                                                        <option value="Shikarpur">Shikarpur</option>
-                                                        <option value="Jacobabad">Jacobabad</option>
-                                                        <option value="Jhelum">Jhelum</option>
-                                                        <option value="Khanpur">Khanpur</option>
-                                                        <option value="Khairpur">Khairpur</option>
-                                                        <option value="Khuzdar">Khuzdar</option>
-                                                        <option value="Pakpattan">Pakpattan</option>
-                                                        <option value="Hub">Hub</option>
-                                                        <option value="Daska">Daska</option>
-                                                        <option value="Gojra">Gojra</option>
-                                                        <option value="Dadu">Dadu</option>
-                                                        <option value="Muridke">Muridke</option>
-                                                        <option value="Bahawalnagar">Bahawalnagar</option>
-                                                        <option value="Samundri">Samundri</option>
-                                                        <option value="Tando Allahyar">Tando Allahyar</option>
-                                                        <option value="Tando Adam">Tando Adam</option>
-                                                        <option value="Jaranwala">Jaranwala</option>
-                                                        <option value="Chishtian">Chishtian</option>
-                                                        <option value="Muzaffarabad">Muzaffarabad</option>
-                                                        <option value="Attock">Attock</option>
-                                                        <option value="Vehari">Vehari</option>
-                                                        <option value="Kot Abdul Malik">Kot Abdul Malik</option>
-                                                        <option value="Ferozwala">Ferozwala</option>
-                                                        <option value="Chakwal">Chakwal</option>
-                                                        <option value="Gujranwala Cantonment">Gujranwala Cantonment</option>
-                                                        <option value="Kamalia">Kamalia</option>
-                                                        <option value="Umerkot">Umerkot</option>
-                                                        <option value="Ahmedpur East">Ahmedpur East</option>
-                                                        <option value="Kot">Kot</option>
-                                                        <option value="Wazirabad">Wazirabad</option>
-                                                        <option value="Mansehra">Mansehra</option>
-                                                        <option value="Layyah">Layyah</option>
-                                                        <option value="Mirpur">Mirpur</option>
-                                                        <option value="Swabi">Swabi</option>
-                                                        <option value="Chaman">Chaman</option>
-                                                        <option value="Taxila">Taxila</option>
-                                                        <option value="Nowshera">Nowshera</option>
-                                                        <option value="Khushab">Khushab</option>
-                                                        <option value="Shahdadkot">Shahdadkot</option>
-                                                        <option value="Mianwali">Mianwali</option>
-                                                        <option value="Kabal">Kabal</option>
-                                                        <option value="Lodhran">Lodhran</option>
-                                                        <option value="Hasilpur">Hasilpur</option>
-                                                        <option value="Charsadda">Charsadda</option>
-                                                        <option value="Bhakkar">Bhakkar</option>
-                                                        <option value="Badin">Badin</option>
-                                                        <option value="Arif">Arif</option>
-                                                        <option value="Ghotki">Ghotki</option>
-                                                        <option value="Sambrial">Sambrial</option>
-                                                        <option value="Jatoi">Jatoi</option>
-                                                        <option value="Haroonabad">Haroonabad</option>
-                                                        <option value="Daharki">Daharki</option>
-                                                        <option value="Narowal">Narowal</option>
-                                                        <option value="Tando Muhammad Khan">Tando Muhammad Khan</option>
-                                                        <option value="Kamber Ali Khan">Kamber Ali Khan</option>
-                                                        <option value="Mirpur Mathelo">Mirpur Mathelo</option>
-                                                        <option value="Kandhkot">Kandhkot</option>
-                                                        <option value="Bhalwal">Bhalwal</option>
+                                                        <?php foreach ($cities as $key => $city) { ?>
+                                                            <option value="<?=$city?>"><?=$city?></option>
+                                                        <?php } ?>
                                                     </select>
                                                 </div>
                                             </div>
@@ -369,8 +286,8 @@ $title = "Add Account";
                                         </div>
                                     </div>
                                     <div class="col-lg-4">
-                                        <div class="image-section">
-                                            <img class="img-fluid p-5 pb-0 rounded rounded-3" id="imgPreview"
+                                        <div class="image-section px-4 pt-4">
+                                            <img class="img-fluid rounded rounded-3" id="imgPreview"
                                                 src="assets/img/profile.png" alt="" srcset="" />
                                             <div class="d-flex align-items-center justify-content-center">
                                                 <input type="file" id="imgUpload" hidden />
@@ -496,7 +413,7 @@ $title = "Add Account";
     if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "add-account") == true) { #
     ################################ Role Validation ################################
     ?>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script src="vendor/cropperjs/dist/js/cropper.min.js"></script>
     <script>
     $(function() {
         $("#category").trigger("change");

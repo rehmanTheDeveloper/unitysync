@@ -11,11 +11,11 @@ function sanitize($conn, $value)
 }
 // Sanitize Data
 
-// Voucher IDs
-function voucherId($conn, $table, $column, $id, $count)
+// Selected Table ID
+function selectedTableId($conn, $table, $column, $id, $count)
 {
 	$key = '';
-	$query = "SELECT * FROM `$table` ORDER BY id DESC LIMIT 1";
+	$query = "SELECT * FROM `$table` ORDER BY id DESC LIMIT 1 WHERE `project_id` = '" . $_SESSION['project'] . "';";
 	$sql = mysqli_query($conn, $query);
 	$row = mysqli_fetch_assoc($sql);
 	if (mysqli_num_rows($sql) > 0) {
@@ -25,7 +25,41 @@ function voucherId($conn, $table, $column, $id, $count)
 		return $id . '-1';
 	}
 }
-// Voucher IDs
+// Selected Table ID
+
+// Voucher ID
+function ledgerVoucherId($conn)
+{
+	$numbers = "0123456789";
+	$random = "";
+
+	// Generate a random 10-digit number
+	for ($i = 0; $i < 8; $i++) {
+		$random .= $numbers[mt_rand(0, strlen($numbers) - 1)];
+	}
+
+	// Check if the generated voucher ID exists in the database
+	$query = "SELECT COUNT(*) AS count FROM ledger WHERE `v-id` = ? AND `project_id` = '" . $_SESSION['project'] . "';";
+	$stmt = mysqli_prepare($conn, $query);
+
+	if ($stmt === false) {
+		die("MySQLi prepare error: " . mysqli_error($conn));
+	}
+
+	$stmt->bind_param("s", $random);
+	$stmt->execute();
+	$stmt->bind_result($count);
+	$stmt->fetch();
+	$stmt->close();
+
+	if ($count === 0) {
+		return $random; // The voucher ID is unique
+	} else {
+		// If not unique, generate a new one recursively
+		return ledgerVoucherId($conn);
+	}
+}
+// Voucher ID
 
 // Number Format
 function number_format_thousands($n, $precision = 2)
@@ -98,6 +132,7 @@ function validationRole($DatabaseConnection, $project, $userRole, $hasPermission
 }
 // Role Validation
 
+// Activity Record
 function activity($conn, $activity)
 {
 	$query = "INSERT INTO `activity`(`date`, `message`, `UI`, `project_id`, `created_date`, `created_by`) VALUES (?,?,?,?,?,?);";
@@ -105,6 +140,42 @@ function activity($conn, $activity)
 	$stmt->bind_param("ssssss", $activity['date'], $activity['activity'], $activity['user_id'], $activity['project'], $activity['created_date'], $activity['created_by']);
 	$stmt->execute();
 }
+// Activity Record
+
+// Ledger Record
+function ledger($conn, $ledger)
+{
+	$query = "INSERT INTO `ledger`(`v-id`, `type`, `source`, `remarks`";
+	if (!empty($ledger['credit'])) {
+		$query .= ", `credit`";
+		$ledger['amount'] = $ledger['credit'];
+		unset($ledger['credit']);
+		unset($ledger['debit']);
+	} else {
+		$query .= ", `debit`";
+		$ledger['amount'] = $ledger['debit'];
+		unset($ledger['credit']);
+		unset($ledger['debit']);
+	}
+	$query .= ", `project_id`, `created_date`, `created_by`) VALUES (?,?,?,?,?,?,?,?);";
+	$stmt = $conn->prepare($query);
+	$stmt->bind_param("ssssssss", $ledger['v-id'], $ledger['type'], $ledger['source'], $ledger['remarks'], $ledger['amount'], $ledger['project'], $ledger['created_date'], $ledger['created_by']);
+	// print_r($ledger);
+	$stmt->execute();
+}
+// Ledger Record
+
+// Sum of selected Index
+function getSumOfId($array, $id)
+{
+	$sumOfId = 0;
+
+	foreach ($array as $arr) {
+		$sumOfId += $arr[$id];
+	}
+	return $sumOfId;
+}
+// Sum of selected Index
 
 // Functions for time calculation
 function time_since($since)
@@ -159,36 +230,41 @@ function remainingTime($targetDate)
 	$remainingHours = $interval->h;
 	$remainingMinutes = $interval->i;
 
-	return implode(", ", array(
-		"totaldays" => $totalDays." days",
-		'remainingHours' => $remainingHours." hours",
-		'remainingMinutes' => $remainingMinutes." mins"
-	));
+	return implode(
+		", ",
+		array(
+			"totaldays" => $totalDays . " days",
+			'remainingHours' => $remainingHours . " hours",
+			'remainingMinutes' => $remainingMinutes . " mins"
+		)
+	);
 }
 // Calculate Remaining time 
 
 // Phone Number formatter
-function phone_no_format($input) {
-    $number = preg_replace('/[^0-9]/', '', $input); // Remove non-numeric characters
-    $formattedNumber = '';
+function phone_no_format($input)
+{
+	$number = preg_replace('/[^0-9]/', '', $input); // Remove non-numeric characters
+	$formattedNumber = '';
 
-    if (strlen($number) > 0) {
-        $formattedNumber .= '(' . substr($number, 0, 3) . ')' . ' ' . substr($number, 3, 3) .'-' . substr($number, 6, 4);
-    }
+	if (strlen($number) > 0) {
+		$formattedNumber .= '(' . substr($number, 0, 3) . ')' . ' ' . substr($number, 3, 3) . '-' . substr($number, 6, 4);
+	}
 
-    return $formattedNumber;
+	return $formattedNumber;
 }
 // Phone Number formatter
 
 // CNIC Formatter
-function cnic_format($number) {
-    $number = preg_replace('/[^0-9]/', '', $number); // Remove non-numeric characters
+function cnic_format($number)
+{
+	$number = preg_replace('/[^0-9]/', '', $number); // Remove non-numeric characters
 
-    if (strlen($number) >= 10) {
-        $formattedNumber = substr($number, 0, 5) . '-' . substr($number, 5, 7) . '-' . substr($number, -1);
-        return $formattedNumber;
-    }
+	if (strlen($number) >= 10) {
+		$formattedNumber = substr($number, 0, 5) . '-' . substr($number, 5, 7) . '-' . substr($number, -1);
+		return $formattedNumber;
+	}
 
-    return $number; // Return original number if not enough digits for formatting
+	return $number; // Return original number if not enough digits for formatting
 }
 // CNIC Formatter

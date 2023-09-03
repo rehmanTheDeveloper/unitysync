@@ -16,14 +16,14 @@ $conn = conn("localhost", "root", "", "communiSync");              #
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "view-user-role") != true) {
-    header("Location: ../user.role.all.php?message=role_view_not_allow");
+    header("Location: ../user.role.all.php?m=role_view_not_allow");
     exit();
 }
 ################################ Role Validation ################################
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "edit-user-role") != true) {
-    header("Location: ../user.role.all.php?message=role_edit_not_allow");
+    header("Location: ../user.role.all.php?m=role_edit_not_allow");
     exit();
 }
 ################################ Role Validation ################################
@@ -33,7 +33,7 @@ $valid = FALSE;
 
 foreach ($_POST as $key => $value) {
     if (empty($value)) {
-        header("Location: ../user.role.add.php?message=field_missing");
+        header("Location: ../user.role.add.php?m=field_missing");
         exit();
     }
     if ($key == "role") {
@@ -46,7 +46,7 @@ foreach ($_POST as $key => $value) {
 }
 
 if ($data['roleName'] == 'super-admin') {
-    header("Location: ../user.role.edit.php?id=".$data['id']."&message=not_found");
+    header("Location: ../user.role.edit.php?id=".$data['id']."&m=not_found");
     exit();
 }
 
@@ -84,9 +84,9 @@ foreach ($data['role'] as $key => $value) {
 }
 
 if ($valid) {
-    header("Location: ../user.role.all.php?message=edit_true");
+    header("Location: ../user.role.all.php?m=edit_true");
     exit();
 } else {
-    header("Location: ../user.role.all.php?message=edit_false");
+    header("Location: ../user.role.all.php?m=edit_false");
     exit();
 }

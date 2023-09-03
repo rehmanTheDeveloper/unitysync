@@ -14,7 +14,7 @@ $conn = conn("localhost", "root", "", "communiSync");             #
 ####################### Database Connection #######################
 
 if ($_SESSION['role'] !== 'super-admin') {
-    header("Location: Dashboard?message=masti");
+    header("Location: Dashboard?m=masti");
     exit();
 }
 
@@ -125,7 +125,7 @@ $title = "Project - ".$project['name'];
                         Add Investor
                     </a>
                     <?php } ?>
-                    <a href="project.edit.php?id=<?=$project['id']?>" class="btn btn-outline-gray-800">
+                    <a href="project.edit.php?i=<?=$project['id']?>" class="btn btn-outline-gray-800">
                         Edit Project
                     </a>
                 </div>
@@ -390,7 +390,7 @@ $title = "Project - ".$project['name'];
                                         </button>
                                         <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
                                             style="">
-                                            <a class="dropdown-item d-flex align-items-center" href="docs.view.php">
+                                            <a class="dropdown-item d-flex align-items-center" href="docs.view.php?i=<?=encryptor("encrypt", $area_seller['acc_id'])?>">
                                                 <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor"
                                                     viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"></path>
@@ -401,7 +401,7 @@ $title = "Project - ".$project['name'];
                                                 Docs
                                             </a>
                                             <a class="dropdown-item d-flex align-items-center"
-                                                href="account.view.php?id=<?=$area_seller['acc_id']?>">
+                                                href="account.view.php?i=<?=encryptor("encrypt", $area_seller['acc_id'])?>">
                                                 <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor"
                                                     viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
@@ -427,7 +427,7 @@ $title = "Project - ".$project['name'];
                                             </button>
                                             <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
                                                 style="">
-                                                <a class="dropdown-item d-flex align-items-center" href="comp/project.seller.delete.php?id=<?=$area_seller['acc_id']?>">
+                                                <a class="dropdown-item d-flex align-items-center" href="comp/project.seller.delete.php?i=<?=$area_seller['acc_id']?>">
                                                     <svg class="icon icon-xs dropdown-icon text-success me-2"
                                                         fill="currentColor" viewBox="0 0 20 20"
                                                         xmlns="http://www.w3.org/2000/svg">
@@ -446,7 +446,7 @@ $title = "Project - ".$project['name'];
                                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
                                                             clip-rule="evenodd"></path>
                                                     </svg>
-                                                    <i class="fa-solid fa-circle-xmark fs-5"></i>
+                                                    
                                                     No
                                                 </a>
                                             </div>
@@ -526,7 +526,7 @@ $title = "Project - ".$project['name'];
                                         <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
                                             style="">
                                             <a class="dropdown-item d-flex align-items-center"
-                                                href="docs.view.php?id=<?=$area_investor['acc_id']?>">
+                                                href="docs.view.php?i=<?=encryptor("encrypt", $area_investor['acc_id'])?>">
                                                 <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor"
                                                     viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"></path>
@@ -536,7 +536,7 @@ $title = "Project - ".$project['name'];
                                                 </svg>
                                                 Docs
                                             </a>
-                                            <a class="dropdown-item d-flex align-items-center" href="account.view.php">
+                                            <a class="dropdown-item d-flex align-items-center" href="account.view.php?i=<?=encryptor("encrypt", $area_investor['acc_id'])?>">
                                                 <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor"
                                                     viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
@@ -561,7 +561,7 @@ $title = "Project - ".$project['name'];
                                             </button>
                                             <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
                                                 style="">
-                                                <a class="dropdown-item d-flex align-items-center" href="comp/project.investor.delete.php?id=<?=$area_investor['acc_id']?>">
+                                                <a class="dropdown-item d-flex align-items-center" href="comp/project.investor.delete.php?i=<?=$area_investor['acc_id']?>">
                                                     <svg class="icon icon-xs dropdown-icon text-success me-2"
                                                         fill="currentColor" viewBox="0 0 20 20"
                                                         xmlns="http://www.w3.org/2000/svg">
@@ -580,7 +580,7 @@ $title = "Project - ".$project['name'];
                                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
                                                             clip-rule="evenodd"></path>
                                                     </svg>
-                                                    <i class="fa-solid fa-circle-xmark fs-5"></i>
+                                                    
                                                     No
                                                 </a>
                                             </div>
@@ -929,7 +929,7 @@ $title = "Project - ".$project['name'];
                                 <?php if (!empty($insert_sellers)) { ?>
                                 <button type="submit" class="btn btn-success text-white fw-bolder">Add Seller</button>
                                 <?php } else { ?>
-                                    <a href="account.config.php" class="btn btn-primary text-white fw-bolder">Add Seller</a>
+                                    <a href="Account-config" class="btn btn-primary text-white fw-bolder">Add Seller</a>
                                 <?php } ?>
                             </div>
                         </form>
@@ -1187,7 +1187,7 @@ $title = "Project - ".$project['name'];
                                 <?php if (!empty($insert_investors)) { ?>
                                 <button type="submit" class="btn btn-success text-white fw-bolder">Add Investor</button>
                                 <?php } else { ?>
-                                    <a href="account.config.php" class="btn btn-primary text-white fw-bolder">Add Investor</a>
+                                    <a href="Account-config" class="btn btn-primary text-white fw-bolder">Add Investor</a>
                                 <?php } ?>
                             </div>
                         </form>
@@ -1266,26 +1266,26 @@ $title = "Project - ".$project['name'];
     </main>
     <?php include('temp/script.temp.php'); ?>
     <script>
-    <?php if (isset($_GET['message'])) { ?>
-    <?php if ($_GET['message'] == 'edit_true') { ?>
+    <?php if (isset($_GET['m'])) { ?>
+    <?php if ($_GET['m'] == 'edit_true') { ?>
     notify("success", "Project Settings Updated ...");
-    <?php } elseif ($_GET['message'] == 'edit_false') { ?>
+    <?php } elseif ($_GET['m'] == 'edit_false') { ?>
     notify("error", "Something's Wrong, Report Error ...");
-    <?php } elseif ($_GET['message'] == 'seller_add_true') { ?>
+    <?php } elseif ($_GET['m'] == 'seller_add_true') { ?>
     notify("success", "Seller Added Successfully ...");
-    <?php } elseif ($_GET['message'] == 'seller_add_false') { ?>
+    <?php } elseif ($_GET['m'] == 'seller_add_false') { ?>
     notify("error", "Something's Wrong, Report Error ...");
-    <?php } elseif ($_GET['message'] == 'investor_add_true') { ?>
+    <?php } elseif ($_GET['m'] == 'investor_add_true') { ?>
     notify("success", "Investor Added Successfully ...");
-    <?php } elseif ($_GET['message'] == 'investor_add_false') { ?>
+    <?php } elseif ($_GET['m'] == 'investor_add_false') { ?>
     notify("error", "Something's Wrong, Report Error ...");
-    <?php } elseif ($_GET['message'] == 'investor_delete_true') { ?>
+    <?php } elseif ($_GET['m'] == 'investor_delete_true') { ?>
     notify("success", "Investor Removed Successfully ...");
-    <?php } elseif ($_GET['message'] == 'investor_delete_false') { ?>
+    <?php } elseif ($_GET['m'] == 'investor_delete_false') { ?>
     notify("error", "Something's Wrong, Report Error ...");
-    <?php } elseif ($_GET['message'] == 'seller_delete_true') { ?>
+    <?php } elseif ($_GET['m'] == 'seller_delete_true') { ?>
     notify("success", "Seller Removed Successfully ...");
-    <?php } elseif ($_GET['message'] == 'seller_delete_false') { ?>
+    <?php } elseif ($_GET['m'] == 'seller_delete_false') { ?>
     notify("error", "Something's Wrong, Report Error ...");
     <?php } ?>
     <?php } ?>

@@ -199,7 +199,7 @@ $title = "All Users";
                                             <?php } ?>
                                             <?php } ?>
                                             <a class="dropdown-item d-flex align-items-center"
-                                                href="user.view.php?id=<?= $user['u_id'] ?>">
+                                                href="user.view.php?i=<?= $user['u_id'] ?>">
                                                 <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor"
                                                     viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
@@ -215,7 +215,7 @@ $title = "All Users";
                                             ################################ Role Validation ################################
                                             ?>
                                             <a class="dropdown-item d-flex align-items-center"
-                                                href="user.edit.php?id=<?= $user['u_id'] ?>">
+                                                href="user.edit.php?i=<?= $user['u_id'] ?>">
                                                 <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor"
                                                     viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                                     <path
@@ -401,7 +401,7 @@ $title = "All Users";
             // Check if input is correct
             if (input == expected) {
                 var userId = $('#userID').val();
-                window.location.href = 'comp/user.delete.php?id=' + userId;
+                window.location.href = 'comp/user.delete.php?i=' + userId;
             } else {
                 // Show error message and generate new numbers
                 notify("error", "The sum is incorrect. Please try again.");
@@ -414,32 +414,32 @@ $title = "All Users";
         });
 
     });
-    <?php if (isset($_GET['message'])) { ?>
-        <?php if ($_GET['message'] == 'user_add_not_allow') { ?>
+    <?php if (isset($_GET['m'])) { ?>
+        <?php if ($_GET['m'] == 'user_add_not_allow') { ?>
             notify("error", "You are currently not Allowed to Add user ...");
-        <?php } elseif ($_GET['message'] == 'add_true') { ?>
+        <?php } elseif ($_GET['m'] == 'add_true') { ?>
             notify("success", "User Created Successfully ...");
-        <?php } elseif ($_GET['message'] == 'add_false') { ?>
+        <?php } elseif ($_GET['m'] == 'add_false') { ?>
             notify("error", "Something's Wrong, Report Error ...");
-        <?php } elseif ($_GET['message'] == 'not_found') { ?>
+        <?php } elseif ($_GET['m'] == 'not_found') { ?>
             notify("error", "No User Found ...");
-        <?php } elseif ($_GET['message'] == 'user_view_not_allow') { ?>
+        <?php } elseif ($_GET['m'] == 'user_view_not_allow') { ?>
             notify("error", "You are currently not Allowed to View Roles ...");
-        <?php } elseif ($_GET['message'] == 'user_edit_not_allow') { ?>
+        <?php } elseif ($_GET['m'] == 'user_edit_not_allow') { ?>
             notify("error", "You are currently not Allowed to Edit Role ...");
-        <?php } elseif ($_GET['message'] == 'edit_true') { ?>
+        <?php } elseif ($_GET['m'] == 'edit_true') { ?>
             notify("success", "User Has been Modified ...");
-        <?php } elseif ($_GET['message'] == 'edit_false') { ?>
+        <?php } elseif ($_GET['m'] == 'edit_false') { ?>
             notify("error", "Something's Wrong, Report Error ...");
-        <?php } elseif ($_GET['message'] == 'user_delete_not_allow') { ?>
+        <?php } elseif ($_GET['m'] == 'user_delete_not_allow') { ?>
             notify("error", "You are currently not Allowed to Delete Role ...");
-        <?php } elseif ($_GET['message'] == 'user_exist') { ?>
+        <?php } elseif ($_GET['m'] == 'user_exist') { ?>
             notify("error", "Role Cannot be deleted, User Exist ...");
-        <?php } elseif ($_GET['message'] == 'delete_true') { ?>
+        <?php } elseif ($_GET['m'] == 'delete_true') { ?>
             notify("success", "Role Deleted Successfully ...");
-        <?php } elseif ($_GET['message'] == 'delete_false') { ?>
+        <?php } elseif ($_GET['m'] == 'delete_false') { ?>
             notify("error", "Something's Wrong, Report Error ...");
-        <?php } elseif ($_GET['message'] == 'status_updated_true') { ?>
+        <?php } elseif ($_GET['m'] == 'status_updated_true') { ?>
             notify("success", "Status Updated ...");
         <?php } ?>
     <?php } ?>

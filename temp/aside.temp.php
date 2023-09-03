@@ -55,8 +55,8 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
 
 <nav class="navbar navbar-dark navbar-theme-primary px-4 col-12 d-lg-none">
     <a class="navbar-brand me-lg-5" href="index-2.html">
-        <img class="navbar-brand-dark" src="assets/img/brand/light.svg" alt="Volt logo">
-        <img class="navbar-brand-light" src="assets/img/brand/dark.svg" alt="Volt logo">
+        <img class="navbar-brand-dark" src="assets/img/brand/light.svg" alt="RTD logo">
+        <img class="navbar-brand-light" src="assets/img/brand/dark.svg" alt="RTD logo">
     </a>
     <div class="d-flex align-items-center">
         <button class="navbar-toggler d-lg-none collapsed" type="button" data-bs-toggle="collapse"
@@ -134,9 +134,9 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
                 ################################ Role Validation ################################
                 ?>
             <li class="nav-item">
-                <span class="nav-link <?php collapse('account.all.php, account.add.php, account.edit.php');
+                <span class="nav-link <?php collapse('Accounts, account.add.php, account.edit.php');
                     collapse('property.all.php'); ?> d-flex justify-content-between align-items-center"
-                    data-bs-toggle="collapse" data-bs-target="#masterEntry" <?php expand('account.all.php');
+                    data-bs-toggle="collapse" data-bs-target="#masterEntry" <?php expand('Accounts');
                         expand('property.all.php'); ?>>
                     <span>
                         <span class="sidebar-icon">
@@ -164,7 +164,7 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
                         </svg>
                     </span>
                 </span>
-                <div class="multi-level collapse <?php show('account.all.php');
+                <div class="multi-level collapse <?php show('Accounts');
                     show('property.all.php'); ?>" role="list" id="masterEntry" aria-expanded="false">
                     <ul class="flex-column nav">
                         <?php
@@ -177,8 +177,8 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
                             ) { #
                                 ################################ Role Validation ################################
                                 ?>
-                        <li class="nav-item <?php active('account.all.php'); ?>">
-                            <a href="account.all.php" class="nav-link">
+                        <li class="nav-item <?php active('Accounts'); ?>">
+                            <a href="Accounts" class="nav-link">
                                 <span class="sidebar-text-contracted">
                                     A
                                 </span>
@@ -502,7 +502,7 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
 
             <!-- <li role="separator" class="dropdown-divider mt-4 mb-3 border-gray-700"></li>
             <li class="nav-item">
-                <a href="https://themesberg.com/docs/volt-bootstrap-5-dashboard/getting-started/quick-start/"
+                <a href="#"
                     target="_blank" class="nav-link d-flex align-items-center">
                     <span class="sidebar-icon">
                         <svg class="icon icon-xs me-2" fill="currentColor" viewbox="0 0 20 20"

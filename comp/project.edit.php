@@ -16,7 +16,7 @@ $conn = conn("localhost", "root", "", "communiSync"); #
 
 ################################ Role Validation ################################
 if ($_SESSION['role'] !== "super-admin") {
-    header("Location: ../Dashboard?message=not_allow");
+    header("Location: ../Dashboard?m=not_allow");
     exit();
 }
 ################################ Role Validation ################################
@@ -51,9 +51,9 @@ $stmt = $conn->prepare($query);
 $stmt->bind_param("ssssssssssssssss", $data['name'], $data['address'], $data['city'], $data['country'], $data['phoneNo'], $data['whtsNo'], $data['helplineNo'], $data['website'], $data['commercial_sqft'], $data['residential_sqft'], $data['sqft_per_marla'], $data['fbLink'], $data['ytLink'], $data['itLink'], $data['twLink'], $_SESSION['project']);
 
 if ($stmt->execute()) {
-    header("Location: ../project.view.php?message=edit_true");
+    header("Location: ../project.view.php?m=edit_true");
     exit();
 } else {
-    header("Location: ../project.view.php?message=edit_false");
+    header("Location: ../project.view.php?m=edit_false");
     exit();
 }

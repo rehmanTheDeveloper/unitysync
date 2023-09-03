@@ -16,20 +16,20 @@ $conn = conn("localhost", "root", "", "communiSync");              #
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "view-user") != true) {
-    header("Location: user.all.php?message=not_allowed");
+    header("Location: user.all.php?m=not_allowed");
     exit();
 }
 ################################ Role Validation ################################
 
-if (empty($_GET['id'])) {
-    header("Location: user.all.php?message=empty");
+if (empty($_GET['i'])) {
+    header("Location: user.all.php?m=empty");
     exit();
 }
 
-$query = "SELECT * FROM `users` WHERE `u_id` = '".$_GET['id']."' AND `project_id` = '".$_SESSION['project']."' AND `role` != 'super-admin';";
+$query = "SELECT * FROM `users` WHERE `u_id` = '".$_GET['i']."' AND `project_id` = '".$_SESSION['project']."' AND `role` != 'super-admin';";
 $user = mysqli_fetch_assoc(mysqli_query($conn, $query));
 if (empty($user)) {
-    header("Location: user.all.php?message=no user");
+    header("Location: user.all.php?m=no user");
     exit();
 }
 
@@ -104,7 +104,7 @@ $title = "User - ".$user['f_name'];
                     ################################ Role Validation ################################
                     ?>
                     <a class="dropdown-item d-flex align-items-center justify-content-center fw-bold text-success"
-                        href="user.edit.php?id=<?=$user['id']?>">
+                        href="user.edit.php?i=<?=$user['id']?>">
                         Edit User
                     </a>
                     <?php } ?>

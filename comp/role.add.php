@@ -16,7 +16,7 @@ $conn = conn("localhost", "root", "", "communiSync");              #
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "add-user-role") != true) {
-    header("Location: ../user.role.all.php?message=role_add_not_allow");
+    header("Location: ../user.role.all.php?m=role_add_not_allow");
     exit();
 }
 ################################ Role Validation ################################
@@ -26,7 +26,7 @@ $valid = FALSE;
 
 foreach ($_POST as $key => $value) {
     if (empty($value)) {
-        header("Location: ../user.role.add.php?message=field_missing");
+        header("Location: ../user.role.add.php?m=field_missing");
         exit();
     }
     if ($key == "role") {
@@ -64,9 +64,9 @@ foreach ($data['role'] as $key => $value) {
 }
 
 if ($valid) {
-    header("Location: ../user.role.all.php?message=add_true");
+    header("Location: ../user.role.all.php?m=add_true");
     exit();
 } else {
-    header("Location: ../user.role.all.php?message=add_false");
+    header("Location: ../user.role.all.php?m=add_false");
     exit();
 }

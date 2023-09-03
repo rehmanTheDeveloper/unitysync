@@ -14,7 +14,7 @@ $conn = conn("localhost", "root", "", "communiSync");             #
 ####################### Database Connection #######################
 
 if ($_SESSION['role'] !== 'super-admin') {
-    header("Location: Dashboard?message=masti");
+    header("Location: Dashboard?m=masti");
 }
 
 $cities = array(

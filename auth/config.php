@@ -50,7 +50,7 @@ function licenseExpirationDate($registrationDate, $validity)
     return $expirationDate;
 }
 
-function encyptor($action, $string) {
+function encryptor($action, $string) {
     $output = FALSE;
     $method = "AES-256-CBC";
     $secret_key = '';

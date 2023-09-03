@@ -30,15 +30,15 @@ $project['helpline_no'] = str_replace($phone_format,"",$project['helpline_no']);
 $data['email'] = $data['email'].$data['email_format'];
 
 if (empty($project)) {
-    header("Location: ../sign-up.php?message=missing_data");
+    header("Location: ../sign-up.php?m=missing_data");
     exit();
 }
 
 $data['created_date'] = $created_date;
 $data['status'] = 1;
 $data['role'] = "super-admin";
-$data['id'] = voucherId(conn("localhost", "root", "", "communiSync"), "users", "u_id", "UI", 3);
-$data['project'] = voucherId(conn("localhost", "root", "", "communiSync"), "project", "pro_id", "PJ", 3);
+$data['id'] = selectedTableId(conn("localhost", "root", "", "communiSync"), "users", "u_id", "UI", 3);
+$data['project'] = selectedTableId(conn("localhost", "root", "", "communiSync"), "project", "pro_id", "PJ", 3);
 $license_detail['registered_date'] = date("Y-m-d h:ia", strtotime($created_date));
 $license_detail['productKey'] = $data['productKey'];
 $license_detail['license_key'] = $data['license_key'];
@@ -71,4 +71,4 @@ insertProjectData($conn, $project);
 activity($conn, $db_activity);
 $conn->close();
 
-header("Location: ../Login?message=registered");
+header("Location: ../Login?m=registered");

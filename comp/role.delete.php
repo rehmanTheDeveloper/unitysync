@@ -16,31 +16,31 @@ $conn = conn("localhost", "root", "", "communiSync");              #
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "view-user-role") != true) {
-    header("Location: ../user.role.all.php?message=role_view_not_allow");
+    header("Location: ../user.role.all.php?m=role_view_not_allow");
     exit();
 }
 ################################ Role Validation ################################
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "delete-user-role") != true) {
-    header("Location: ../user.role.all.php?message=role_delete_not_allow");
+    header("Location: ../user.role.all.php?m=role_delete_not_allow");
     exit();
 }
 ################################ Role Validation ################################
 
-if (empty($_GET['id'])) {
-    header("Location: ../user.role.all.php?message=not_found");
+if (empty($_GET['i'])) {
+    header("Location: ../user.role.all.php?m=not_found");
     exit();
 }
 
-$query = "SELECT * FROM `users` WHERE `role` = '".$_GET['id']."' AND `project_id` = '".$_SESSION['project']."';";
+$query = "SELECT * FROM `users` WHERE `role` = '".$_GET['i']."' AND `project_id` = '".$_SESSION['project']."';";
 $user_exist = fetch_Data($conn, $query);
 if ($user_exist) {
-    header("Location: ../user.role.all.php?message=user_exist");
+    header("Location: ../user.role.all.php?m=user_exist");
     exit();
 }
 
-$query = "SELECT `name` FROM `roles` WHERE `id` = '".$_GET['id']."';";
+$query = "SELECT `name` FROM `roles` WHERE `id` = '".$_GET['i']."';";
 $selected_role = mysqli_fetch_assoc(mysqli_query($conn, $query));
 
 $db_activity['date'] = date("d-m-Y", strtotime($created_date));
@@ -53,20 +53,20 @@ activity($conn, $db_activity);
 
 $query = "DELETE FROM `roles` WHERE `id` = ?;";
 $stmt = $conn->prepare($query);
-$stmt->bind_param("i", $_GET['id']);
+$stmt->bind_param("i", $_GET['i']);
 $stmt->execute();
 $stmt->close();
 
 $query = "DELETE FROM `role_permissions` WHERE `role` = ?;";
 $stmt = $conn->prepare($query);
-$stmt->bind_param("s", $_GET['id']);
+$stmt->bind_param("s", $_GET['i']);
 if ($stmt->execute()) {
     $stmt->close();
-    header("Location: ../user.role.all.php?message=delete_true");
+    header("Location: ../user.role.all.php?m=delete_true");
     exit();
 } else {
     $stmt->close();
-    header("Location: ../user.role.all.php?message=delete_false");
+    header("Location: ../user.role.all.php?m=delete_false");
     exit();
 }
 
