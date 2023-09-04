@@ -54,9 +54,9 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
 ?>
 
 <nav class="navbar navbar-dark navbar-theme-primary px-4 col-12 d-lg-none">
-    <a class="navbar-brand me-lg-5" href="index-2.html">
-        <img class="navbar-brand-dark" src="assets/img/brand/light.svg" alt="RTD logo">
-        <img class="navbar-brand-light" src="assets/img/brand/dark.svg" alt="RTD logo">
+    <a class="navbar-brand me-lg-5" href="index.php">
+        <img class="navbar-brand-dark" src="assets/img/brand/communiSync-logo.png" alt="RTD logo">
+        <img class="navbar-brand-light" src="assets/img/brand/communiSync-logo.png" alt="RTD logo">
     </a>
     <div class="d-flex align-items-center">
         <button class="navbar-toggler d-lg-none collapsed" type="button" data-bs-toggle="collapse"
@@ -103,9 +103,9 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
         </div>
         <ul class="nav flex-column pt-3 pt-md-0">
             <li class="nav-item">
-                <a href="index-2.html" class="nav-link d-flex align-items-center">
+                <a href="index.php" class="nav-link d-flex align-items-center">
                     <span class="sidebar-icon">
-                        <img src="assets/img/brand/light.svg" height="20" width="20" alt="" />
+                        <img src="assets/img/brand/communiSync-logo.png" width="30" alt="RTD logo" />
                     </span>
                     <span class="mt-1 sidebar-text">
                         <?= $aside_project_name['name'] ?>

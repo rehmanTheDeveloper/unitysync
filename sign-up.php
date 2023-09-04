@@ -21,13 +21,13 @@ $title = "Register Plato Account";
     <main>
 
         <!-- Section -->
-        <section class="vh-lg-100 mt-5 mt-lg-0 bg-soft d-flex align-items-center">
-            <div class="container">
+        <section style="min-height: 100vh;" class="bg-soft d-flex align-items-center py-5">
+            <div class="container-xl">
                 <div class="row justify-content-center">
                     <div class="col-12 d-flex align-items-center justify-content-center">
                         <div class="bg-white shadow-lg border-0 rounded rounded-2 border-light p-4 p-lg-5 w-100">
                             <div class="text-center text-md-center mb-4 mt-md-0">
-                                <h1 class="mb-0 h3">Register Account</h1>
+                                <img style="width: 350px;" src="assets/img/brand/communiSync.png" alt="" />
                             </div>
                             <form action="auth/license.register.php" method="POST" class="row mt-4" id="form-row">
                                 <!-- Form -->
@@ -47,20 +47,22 @@ $title = "Register Plato Account";
                                             <input type="text" class="form-control fw-bold"
                                                 placeholder="XXXXX-XXXXX-XXXXX-XXXXX" name="license_key"
                                                 id="license_key" required autofocus />
-                                            <button class="btn btn-gray-800 bg-gradient px-5" type="button"
-                                                id="checkLicense">
-                                                Check
-                                            </button>
                                         </div>
                                         <input type="hidden" name="productKey" id="product_key" value="T1XC8I6V" />
                                         <div id="licenseKeyFeedback" class="form-text"></div>
+                                    </div>
+                                    <div class="license_button text-center">
+                                        <button class="btn btn-secondary bg-gradient px-5" type="button"
+                                            id="checkLicense">
+                                            Check
+                                        </button>
                                     </div>
                                 </div>
                             </form>
                             <div class="d-flex justify-content-center align-items-center mt-4">
                                 <span class="fw-normal">
-                                    Already have registered?
-                                    <a href="Login" class="fw-bold">Login here</a>
+                                    Already registered?
+                                    <a style="text-decoration: underline;" href="Login" class="fw-bold">Login Here</a>
                                 </span>
                             </div>
                         </div>
@@ -73,9 +75,9 @@ $title = "Register Plato Account";
     <?php include('temp/script.temp.php'); ?>
     <script>
     <?php if (isset($_GET['m'])) { ?>
-        <?php if ($_GET['m'] == "missing_data") { ?>
-            notify("error", "Missing Details, Click Check After Entering License Key ...");
-        <?php } ?>
+    <?php if ($_GET['m'] == "missing_data") { ?>
+    notify("error", "Missing Details, Click Check After Entering License Key ...");
+    <?php } ?>
     <?php } ?>
     $(document).ready(function() {
         $('#checkLicense').click(function() {

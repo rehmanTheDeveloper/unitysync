@@ -124,12 +124,10 @@ $title = "Account - ".$account['name'];
                         </svg>
                     </button>
                     <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1" style="">
-                        <?php if (!empty($documents)) { ?>
                         <a class="dropdown-item d-flex align-items-center justify-content-center"
                             href="docs.view.php?i=<?=$_GET['i']?>">
                             Docs
                         </a>
-                        <?php } ?>
                         <?php
                         ################################ Role Validation ################################
                         if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "edit-account") === true) {
