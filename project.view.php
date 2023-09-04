@@ -125,15 +125,18 @@ $title = "Project - ".$project['name'];
                         Add Investor
                     </a>
                     <?php } ?>
-                    <a href="project.edit.php?i=<?=$project['id']?>" class="btn btn-outline-gray-800">
+                    <a href="project.edit.php" class="btn btn-outline-gray-800">
                         Edit Project
                     </a>
                 </div>
             </nav>
+            <div class="btn-group d-block d-md-none">
+                
+            </div>
         </div>
 
         <div style="row-gap: 20px;" class="row">
-            <div class="col-4">
+            <div class="col-xxl-4 col-lg-6">
                 <div class="card">
                     <div class="card-body">
                         <div class="row">
@@ -144,57 +147,56 @@ $title = "Project - ".$project['name'];
                                 <table class="table table-centered table-nowrap mb-0 rounded">
                                     <thead class="thead-light">
                                         <tr>
-                                            <th class="border-0 rounded-start">Label</th>
-                                            <th class="border-0 rounded-end text-end">Detail
-                                            </th>
+                                            <th class="border-0 rounded-start d-none d-sm-block">Label</th>
+                                            <th class="border-0 rounded-end text-center text-sm-end">Detail</th>
                                         </tr>
                                     </thead>
                                     <tbody class="fw-bolder">
                                         <tr>
-                                            <td>Category</td>
-                                            <td class="text-end text-capitalize">
+                                            <td class="d-none d-sm-block">Category</td>
+                                            <td class="text-center text-sm-end text-capitalize">
                                                 <?=str_replace("-"," ",$project['category'])?>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Address</td>
-                                            <td class="text-end">
+                                            <td class="d-none d-sm-block">Address</td>
+                                            <td class="text-center text-sm-end">
                                                 <?=$project['address']?>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>City</td>
-                                            <td class="text-end text-capitalize">
+                                            <td class="d-none d-sm-block">City</td>
+                                            <td class="text-center text-sm-end text-capitalize">
                                                 <?=$project['city']?>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Country</td>
-                                            <td class="text-end text-capitalize">
+                                            <td class="d-none d-sm-block">Country</td>
+                                            <td class="text-center text-sm-end text-capitalize">
                                                 <?=$project['country']?>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Phone No.</td>
-                                            <td class="text-end">
+                                            <td class="d-none d-sm-block">Phone No.</td>
+                                            <td class="text-center text-sm-end">
                                                 <?="+92 ".phone_no_format($project['phone_no'])?>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Whatsapp No.</td>
-                                            <td class="text-end text-uppercase">
+                                            <td class="d-none d-sm-block">Whatsapp No.</td>
+                                            <td class="text-center text-sm-end text-uppercase">
                                                 <?=(!empty($project['whatsapp_no']))?"+92 ".phone_no_format($project['whatsapp_no']):"--- no whatsapp ---"?>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Helpline No.</td>
-                                            <td class="text-end text-uppercase">
+                                            <td class="d-none d-sm-block">Helpline No.</td>
+                                            <td class="text-center text-sm-end text-uppercase">
                                                 <?=(!empty($project['helpline_no']))?"+92 ".phone_no_format($project['helpline_no']):"--- no helpline ---"?>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Website</td>
-                                            <td class="text-end text-normal">
+                                            <td class="d-none d-sm-block">Website</td>
+                                            <td class="text-center text-sm-end text-normal">
                                                 <?=(!empty($project['website']))?$project['website']:"--- NO WEBSITE ---"?>
                                             </td>
                                         </tr>
@@ -205,7 +207,7 @@ $title = "Project - ".$project['name'];
                     </div>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-xxl-4 col-lg-6">
                 <div class="card h-100">
                     <div class="card-body">
                         <div class="row">
@@ -259,13 +261,15 @@ $title = "Project - ".$project['name'];
                                         <tr>
                                             <td>Commercial SqFt</td>
                                             <td class="text-end">
-                                                <?=(!empty($project['commercial_sqft']))?number_format($project['commercial_sqft']):"0"?> Sqft.
+                                                <?=(!empty($project['commercial_sqft']))?number_format($project['commercial_sqft']):"0"?>
+                                                Sqft.
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>Residential SqFt</td>
                                             <td class="text-end">
-                                                <?=(!empty($project['residential_sqft']))?number_format($project['residential_sqft']):"0"?> Sqft.
+                                                <?=(!empty($project['residential_sqft']))?number_format($project['residential_sqft']):"0"?>
+                                                Sqft.
                                             </td>
                                         </tr>
                                         <tr>
@@ -283,7 +287,7 @@ $title = "Project - ".$project['name'];
                     </div>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-xxl-4 col-lg-6">
                 <div class="card h-100">
                     <div class="card-header p-3">
                         <h2 class="mb-0 text-center">Area SqFt.</h2>
@@ -390,7 +394,8 @@ $title = "Project - ".$project['name'];
                                         </button>
                                         <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
                                             style="">
-                                            <a class="dropdown-item d-flex align-items-center" href="docs.view.php?i=<?=encryptor("encrypt", $area_seller['acc_id'])?>">
+                                            <a class="dropdown-item d-flex align-items-center"
+                                                href="docs.view.php?i=<?=encryptor("encrypt", $area_seller['acc_id'])?>">
                                                 <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor"
                                                     viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"></path>
@@ -427,7 +432,8 @@ $title = "Project - ".$project['name'];
                                             </button>
                                             <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
                                                 style="">
-                                                <a class="dropdown-item d-flex align-items-center" href="comp/project.seller.delete.php?i=<?=$area_seller['acc_id']?>">
+                                                <a class="dropdown-item d-flex align-items-center"
+                                                    href="comp/project.seller.delete.php?i=<?=$area_seller['acc_id']?>">
                                                     <svg class="icon icon-xs dropdown-icon text-success me-2"
                                                         fill="currentColor" viewBox="0 0 20 20"
                                                         xmlns="http://www.w3.org/2000/svg">
@@ -446,7 +452,7 @@ $title = "Project - ".$project['name'];
                                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
                                                             clip-rule="evenodd"></path>
                                                     </svg>
-                                                    
+
                                                     No
                                                 </a>
                                             </div>
@@ -536,7 +542,8 @@ $title = "Project - ".$project['name'];
                                                 </svg>
                                                 Docs
                                             </a>
-                                            <a class="dropdown-item d-flex align-items-center" href="account.view.php?i=<?=encryptor("encrypt", $area_investor['acc_id'])?>">
+                                            <a class="dropdown-item d-flex align-items-center"
+                                                href="account.view.php?i=<?=encryptor("encrypt", $area_investor['acc_id'])?>">
                                                 <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor"
                                                     viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
@@ -561,7 +568,8 @@ $title = "Project - ".$project['name'];
                                             </button>
                                             <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
                                                 style="">
-                                                <a class="dropdown-item d-flex align-items-center" href="comp/project.investor.delete.php?i=<?=$area_investor['acc_id']?>">
+                                                <a class="dropdown-item d-flex align-items-center"
+                                                    href="comp/project.investor.delete.php?i=<?=$area_investor['acc_id']?>">
                                                     <svg class="icon icon-xs dropdown-icon text-success me-2"
                                                         fill="currentColor" viewBox="0 0 20 20"
                                                         xmlns="http://www.w3.org/2000/svg">
@@ -580,7 +588,7 @@ $title = "Project - ".$project['name'];
                                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
                                                             clip-rule="evenodd"></path>
                                                     </svg>
-                                                    
+
                                                     No
                                                 </a>
                                             </div>
@@ -789,481 +797,473 @@ $title = "Project - ".$project['name'];
             </div>
         </div>
 
-        <div class="modal fade" id="addSeller" tabindex="-1" aria-labelledby="addSeller" style="display: none;"
-            aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-body p-0">
-                        <form action="comp/project.seller.add.php" method="post" enctype="multipart/form-data"
-                            autocomplete="off" class="card">
-                            <div class="modal-header">
-                                <h2 class="h6 modal-title">Add Seller</h2>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="row">
-                                    <?php if (!empty($insert_sellers)) { ?>
-                                    <div class="col-12">
-                                        <div class="mb-3">
-                                            <label for="addSeller">Seller</label>
-                                            <select class="form-select" name="seller" id="addSeller" required>
-                                                <option value="" selected>Select Seller</option>
-                                                <?php foreach ($insert_sellers as $key => $seller) { 
-                                                    ?>
-                                                <option value="<?=$seller['acc_id']?>">
-                                                    <?=$seller['name'].", ".cnic_format($seller['cnic'])?>
-                                                </option>
-                                                <?php } ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="mb-3">
-                                            <label for="addSellerAmount">Amount</label>
-                                            <input type="text" name="amount" id="addSellerAmount"
-                                                class="form-control comma" required />
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="mb-3">
-                                            <label for="addSellerPeriod">Payment Period (Months)</label>
-                                            <input type="text" name="period" id="addSellerPeriod" class="form-control"
-                                                required />
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="mb-3">
-                                            <label for="addSellerKanal">Kanal</label>
-                                            <input type="text" name="kanal" id="addSellerKanal" class="form-control"
-                                                required />
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="mb-3">
-                                            <label for="addSellerMarla">Marla</label>
-                                            <input type="text" name="marla" id="addSellerMarla" class="form-control"
-                                                required />
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="mb-3">
-                                            <label for="addSellerFeet">Feet</label>
-                                            <input type="text" name="feet" id="addSellerFeet" class="form-control"
-                                                required />
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="mb-2">
-                                            <label class="btn btn-outline-primary w-100" for="sellerDocs">Upload
-                                                Document</label>
-                                            <input class="form-control" type="file" name="docs[]" id="sellerDocs"
-                                                multiple hidden />
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="row d-none" id="sellerFileUploadProgress">
-                                            <div class="col-3">
-                                                <button class="btn btn-primary w-100" id="sellerPercent" disabled>
-                                                    0%
-                                                </button>
-                                            </div>
-                                            <div class="col-3">
-                                                <button class="btn btn-primary w-100" id="sellerDataTransferred"
-                                                    disabled>
-                                                    Total / Loaded
-                                                </button>
-                                            </div>
-                                            <div class="col-3">
-                                                <button class="btn btn-primary w-100" id="sellerMbps" disabled>
-                                                    0 Mbps
-                                                </button>
-                                            </div>
-                                            <div class="col-3">
-                                                <button class="btn btn-primary w-100" id="sellerTimeLeft" disabled>
-                                                    Time Left
-                                                </button>
-                                            </div>
-                                            <div class="col-12 pt-3">
-                                                <div class="progress-wrapper">
-                                                    <div class="progress progress-xl">
-                                                        <div class="progress-bar bg-primary seller-progress-bar"
-                                                            role="progressbar" style="width: 0%;" aria-valuenow="25"
-                                                            aria-valuemin="0" aria-valuemax="100"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-12 pt-2">
-                                                <button class="btn btn-primary w-100" id="sellerCancel" disabled>
-                                                    Cancel
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="d-none" id="sellerFilesTable">
-                                            <table class="table table-centered table-nowrap mb-0 rounded">
-                                                <thead class="thead-light">
-                                                    <tr>
-                                                        <th class="border-0 rounded-start">#</th>
-                                                        <th class="border-0 rounded-end text-end">Doc Name
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody class="fw-bolder">
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                    <?php } else { ?>
-                                        <div class="text-center">
-                                        <h4>No Seller Available ...</h4>
-                                        </div>
-                                    <?php } ?>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-link text-gray-600 ms-auto"
-                                    data-bs-dismiss="modal">Close
-                                </button>
-                                <?php if (!empty($insert_sellers)) { ?>
-                                <button type="submit" class="btn btn-success text-white fw-bolder">Add Seller</button>
-                                <?php } else { ?>
-                                    <a href="Account-config" class="btn btn-primary text-white fw-bolder">Add Seller</a>
-                                <?php } ?>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal fade" id="editSeller" tabindex="-1" aria-labelledby="editSeller" style="display: none;"
-            aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-body p-0">
-                        <form action="" method="post" autocomplete="off" class="card">
-                            <div class="modal-header">
-                                <h2 class="h6 modal-title">Edit Seller</h2>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="mb-3">
-                                            <label for="">Seller</label>
-                                            <select class="form-select" name="" id="">
-                                                <option value="" selected>Select Seller</option>
-                                                <option value="1">Ali Abdullah</option>
-                                                <option value="2">Rao Aleem</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="mb-3">
-                                            <label for="">Amount</label>
-                                            <input type="number" name="" id="" class="form-control" />
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="mb-3">
-                                            <label for="">Payment Period</label>
-                                            <input type="text" name="" id="" class="form-control" />
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="mb-3">
-                                            <label for="">Kanal</label>
-                                            <input type="text" name="" id="" class="form-control" />
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="mb-3">
-                                            <label for="">Marla</label>
-                                            <input type="text" name="" id="" class="form-control" />
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="mb-3">
-                                            <label for="">Feet</label>
-                                            <input type="text" name="" id="" class="form-control" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-link text-gray-600 ms-auto"
-                                    data-bs-dismiss="modal">Close
-                                </button>
-                                <button type="submit" class="btn btn-success text-white fw-bolder">Save Changes</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal fade" id="addInvestor" tabindex="-1" aria-labelledby="addInvestor" style="display: none;"
-            aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-body p-0">
-                        <form action="comp/project.investor.add.php" enctype="multipart/form-data" method="post"
-                            autocomplete="off" class="card" id="addInvestor">
-                            <div class="modal-header">
-                                <h2 class="h6 modal-title">Add Investor</h2>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="row">
-                                    <?php if (!empty($insert_investors)) { ?>
-                                    <div class="col-12">
-                                        <div class="mb-3">
-                                            <label for="addInvestor">Investor</label>
-                                            <select class="form-select" name="investor" id="addInvestor" required>
-                                                <option value="" selected>Select Investor</option>
-                                                <?php foreach ($insert_investors as $key => $investor) { 
-                                                    ?>
-                                                <option value="<?=$investor['acc_id']?>">
-                                                    <?=$investor['name'].", ".cnic_format($investor['cnic'])?></option>
-                                                <?php } ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="mb-3">
-                                            <label class="d-flex justify-content-between" for="addRatio">
-                                                Ratio
-                                                <span class="fw-bolder">
-                                                    <?=100-$total_area_investors['ratio']?>%
-                                                    <svg class="icon icon-xs me-2" data-bs-toggle="tooltip"
-                                                        data-bs-original-title="Remaining Ratio is <?=100-$total_area_investors['ratio']?>%."
-                                                        fill="currentColor" viewBox="0 0 20 20"
-                                                        xmlns="http://www.w3.org/2000/svg">
-                                                        <path fill-rule="evenodd"
-                                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-                                                            clip-rule="evenodd"></path>
-                                                    </svg>
-                                                </span>
-                                            </label>
-                                            <input type="number" name="ratio" id="addRatio" class="form-control"
-                                                required />
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="mb-3">
-                                            <label class="d-flex justify-content-between" for="addKanal">
-                                                Kanal
-                                                <span class="fw-bolder">
-                                                    <?=$total_area_sellers['kanal']-$total_area_investors['kanal']?>
-                                                    Kanals
-                                                    <svg class="icon icon-xs me-2" data-bs-toggle="tooltip"
-                                                        data-bs-original-title="<?=$total_area_sellers['kanal']-$total_area_investors['kanal']?> Kanals are Purchased."
-                                                        fill="currentColor" viewBox="0 0 20 20"
-                                                        xmlns="http://www.w3.org/2000/svg">
-                                                        <path fill-rule="evenodd"
-                                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-                                                            clip-rule="evenodd"></path>
-                                                    </svg>
-                                                </span>
-                                            </label>
-                                            <input type="text" name="kanal" id="addKanal" class="form-control"
-                                                required />
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="mb-3">
-                                            <label class="d-flex justify-content-between" for="addMarla">
-                                                Marla
-                                                <span class="fw-bolder">
-                                                    <?=$total_area_sellers['marla']-$total_area_investors['marla']?>
-                                                    Marlas
-                                                    <svg class="icon icon-xs me-2" data-bs-toggle="tooltip"
-                                                        data-bs-original-title="<?=$total_area_sellers['marla']-$total_area_investors['marla']?> Marlas are Purchased."
-                                                        fill="currentColor" viewBox="0 0 20 20"
-                                                        xmlns="http://www.w3.org/2000/svg">
-                                                        <path fill-rule="evenodd"
-                                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-                                                            clip-rule="evenodd"></path>
-                                                    </svg>
-                                                </span>
-                                            </label>
-                                            <input type="text" name="marla" id="addMarla" class="form-control"
-                                                required />
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="mb-3">
-                                            <label class="d-flex justify-content-between" for="addMarla">
-                                                Feet
-                                                <span class="fw-bolder">
-                                                    <?=$total_area_sellers['feet']-$total_area_investors['feet']?>
-                                                    Feets
-                                                    <svg class="icon icon-xs me-2" data-bs-toggle="tooltip"
-                                                        data-bs-original-title="<?=$total_area_sellers['feet']-$total_area_investors['feet']?> Feets are Purchased."
-                                                        fill="currentColor" viewBox="0 0 20 20"
-                                                        xmlns="http://www.w3.org/2000/svg">
-                                                        <path fill-rule="evenodd"
-                                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-                                                            clip-rule="evenodd"></path>
-                                                    </svg>
-                                                </span>
-                                            </label>
-                                            <input type="text" name="feet" id="addFeet" class="form-control" required />
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="mb-2">
-                                            <label class="btn btn-outline-primary w-100" for="investorDocs">Upload
-                                                Document</label>
-                                            <input class="form-control" type="file" name="docs[]" id="investorDocs"
-                                                multiple hidden />
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="row d-none" id="investorFileUploadProgress">
-                                            <div class="col-3">
-                                                <button class="btn btn-primary w-100" id="investorPercent" disabled>
-                                                    0%
-                                                </button>
-                                            </div>
-                                            <div class="col-3">
-                                                <button class="btn btn-primary w-100" id="investorDataTransferred"
-                                                    disabled>
-                                                    Total / Loaded
-                                                </button>
-                                            </div>
-                                            <div class="col-3">
-                                                <button class="btn btn-primary w-100" id="investorMbps" disabled>
-                                                    0 Mbps
-                                                </button>
-                                            </div>
-                                            <div class="col-3">
-                                                <button class="btn btn-primary w-100" id="investorTimeLeft" disabled>
-                                                    Time Left
-                                                </button>
-                                            </div>
-                                            <div class="col-12 pt-3">
-                                                <div class="progress-wrapper">
-                                                    <div class="progress progress-xl">
-                                                        <div class="progress-bar investor-progress-bar bg-primary"
-                                                            role="progressbar" style="width: 0%;" aria-valuenow="25"
-                                                            aria-valuemin="0" aria-valuemax="100"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-12 pt-2">
-                                                <button class="btn btn-primary w-100" id="investorCancel" disabled>
-                                                    Cancel
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="d-none" id="investorFilesTable">
-                                            <table class="table table-centered table-nowrap mb-0 rounded">
-                                                <thead class="thead-light">
-                                                    <tr>
-                                                        <th class="border-0 rounded-start">#</th>
-                                                        <th class="border-0 rounded-end text-end">Doc Name
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody class="fw-bolder">
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                    <?php } else { ?>
-                                    <h4 class="text-center">No Investor Available ...</h4>
-                                    <?php } ?>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-link text-gray-600 ms-auto"
-                                    data-bs-dismiss="modal">Close
-                                </button>
-                                <?php if (!empty($insert_investors)) { ?>
-                                <button type="submit" class="btn btn-success text-white fw-bolder">Add Investor</button>
-                                <?php } else { ?>
-                                    <a href="Account-config" class="btn btn-primary text-white fw-bolder">Add Investor</a>
-                                <?php } ?>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal fade" id="editInvestor" tabindex="-1" aria-labelledby="editInvestor" style="display: none;"
-            aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-body p-0">
-                        <form action="" method="post" autocomplete="off" class="card">
-                            <div class="modal-header">
-                                <h2 class="h6 modal-title">Edit Investor</h2>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="mb-3">
-                                            <label for="">Investor</label>
-                                            <select class="form-select" name="" id="">
-                                                <option value="" selected>Select Investor</option>
-                                                <option value="1">Ali Abdullah</option>
-                                                <option value="2">Rao Aleem</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="mb-3">
-                                            <label for="">Partnership Ratio</label>
-                                            <input type="number" name="" id="" class="form-control" />
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="mb-3">
-                                            <label for="">Kanal</label>
-                                            <input type="text" name="" id="" class="form-control" />
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="mb-3">
-                                            <label for="">Marla</label>
-                                            <input type="text" name="" id="" class="form-control" />
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="mb-3">
-                                            <label for="">Feet</label>
-                                            <input type="text" name="" id="" class="form-control" />
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="mb-3">
-                                            <label for="">Select Document</label>
-                                            <input class="form-control" type="file" name="" id="" multiple />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-link text-gray-600 ms-auto"
-                                    data-bs-dismiss="modal">Close
-                                </button>
-                                <button type="submit" class="btn btn-success text-white">Save Changes</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <?php include('temp/footer.temp.php'); ?>
     </main>
+
+    <div class="modal fade" id="addSeller" tabindex="-1" aria-labelledby="addSeller" style="display: none;"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <form action="comp/project.seller.add.php" method="post" enctype="multipart/form-data"
+                        autocomplete="off" class="card">
+                        <div class="modal-header">
+                            <h2 class="h6 modal-title">Add Seller</h2>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <?php if (!empty($insert_sellers)) { ?>
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label for="addSeller">Seller</label>
+                                        <select class="form-select" name="seller" id="addSeller" required>
+                                            <option value="" selected>Select Seller</option>
+                                            <?php foreach ($insert_sellers as $key => $seller) { 
+                                                    ?>
+                                            <option value="<?=$seller['acc_id']?>">
+                                                <?=$seller['name'].", ".cnic_format($seller['cnic'])?>
+                                            </option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <label for="addSellerAmount">Amount</label>
+                                        <input type="text" name="amount" id="addSellerAmount" class="form-control comma"
+                                            required />
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <label for="addSellerPeriod">Payment Period (Months)</label>
+                                        <input type="text" name="period" id="addSellerPeriod" class="form-control"
+                                            required />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label for="addSellerKanal">Kanal</label>
+                                        <input type="text" name="kanal" id="addSellerKanal" class="form-control"
+                                            required />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label for="addSellerMarla">Marla</label>
+                                        <input type="text" name="marla" id="addSellerMarla" class="form-control"
+                                            required />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label for="addSellerFeet">Feet</label>
+                                        <input type="text" name="feet" id="addSellerFeet" class="form-control"
+                                            required />
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="mb-2">
+                                        <label class="btn btn-outline-primary w-100" for="sellerDocs">Upload
+                                            Document</label>
+                                        <input class="form-control" type="file" name="docs[]" id="sellerDocs" multiple
+                                            hidden />
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="row d-none" id="sellerFileUploadProgress">
+                                        <div class="col-3">
+                                            <button class="btn btn-primary w-100" id="sellerPercent" disabled>
+                                                0%
+                                            </button>
+                                        </div>
+                                        <div class="col-3">
+                                            <button class="btn btn-primary w-100" id="sellerDataTransferred" disabled>
+                                                Total / Loaded
+                                            </button>
+                                        </div>
+                                        <div class="col-3">
+                                            <button class="btn btn-primary w-100" id="sellerMbps" disabled>
+                                                0 Mbps
+                                            </button>
+                                        </div>
+                                        <div class="col-3">
+                                            <button class="btn btn-primary w-100" id="sellerTimeLeft" disabled>
+                                                Time Left
+                                            </button>
+                                        </div>
+                                        <div class="col-12 pt-3">
+                                            <div class="progress-wrapper">
+                                                <div class="progress progress-xl">
+                                                    <div class="progress-bar bg-primary seller-progress-bar"
+                                                        role="progressbar" style="width: 0%;" aria-valuenow="25"
+                                                        aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 pt-2">
+                                            <button class="btn btn-primary w-100" id="sellerCancel" disabled>
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="d-none" id="sellerFilesTable">
+                                        <table class="table table-centered table-nowrap mb-0 rounded">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th class="border-0 rounded-start">#</th>
+                                                    <th class="border-0 rounded-end text-end">Doc Name
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="fw-bolder">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <?php } else { ?>
+                                <div class="text-center">
+                                    <h4>No Seller Available ...</h4>
+                                </div>
+                                <?php } ?>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-link text-gray-600 ms-auto"
+                                data-bs-dismiss="modal">Close
+                            </button>
+                            <?php if (!empty($insert_sellers)) { ?>
+                            <button type="submit" class="btn btn-success text-white fw-bolder">Add Seller</button>
+                            <?php } else { ?>
+                            <a href="Account-config" class="btn btn-primary text-white fw-bolder">Add Seller</a>
+                            <?php } ?>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editSeller" tabindex="-1" aria-labelledby="editSeller" style="display: none;"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <form action="" method="post" autocomplete="off" class="card">
+                        <div class="modal-header">
+                            <h2 class="h6 modal-title">Edit Seller</h2>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label for="">Seller</label>
+                                        <select class="form-select" name="" id="">
+                                            <option value="" selected>Select Seller</option>
+                                            <option value="1">Ali Abdullah</option>
+                                            <option value="2">Rao Aleem</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <label for="">Amount</label>
+                                        <input type="number" name="" id="" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <label for="">Payment Period</label>
+                                        <input type="text" name="" id="" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label for="">Kanal</label>
+                                        <input type="text" name="" id="" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label for="">Marla</label>
+                                        <input type="text" name="" id="" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label for="">Feet</label>
+                                        <input type="text" name="" id="" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-link text-gray-600 ms-auto"
+                                data-bs-dismiss="modal">Close
+                            </button>
+                            <button type="submit" class="btn btn-success text-white fw-bolder">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="addInvestor" tabindex="-1" aria-labelledby="addInvestor" style="display: none;"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <form action="comp/project.investor.add.php" enctype="multipart/form-data" method="post"
+                        autocomplete="off" class="card" id="addInvestor">
+                        <div class="modal-header">
+                            <h2 class="h6 modal-title">Add Investor</h2>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <?php if (!empty($insert_investors)) { ?>
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label for="addInvestor">Investor</label>
+                                        <select class="form-select" name="investor" id="addInvestor" required>
+                                            <option value="" selected>Select Investor</option>
+                                            <?php foreach ($insert_investors as $key => $investor) { 
+                                                    ?>
+                                            <option value="<?=$investor['acc_id']?>">
+                                                <?=$investor['name'].", ".cnic_format($investor['cnic'])?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label class="d-flex justify-content-between" for="addRatio">
+                                            Ratio
+                                            <span class="fw-bolder">
+                                                <?=100-$total_area_investors['ratio']?>%
+                                                <svg class="icon icon-xs me-2" data-bs-toggle="tooltip"
+                                                    data-bs-original-title="Remaining Ratio is <?=100-$total_area_investors['ratio']?>%."
+                                                    fill="currentColor" viewBox="0 0 20 20"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path fill-rule="evenodd"
+                                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                                        clip-rule="evenodd"></path>
+                                                </svg>
+                                            </span>
+                                        </label>
+                                        <input type="number" name="ratio" id="addRatio" class="form-control" required />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label class="d-flex justify-content-between" for="addKanal">
+                                            Kanal
+                                            <span class="fw-bolder">
+                                                <?=$total_area_sellers['kanal']-$total_area_investors['kanal']?>
+                                                Kanals
+                                                <svg class="icon icon-xs me-2" data-bs-toggle="tooltip"
+                                                    data-bs-original-title="<?=$total_area_sellers['kanal']-$total_area_investors['kanal']?> Kanals are Purchased."
+                                                    fill="currentColor" viewBox="0 0 20 20"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path fill-rule="evenodd"
+                                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                                        clip-rule="evenodd"></path>
+                                                </svg>
+                                            </span>
+                                        </label>
+                                        <input type="text" name="kanal" id="addKanal" class="form-control" required />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label class="d-flex justify-content-between" for="addMarla">
+                                            Marla
+                                            <span class="fw-bolder">
+                                                <?=$total_area_sellers['marla']-$total_area_investors['marla']?>
+                                                Marlas
+                                                <svg class="icon icon-xs me-2" data-bs-toggle="tooltip"
+                                                    data-bs-original-title="<?=$total_area_sellers['marla']-$total_area_investors['marla']?> Marlas are Purchased."
+                                                    fill="currentColor" viewBox="0 0 20 20"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path fill-rule="evenodd"
+                                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                                        clip-rule="evenodd"></path>
+                                                </svg>
+                                            </span>
+                                        </label>
+                                        <input type="text" name="marla" id="addMarla" class="form-control" required />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label class="d-flex justify-content-between" for="addMarla">
+                                            Feet
+                                            <span class="fw-bolder">
+                                                <?=$total_area_sellers['feet']-$total_area_investors['feet']?>
+                                                Feets
+                                                <svg class="icon icon-xs me-2" data-bs-toggle="tooltip"
+                                                    data-bs-original-title="<?=$total_area_sellers['feet']-$total_area_investors['feet']?> Feets are Purchased."
+                                                    fill="currentColor" viewBox="0 0 20 20"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path fill-rule="evenodd"
+                                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                                        clip-rule="evenodd"></path>
+                                                </svg>
+                                            </span>
+                                        </label>
+                                        <input type="text" name="feet" id="addFeet" class="form-control" required />
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="mb-2">
+                                        <label class="btn btn-outline-primary w-100" for="investorDocs">Upload
+                                            Document</label>
+                                        <input class="form-control" type="file" name="docs[]" id="investorDocs" multiple
+                                            hidden />
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="row d-none" id="investorFileUploadProgress">
+                                        <div class="col-3">
+                                            <button class="btn btn-primary w-100" id="investorPercent" disabled>
+                                                0%
+                                            </button>
+                                        </div>
+                                        <div class="col-3">
+                                            <button class="btn btn-primary w-100" id="investorDataTransferred" disabled>
+                                                Total / Loaded
+                                            </button>
+                                        </div>
+                                        <div class="col-3">
+                                            <button class="btn btn-primary w-100" id="investorMbps" disabled>
+                                                0 Mbps
+                                            </button>
+                                        </div>
+                                        <div class="col-3">
+                                            <button class="btn btn-primary w-100" id="investorTimeLeft" disabled>
+                                                Time Left
+                                            </button>
+                                        </div>
+                                        <div class="col-12 pt-3">
+                                            <div class="progress-wrapper">
+                                                <div class="progress progress-xl">
+                                                    <div class="progress-bar investor-progress-bar bg-primary"
+                                                        role="progressbar" style="width: 0%;" aria-valuenow="25"
+                                                        aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 pt-2">
+                                            <button class="btn btn-primary w-100" id="investorCancel" disabled>
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="d-none" id="investorFilesTable">
+                                        <table class="table table-centered table-nowrap mb-0 rounded">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th class="border-0 rounded-start">#</th>
+                                                    <th class="border-0 rounded-end text-end">Doc Name
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="fw-bolder">
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <?php } else { ?>
+                                <h4 class="text-center">No Investor Available ...</h4>
+                                <?php } ?>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-link text-gray-600 ms-auto"
+                                data-bs-dismiss="modal">Close
+                            </button>
+                            <?php if (!empty($insert_investors)) { ?>
+                            <button type="submit" class="btn btn-success text-white fw-bolder">Add Investor</button>
+                            <?php } else { ?>
+                            <a href="Account-config" class="btn btn-primary text-white fw-bolder">Add Investor</a>
+                            <?php } ?>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editInvestor" tabindex="-1" aria-labelledby="editInvestor" style="display: none;"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <form action="" method="post" autocomplete="off" class="card">
+                        <div class="modal-header">
+                            <h2 class="h6 modal-title">Edit Investor</h2>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label for="">Investor</label>
+                                        <select class="form-select" name="" id="">
+                                            <option value="" selected>Select Investor</option>
+                                            <option value="1">Ali Abdullah</option>
+                                            <option value="2">Rao Aleem</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label for="">Partnership Ratio</label>
+                                        <input type="number" name="" id="" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label for="">Kanal</label>
+                                        <input type="text" name="" id="" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label for="">Marla</label>
+                                        <input type="text" name="" id="" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label for="">Feet</label>
+                                        <input type="text" name="" id="" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label for="">Select Document</label>
+                                        <input class="form-control" type="file" name="" id="" multiple />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-link text-gray-600 ms-auto"
+                                data-bs-dismiss="modal">Close
+                            </button>
+                            <button type="submit" class="btn btn-success text-white">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <?php include('temp/script.temp.php'); ?>
     <script>
     <?php if (isset($_GET['m'])) { ?>

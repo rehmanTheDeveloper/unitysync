@@ -105,6 +105,7 @@ $title = "Register Plato Account";
                         $('#licenseKeyFeedback').text('License Key is Valid ...');
                         $('#licenseKeyFeedback').removeClass("text-danger");
                         $('#licenseKeyFeedback').addClass("text-success");
+                        $('#form-row .col-12').addClass("d-none");
                         $("#form-row").append(jsonData.htmlContent);
                         $('#checkLicense').prop('disabled', true).text('Check');
                         $('#license_key').prop('readonly', true).text('Check');

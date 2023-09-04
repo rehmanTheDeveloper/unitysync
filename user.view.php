@@ -176,7 +176,7 @@ $title = "User - ".$user['f_name'];
                                         <tr>
                                             <td>Phone No.</td>
                                             <td class="fw-bold text-end">
-                                                <?=$user['phone_no']?>
+                                                <?="+92 ".phone_no_format($user['phone_no'])?>
                                             </td>
                                         </tr>
                                         <tr>
@@ -263,7 +263,7 @@ $title = "User - ".$user['f_name'];
                             </tr>
                             <?php } } else { ?>
                             <tr>
-                                <td class="fw-bold text-center" colspan="3">No Activity.</td>
+                                <td class="fw-bold text-center" colspan="4">No Activity.</td>
                             </tr>
                             <?php } ?>
                         </tbody>

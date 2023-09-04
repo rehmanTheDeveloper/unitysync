@@ -36,6 +36,12 @@ $martial_status = array(
     "engaged"
 );
 
+$directory = "uploads/cache/";
+if (!empty(glob($directory . "*-".$_SESSION['project'],GLOB_BRACE))) {
+    $cache = TRUE;
+} else {
+    $cache = FALSE;
+}
 
 $title = "Profile - ".$user['f_name'];
 
@@ -45,7 +51,7 @@ $title = "Profile - ".$user['f_name'];
 
 <head>
     <?php include('temp/head.temp.php'); ?>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
+    <link rel="stylesheet" href="vendor/cropperjs/dist/css/cropper.min.css" />
     <style type="text/css">
     .preview {
         overflow: hidden;
@@ -80,6 +86,7 @@ $title = "Profile - ".$user['f_name'];
                 </ol>
             </nav>
         </div>
+
         <div class="row">
             <div class="col-12 col-xl-8">
                 <div class="card card-body border-0 shadow mb-4">
@@ -294,6 +301,42 @@ $title = "Profile - ".$user['f_name'];
                                 } ?>
                                 </h5>
                                 <p class="text-gray mb-4 text-capitalize"><?=$user['country']?></p>
+                                <div class="btn-group" <?=(!$cache)?"data-bs-toggle='tooltip' data-bs-original-title='No Cache ...'":''?>>
+                                    <button <?=(!$cache)?"disabled":''?> class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split"
+                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                        title="Delete">
+                                        <svg class="icon icon-xs text-danger"
+                                            fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd"
+                                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                        Clear Cache
+                                        <span class="visually-hidden">Toggle Dropdown</span>
+                                    </button>
+                                    <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
+                                        style="">
+                                        <a class="dropdown-item d-flex align-items-center" id="clearCache">
+                                            <svg class="icon icon-xs dropdown-icon text-success me-2"
+                                                fill="currentColor" viewBox="0 0 20 20"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd"
+                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                    clip-rule="evenodd"></path>
+                                            </svg>
+                                            Yes
+                                        </a>
+                                        <a class="dropdown-item d-flex align-items-center" data-bs-dismiss="dropdown">
+                                            <svg class="icon icon-xs dropdown-icon text-danger me-2" fill="currentColor"
+                                                viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd"
+                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                                    clip-rule="evenodd"></path>
+                                            </svg>
+                                            No
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -409,7 +452,8 @@ $title = "Profile - ".$user['f_name'];
     </div>
 
     <?php include('temp/script.temp.php'); ?>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script src="vendor/vanillajs-datepicker/dist/js/datepicker.min.js"></script>
+    <script src="vendor/cropperjs/dist/js/cropper.min.js"></script>
     <script>
     $(function() {
         setInterval(() => {
@@ -501,6 +545,29 @@ $title = "Profile - ".$user['f_name'];
                 cropper.destroy();
                 cropper = null;
             }
+        });
+
+        $("#clearCache").on("click", function () {
+            $.ajax({
+                url: 'ajax/clear.cache.php',
+                type: 'POST',
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    if (response == "invalid") {
+                        notify("error", "Something's Wrong ...");
+                    } else if (response == "valid") {
+                        notify("success", "Cache Cleared Successfully ...");
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    }
+                    // console.log(response);
+                },
+                error: function() {
+                    console.log('An error occurred. Please try again.');
+                }
+            });
         });
 
         function uploadFile(file) {

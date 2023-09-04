@@ -8,7 +8,6 @@
 <!-- <script src="vendor/vanillajs-datepicker/dist/js/datepicker.min.js"></script> -->
 <script src="vendor/simple-datatables/dist/umd/simple-datatables.js"></script>
 <script src="vendor/sweetalert2/dist/sweetalert2.min.js"></script>
-<!-- <script src="vendor/vanillajs-datepicker/dist/js/datepicker.min.js"></script> -->
 <!-- <script src="vendor/fullcalendar/main.min.js"></script> -->
 <!-- <script src="vendor/dropzone/dist/min/dropzone.min.js"></script> -->
 <!-- <script src="vendor/choices.js/public/assets/scripts/choices.min.js"></script> -->
@@ -16,7 +15,7 @@
 <script src="vendor/leaflet/dist/leaflet.js"></script>
 <!-- <script src="vendor/svg-pan-zoom/dist/svg-pan-zoom.min.js"></script> -->
 <!-- <script src="vendor/svgmap/dist/svgMap.min.js"></script> -->
-<!-- <script src="vendor/simplebar/dist/simplebar.min.js"></script> -->
+<script src="vendor/simplebar/dist/simplebar.min.js"></script>
 <!-- <script src="vendor/sortablejs/Sortable.min.js"></script> -->
 <script src="assets/js/RTD.js"></script>
 <script src="assets/js/jquery.min.js"></script>

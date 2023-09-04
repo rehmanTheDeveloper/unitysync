@@ -41,6 +41,7 @@ $title = "Add Account";
 
 <head>
     <?php include('temp/head.temp.php'); ?>
+    
     <link rel="stylesheet" href="vendor/cropperjs/dist/css/cropper.min.css" />
     <style type="text/css">
     .preview {
