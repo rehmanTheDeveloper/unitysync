@@ -16,7 +16,7 @@ $conn = conn("localhost", "root", "", "unitySync"); #
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "add-account") != true) {
-    header("Location: ../Accounts?m=account_add_not_allow");
+    header("Location: ../account.all.php?m=account_add_not_allow");
     exit();
 }
 ################################ Role Validation ################################
@@ -200,14 +200,14 @@ if ($data['type'] == "customer") {
     $stmt = $conn->prepare($query);
     $stmt->bind_param("sssssssssssssssssssss", $data['id'], $data['name'], $data['prefix'], $data['father_name'], $data['cnic'], $data['address'], $data['city'], $data['province'], $data['country'], $data['phone_no'], $data['email'], $data['whatsapp_no'], $data['kin_name'], $data['kin_relation'], $data['kin_cnic'], $data['guranter_name'], $data['guranter_cnic'], $upload['img'], $data['project'], $created_date, $created_by);
     if ($stmt->execute()) {
-        $location = "Location: ../Accounts?m=add_true";
+        $location = "Location: ../account.all.php?m=add_true";
         if (isset($image_err)) {
             $location .= "&image=" . $image_err;
         }
         header($location);
         exit();
     } else {
-        header("Location: ../Accounts?m=add_false");
+        header("Location: ../account.all.php?m=add_false");
         exit();
     }
 
@@ -233,10 +233,10 @@ if ($data['type'] == "customer") {
     $stmt = $conn->prepare($query);
     $stmt->bind_param("ssssssss", $data['id'], $data['name'], $data['details'], $data['number'], $data['branch'], $data['project'], $created_date, $created_by);
     if ($stmt->execute()) {
-        header("Location: ../Accounts?m=add_true");
+        header("Location: ../account.all.php?m=add_true");
         exit();
     } else {
-        header("Location: ../Accounts?m=add_false");
+        header("Location: ../account.all.php?m=add_false");
         exit();
     }
 
@@ -262,10 +262,10 @@ if ($data['type'] == "customer") {
     $stmt = $conn->prepare($query);
     $stmt->bind_param("sssssss", $data['id'], $data['name'], $data['details'], $data['sub_group'], $data['project'], $created_date, $created_by);
     if ($stmt->execute()) {
-        header("Location: ../Accounts?m=add_true");
+        header("Location: ../account.all.php?m=add_true");
         exit();
     } else {
-        header("Location: ../Accounts?m=add_false");
+        header("Location: ../account.all.php?m=add_false");
         exit();
     }
 
@@ -313,14 +313,14 @@ if ($data['type'] == "customer") {
     $stmt = $conn->prepare($query);
     $stmt->bind_param("ssssssssssssssss", $data['id'], $data['name'], $data['prefix'], $data['father_name'], $data['cnic'], $data['address'], $data['city'], $data['province'], $data['country'], $data['phone_no'], $data['email'], $data['whtsNo'], $upload['img'], $data['project'], $created_date, $created_by);
     if ($stmt->execute()) {
-        $location = "Location: ../Accounts?m=add_true";
+        $location = "Location: ../account.all.php?m=add_true";
         if (isset($image_err)) {
             $location .= "&image=" . $image_err;
         }
         header($location);
         exit();
     } else {
-        header("Location: ../Accounts?m=add_false");
+        header("Location: ../account.all.php?m=add_false");
         exit();
     }
 

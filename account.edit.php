@@ -14,7 +14,7 @@ $conn = conn("localhost", "root", "", "unitySync");                   #
 ####################### Database Connection #######################
 
 if (empty($_GET['i'])) {
-    header("Location: Accounts?m=not_found");
+    header("Location: account.all.php?m=not_found");
     exit();
 }
 
@@ -25,7 +25,7 @@ $query = "SELECT * FROM `".$type['type']."` WHERE `acc_id` = '".encryptor("decry
 $account = mysqli_fetch_assoc(mysqli_query($conn, $query));
 
 if (empty($account)) {
-    header("Location: Accounts?m=not_found");
+    header("Location: account.all.php?m=not_found");
     exit();
 }
 

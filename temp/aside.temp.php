@@ -113,8 +113,8 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
                 </a>
             </li>
             <li role="separator" class="dropdown-divider mt-4 mb-3 border-gray-700"></li>
-            <li class="nav-item <?php active('Dashboard'); ?>">
-                <a href="Dashboard" class="nav-link d-flex align-items-center justify-content-between">
+            <li class="nav-item <?php active('index.php'); ?>">
+                <a href="index.php" class="nav-link d-flex align-items-center justify-content-between">
                     <span>
                         <span class="sidebar-icon">
                             <svg class="icon icon-xs me-2" fill="currentColor" viewbox="0 0 20 20"
@@ -134,9 +134,9 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
                 ################################ Role Validation ################################
                 ?>
             <li class="nav-item">
-                <span class="nav-link <?php collapse('Accounts, account.add.php, account.edit.php');
+                <span class="nav-link <?php collapse('account.all.php, account.config.php, account.edit.php, account.view.php');
                     collapse('property.all.php'); ?> d-flex justify-content-between align-items-center"
-                    data-bs-toggle="collapse" data-bs-target="#masterEntry" <?php expand('Accounts');
+                    data-bs-toggle="collapse" data-bs-target="#masterEntry" <?php expand('account.all.php, account.config.php, account.edit.php, account.view.php');
                         expand('property.all.php'); ?>>
                     <span>
                         <span class="sidebar-icon">
@@ -164,7 +164,7 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
                         </svg>
                     </span>
                 </span>
-                <div class="multi-level collapse <?php show('Accounts');
+                <div class="multi-level collapse <?php show('account.all.php, account.config.php, account.edit.php, account.view.php');
                     show('property.all.php'); ?>" role="list" id="masterEntry" aria-expanded="false">
                     <ul class="flex-column nav">
                         <?php
@@ -177,8 +177,8 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
                             ) { #
                                 ################################ Role Validation ################################
                                 ?>
-                        <li class="nav-item <?php active('Accounts'); ?>">
-                            <a href="Accounts" class="nav-link">
+                        <li class="nav-item <?php active('account.all.php, account.config.php, account.edit.php, account.view.php'); ?>">
+                            <a href="account.all.php" class="nav-link">
                                 <span class="sidebar-text-contracted">
                                     A
                                 </span>

@@ -15,7 +15,7 @@ $conn = conn("localhost", "root", "", "unitySync");             #
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "add-account") != true) {
-    header("Location: Accounts?m=account_add_not_allow");
+    header("Location: account.all.php?m=account_add_not_allow");
     exit();
 }
 ################################ Role Validation ################################
@@ -86,7 +86,7 @@ $title = "Add Account";
             <div class="d-flex justify-content-between w-100 flex-wrap align-items-center">
                 <h1 class="h4 mb-0">Add Account</h1>
                 <div>
-                    <a href="Accounts" class="btn btn-outline-gray-600 d-inline-flex align-items-center">
+                    <a href="account.all.php" class="btn btn-outline-gray-600 d-inline-flex align-items-center">
                         All Accounts
                     </a>
                 </div>

@@ -15,13 +15,13 @@ $conn = conn("localhost", "root", "", "unitySync");             #
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "view-account") != true) {
-    header("Location: Accounts?m=account_view_not_allow");
+    header("Location: account.all.php?m=account_view_not_allow");
     exit();
 }
 ################################ Role Validation ################################
 
 if (empty($_GET['i'])) {
-    header("Location: Accounts?m=not_found");
+    header("Location: account.all.php?m=not_found");
     exit();
 }
 
@@ -33,7 +33,7 @@ $account = mysqli_fetch_assoc(mysqli_query($conn, $query));
 $account['delete'] = 1;
 
 if (empty($account)) {
-    header("Location: Accounts?m=not_found");
+    header("Location: account.all.php?m=not_found");
     exit();
 }
 
@@ -155,7 +155,7 @@ $title = "Account - ".$account['name'];
                         </a>
                         <?php } } ?>
                     </div>
-                    <a class="btn btn-outline-gray-800" href="Accounts">Manage Accounts</a>
+                    <a class="btn btn-outline-gray-800" href="account.all.php">Manage Accounts</a>
                 </div>
             </nav>
         </div>
@@ -288,7 +288,7 @@ $title = "Account - ".$account['name'];
                 <?php if ($type['type'] == 'customer') { ?>
                 <div class="card">
                     <div class="card-body">
-                        <?php if (FALSE/*condition for property existance*/) { ?>
+                        <?php if (TRUE/*condition for property existance*/) { ?>
                         <div class="row">
                             <div class="col-lg-12 text-center">
                                 <h4>No Property</h4>

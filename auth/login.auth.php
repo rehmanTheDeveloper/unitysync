@@ -5,7 +5,7 @@ include('functions.php');
 // Now we check if the data from the login form was submitted, isset() will check if the data exists.
 if (!isset($_POST['username'], $_POST['password'])) {
     // Could not get the data that should have been sent.
-    header('Location: ../Dashboard?m=true');
+    header('Location: ../index.php?m=true');
 }
 
 $conn = conn("localhost", "root", "", "unitySync");
@@ -135,7 +135,7 @@ if (is_int($license['status'])) {
         file_put_contents($filePath, $jsonString);
     }
 
-    header('Location: ../Dashboard?m=login_true');
+    header('Location: ../index.php?m=login_true');
     exit();
 
 }

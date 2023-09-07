@@ -18,4 +18,23 @@
     </div>
 </footer>
 
+<div class="modal fade" id="logout" tabindex="-1" role="dialog" aria-labelledby="delete account"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="h4 modal-title">Warning</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">Are you sure to Logout ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-bs-dismiss="modal">No</button>
+                    <a href="auth/logout.php" class="btn btn-danger">Yes, Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <!-- <div id="pulsar"></div> -->

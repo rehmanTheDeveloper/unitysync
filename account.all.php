@@ -95,7 +95,7 @@ $title = "All Accounts";
                     if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "add-account") === true) {
                     ################################ Role Validation ################################
                     ?>
-                    <a href="Account-config" class="btn btn-outline-gray-800 d-inline-flex align-items-center">
+                    <a href="account.config.php" class="btn btn-outline-gray-800 d-inline-flex align-items-center">
                         <svg class="icon icon-xs me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                             xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

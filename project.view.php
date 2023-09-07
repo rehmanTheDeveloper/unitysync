@@ -14,7 +14,7 @@ $conn = conn("localhost", "root", "", "unitySync");             #
 ####################### Database Connection #######################
 
 if ($_SESSION['role'] !== 'super-admin') {
-    header("Location: Dashboard?m=masti");
+    header("Location: index.php?m=masti");
     exit();
 }
 
@@ -938,7 +938,7 @@ $title = "Project - ".$project['name'];
                             <?php if (!empty($insert_sellers)) { ?>
                             <button type="submit" class="btn btn-success text-white fw-bolder">Add Seller</button>
                             <?php } else { ?>
-                            <a href="Account-config" class="btn btn-primary text-white fw-bolder">Add Seller</a>
+                            <a href="account.config.php" class="btn btn-primary text-white fw-bolder">Add Seller</a>
                             <?php } ?>
                         </div>
                     </form>
@@ -1190,7 +1190,7 @@ $title = "Project - ".$project['name'];
                             <?php if (!empty($insert_investors)) { ?>
                             <button type="submit" class="btn btn-success text-white fw-bolder">Add Investor</button>
                             <?php } else { ?>
-                            <a href="Account-config" class="btn btn-primary text-white fw-bolder">Add Investor</a>
+                            <a href="account.config.php" class="btn btn-primary text-white fw-bolder">Add Investor</a>
                             <?php } ?>
                         </div>
                     </form>

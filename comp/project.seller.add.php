@@ -16,7 +16,7 @@ $conn = conn("localhost", "root", "", "unitySync"); #
 
 ################################ Role Validation ################################
 if ($_SESSION['role'] != 'super-admin') {
-    header("Location: ../Dashboard?m=masti");
+    header("Location: ../index.php?m=masti");
     exit();
 }
 ################################ Role Validation ################################

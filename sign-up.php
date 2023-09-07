@@ -3,7 +3,7 @@
 session_start();
 // If the user is logged in redirect to the Dashboard page...
 if ($_SESSION['loggedin'] == TRUE) {
-    header('Location: Dashboard');
+    header('Location: index.php');
     exit;
 }
 

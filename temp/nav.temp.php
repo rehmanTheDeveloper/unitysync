@@ -66,7 +66,7 @@
                             Support
                         </a>
                         <div role="separator" class="dropdown-divider my-1"></div>
-                        <a class="dropdown-item d-flex align-items-center" href="auth/logout.php">
+                        <a class="dropdown-item d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#logout">
                             <svg class="dropdown-icon text-danger me-2" fill="none" stroke="currentColor"
                                 viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
