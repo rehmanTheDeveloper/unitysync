@@ -10,7 +10,7 @@ require("temp/validate.license.temp.php");                         #
 ####################### Database Connection #######################
 require("auth/config.php");                                       #
 require("auth/functions.php");                                    #
-$conn = conn("localhost", "root", "", "communiSync");             #
+$conn = conn("localhost", "root", "", "unitySync");             #
 ####################### Database Connection #######################
 
 ################################ Role Validation ################################
@@ -34,6 +34,9 @@ $cities = [
     "Tando Muhammad Khan", "Kamber Ali Khan", "Mirpur Mathelo", "Kandhkot", "Bhalwal"
 ];
 
+$query = "SELECT * FROM `expense_sub_groups` WHERE `project_id` = '".$_SESSION['project']."';";
+$sub_groups = fetch_Data($conn, $query);
+
 $title = "Add Account";
 ?>
 <!DOCTYPE html>
@@ -41,7 +44,7 @@ $title = "Add Account";
 
 <head>
     <?php include('temp/head.temp.php'); ?>
-    
+
     <link rel="stylesheet" href="vendor/cropperjs/dist/css/cropper.min.css" />
     <style type="text/css">
     .preview {
@@ -111,7 +114,7 @@ $title = "Add Account";
                                         <option value="seller">Seller</option>
                                         <option value="investor">Investor</option>
                                         <option value="staff">Staff</option>
-                                        <option value="expenses">Expenses</option>
+                                        <option value="expense" selected>Expense</option>
                                         <option value="bank">Bank</option>
                                     </select>
                                 </div>
@@ -133,14 +136,15 @@ $title = "Add Account";
                                                 <div class="mb-2">
                                                     <label for="fatherName">Father Name</label>
                                                     <input type="text" class="form-control" id="fatherName"
-                                                        name="fatherName" aria-describedby="fatherName" required />
+                                                        name="fatherName" aria-describedby="fatherName" />
                                                 </div>
                                             </div>
                                             <div class="col-lg-5">
                                                 <div class="mb-2">
                                                     <label for="cnic">CNIC Number</label>
                                                     <input class="form-control cnic_format" type="text" name="cnic"
-                                                        id="cnic" aria-describedby="CNICnumber" placeholder="33333-3333333-3" required />
+                                                        id="cnic" aria-describedby="CNICnumber"
+                                                        placeholder="33333-3333333-3" />
                                                 </div>
                                             </div>
                                             <div class="col-lg-12">
@@ -153,10 +157,10 @@ $title = "Add Account";
                                             <div class="col-lg-4">
                                                 <div class="mb-2">
                                                     <label for="city">City</label>
-                                                    <select name="city" id="city" class="form-select" required>
+                                                    <select name="city" id="city" class="form-select">
                                                         <option value="" selected>Select City</option>
                                                         <?php foreach ($cities as $key => $city) { ?>
-                                                            <option value="<?=$city?>"><?=$city?></option>
+                                                        <option value="<?=$city?>"><?=$city?></option>
                                                         <?php } ?>
                                                     </select>
                                                 </div>
@@ -164,7 +168,7 @@ $title = "Add Account";
                                             <div class="col-lg-4">
                                                 <div class="mb-2">
                                                     <label for="province">State</label>
-                                                    <select class="form-select" name="province" id="province" required>
+                                                    <select class="form-select" name="province" id="province">
                                                         <option value="" selected>Select State</option>
                                                         <option value="punjab">Punjab</option>
                                                         <option value="sindh">Sindh</option>
@@ -177,7 +181,7 @@ $title = "Add Account";
                                             <div class="col-lg-4">
                                                 <div class="mb-2">
                                                     <label for="country">Country</label>
-                                                    <select name="country" id="country" class="form-select" required>
+                                                    <select name="country" id="country" class="form-select">
                                                         <option value="">Select country</option>
                                                         <option value="pakistan" selected>Pakistan</option>
                                                     </select>
@@ -217,7 +221,7 @@ $title = "Add Account";
                                                         <span class="input-group-text text-primary">+92</span>
                                                         <input class="form-control phone_no_format" type="tel"
                                                             name="phoneNo" id="phoneNo" ariadescribedby="phoneNo"
-                                                            placeholder="(333) 333 3333" required />
+                                                            placeholder="(333) 333 3333" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -225,9 +229,10 @@ $title = "Add Account";
                                                 <div class="mb-2">
                                                     <label for="email">E-mail</label>
                                                     <div class="input-group">
-                                                    <input class="form-control" type="text" name="email" id="email"
-                                                        ariadescribedby="email" />
-                                                        <select name="email-format" id="email-format" class="form-select">
+                                                        <input class="form-control" type="text" name="email" id="email"
+                                                            ariadescribedby="email" />
+                                                        <select name="email-format" id="email-format"
+                                                            class="form-select">
                                                             <option value="@gmail.com" selected>@gmail.com</option>
                                                             <option value="@outlook.com">@outlook.com</option>
                                                             <option value="@icloud.com">@icloud.com</option>
@@ -243,25 +248,21 @@ $title = "Add Account";
                                                         placeholder="(333) 333 3333" />
                                                 </div>
                                             </div>
-                                            <div class="col-lg-7 d-none cusDetail">
-                                                <div class="row">
-                                                    <div class="col-lg-12">
-                                                        <div class="mb-2">
-                                                            <label for="guranterName">Guranter Name</label>
-                                                            <input class="form-control" type="text" name="guranterName"
-                                                                id="guranterName" ariadescribedby="guranterName" />
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12">
-                                                        <div class="mb-2">
-                                                            <label for="guranterCnic">Guranter CNIC</label>
-                                                            <input class="form-control" type="text" name="guranterCnic"
-                                                                id="guranterCnic" ariadescribedby="guranterCnic" />
-                                                        </div>
-                                                    </div>
+                                            <div class="col-lg-6 d-none cusDetail">
+                                                <div class="mb-2">
+                                                    <label for="guranterName">Guranter Name</label>
+                                                    <input class="form-control" type="text" name="guranterName"
+                                                        id="guranterName" ariadescribedby="guranterName" />
                                                 </div>
                                             </div>
-                                            <div class="col-lg-5 d-none cusDetail">
+                                            <div class="col-lg-6 d-none cusDetail">
+                                                <div class="mb-2">
+                                                    <label for="guranterCnic">Guranter CNIC</label>
+                                                    <input class="form-control cnic_format" type="text" name="guranterCnic"
+                                                        id="guranterCnic" ariadescribedby="guranterCnic" />
+                                                </div>
+                                            </div>
+                                            <!-- <div class="col-lg-5 d-none cusDetail">
                                                 <label for="">Attach Documents</label>
                                                 <div class="card rounded p-2 mb-2">
                                                     <div class="d-flex align-items-center justify-content-center">
@@ -275,7 +276,7 @@ $title = "Add Account";
                                                         </tbody>
                                                     </table>
                                                 </div>
-                                            </div>
+                                            </div> -->
                                             <div class="col-lg-7">
                                                 <div class="mb-2">
                                                     <label for="openingBalance">Opening Balance</label>
@@ -312,31 +313,27 @@ $title = "Add Account";
                                     <div class="col-lg-4 bankSection">
                                         <div class="mb-2">
                                             <label for="accNumber">Account Number</label>
-                                            <input class="form-control" type="number" name="accNumber" id="accNumber"
-                                                ariadescribedby="accNumber" />
+                                            <input class="form-control acc_no_format" type="text" name="accNumber"
+                                                id="accNumber" ariadescribedby="accNumber" />
                                         </div>
                                     </div>
                                     <div class="col-lg-4 d-none expenseSection">
                                         <div class="mb-2">
                                             <label class="form-label" for="subGroup">Sub Group</label>
                                             <div class="input-group">
-                                                <?php if(!empty($sub_groups)): ?>
+                                                <?php if(!empty($sub_groups)) { ?>
                                                 <select class="form-select" name="subGroup" id="subGroup">
-                                                    <?php for ($i = 0; $i < count($sub_groups); $i++): ?>
-                                                    <option value="<?php echo $sub_groups[$i]['id']; ?>">
-                                                        <?php echo $sub_groups[$i]['name']; ?>
+                                                    <?php foreach ($sub_groups as $key => $group) { ?>
+                                                    <option value="<?=$group['id']?>">
+                                                        <?=$group['name']?>
                                                     </option>
-                                                    <?php endfor; ?>
+                                                    <?php } ?>
                                                 </select>
-                                                <?php else: ?>
-                                                <select class="form-select bg-white" disabled>
+                                                <?php } else { ?>
+                                                <select class="form-select" disabled>
                                                     <option value="" selected>No Sub Group has been Added</option>
                                                 </select>
-                                                <?php endif; ?>
-                                                <a class="input-group-text" data-bs-toggle="modal"
-                                                    data-bs-target="#addSubGroup">
-                                                    <i class="icon icon-xs" data-feather="plus"></i>
-                                                </a>
+                                                <?php } ?>
                                             </div>
                                         </div>
                                     </div>
@@ -352,16 +349,16 @@ $title = "Add Account";
                                             <label for="paymentAction">Payment Action</label>
                                             <select class="form-select" name="paymentAction" id="paymentAction">
                                                 <option value="" selected>Select Payment Action</option>
-                                                <option value="0">Recievable</option>
-                                                <option value="1">Payable</option>
+                                                <option value="debit">Debit</option>
+                                                <option value="credit">Credit</option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-lg-5 bankSection">
                                         <div class="mb-2">
-                                            <label for="phoneNoBranch">Phone Number Branch</label>
-                                            <input class="form-control" type="tel" name="phoneNoBranch"
-                                                id="phoneNoBranch" ariadescribedby="phoneNoBranch" />
+                                            <label for="accountBranch">Account Branch</label>
+                                            <input class="form-control" type="text" name="accountBranch"
+                                                id="accountBranch" ariadescribedby="accountBranch" />
                                         </div>
                                     </div>
                                 </div>
@@ -420,22 +417,22 @@ $title = "Add Account";
         $("#category").trigger("change");
     });
 
-    $("#docUpload").on("change", function(event) {
-        let files = event.target.files;
-        let fileDes = $("#docName");
+    // $("#docUpload").on("change", function(event) {
+    //     let files = event.target.files;
+    //     let fileDes = $("#docName");
 
-        fileDes.html("");
+    //     fileDes.html("");
 
-        for (let i = 0; i < files.length; i++) {
-            let file = files[i];
-            let fileRow = $("<tr>");
-            let fileDetailsColumn = $("<td>").text(i + 1);
-            let fileColumn = $("<td>").text(file.name);
-            fileRow.append(fileDetailsColumn);
-            fileRow.append(fileColumn);
-            fileDes.append(fileRow);
-        }
-    });
+    //     for (let i = 0; i < files.length; i++) {
+    //         let file = files[i];
+    //         let fileRow = $("<tr>");
+    //         let fileDetailsColumn = $("<td>").text(i + 1);
+    //         let fileColumn = $("<td>").text(file.name);
+    //         fileRow.append(fileDetailsColumn);
+    //         fileRow.append(fileColumn);
+    //         fileDes.append(fileRow);
+    //     }
+    // });
 
     const fileUpload = $("#imgUpload");
 
@@ -514,7 +511,7 @@ $title = "Add Account";
         let acc_type = $("#category").val();
         let sections = {
             cus_seller_section: $("#CusSellerSection"),
-            expense_section: $("#expenseBankSection"),
+            expense_bank_section: $("#expenseBankSection"),
             cus_detail: $('.cusDetail'),
             bank_fields: $(".bankSection"),
             expense_fields: $(".expenseSection"),
@@ -530,13 +527,13 @@ $title = "Add Account";
 
         sections.cus_seller_section.toggleClass("d-none", !(acc_type === "investor" || acc_type === "seller" ||
             acc_type === "customer" || acc_type === "staff"));
-        sections.expense_section.toggleClass("d-none", !(acc_type === "expenses" || acc_type === "bank"));
+        sections.expense_bank_section.toggleClass("d-none", !(acc_type === "expense" || acc_type === "bank"));
         sections.submit_btn.toggleClass("d-none", !(acc_type === "investor" || acc_type === "seller" ||
-            acc_type === "customer" || acc_type === "staff" || acc_type === "expenses" || acc_type ===
+            acc_type === "customer" || acc_type === "staff" || acc_type === "expense" || acc_type ===
             "bank"));
         sections.cus_detail.toggleClass("d-none", !(acc_type === "customer"));
-        sections.bank_fields.toggleClass("d-none", !(acc_type === "expenses"));
-        sections.expense_fields.toggleClass("d-none", !(acc_type === "bank"));
+        sections.bank_fields.toggleClass("d-none", !(acc_type === "bank"));
+        sections.expense_fields.toggleClass("d-none", !(acc_type === "expense"));
     });
     </script>
     <?php } ?>

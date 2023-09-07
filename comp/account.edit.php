@@ -11,7 +11,7 @@ require("../temp/validate.license.temp.php"); #
 ######################## Database Connection #######################
 require("../auth/config.php"); #
 require("../auth/functions.php"); #
-$conn = conn("localhost", "root", "", "communiSync"); #
+$conn = conn("localhost", "root", "", "unitySync"); #
 ######################## Database Connection #######################
 
 ################################ Role Validation ################################
@@ -25,87 +25,213 @@ $phone_format = array(
     "(",
     ")",
     " ",
+    ",",
     "-"
 );
 
-foreach ($_POST as $key => $value) {
-    $data[$key] = sanitize($conn, $value);
+$account_groups = [
+    "customer" => [
+        "name" => "accTitle",
+        "type" => "accGroup",
+        "prefix" => "title",
+        "father_name" => "fName",
+        "cnic" => "cnicNum",
+        "address" => "address",
+        "city" => "city",
+        "province" => "province",
+        "country" => "country",
+        "kin_name" => "nextKin",
+        "kin_relation" => "relationship",
+        "kin_cnic" => "nextKinCNIC",
+        "phone_no" => "phoneNo",
+        "email" => "email",
+        "email-format" => "email-format",
+        "whatsapp_no" => "whtsNo",
+        "guranter_name" => "guranterName",
+        "guranter_cnic" => "guranterCnic",
+        "image" => "img",
+        "id" => "id"
+    ],
+    "seller" => [
+        "name" => "accTitle",
+        "type" => "accGroup",
+        "prefix" => "title",
+        "father_name" => "fName",
+        "cnic" => "cnicNum",
+        "address" => "address",
+        "city" => "city",
+        "province" => "province",
+        "country" => "country",
+        "phone_no" => "phoneNo",
+        "email" => "email",
+        "email-format" => "email-format",
+        "whatsapp_no" => "whsNo",
+        "image" => "img",
+        "id" => "id"
+    ],
+    "investor" => [
+        "name" => "accTitle",
+        "type" => "accGroup",
+        "prefix" => "title",
+        "father_name" => "fName",
+        "cnic" => "cnicNum",
+        "address" => "address",
+        "city" => "city",
+        "province" => "province",
+        "country" => "country",
+        "phone_no" => "phoneNo",
+        "email" => "email",
+        "email-format" => "email-format",
+        "whatsapp_no" => "whsNo",
+        "image" => "img",
+        "id" => "id"
+    ],
+    "staff" => [
+        "name" => "accTitle",
+        "type" => "accGroup",
+        "prefix" => "title",
+        "father_name" => "fName",
+        "cnic" => "cnicNum",
+        "address" => "address",
+        "city" => "city",
+        "province" => "province",
+        "country" => "country",
+        "phone_no" => "phoneNo",
+        "email" => "email",
+        "email-format" => "email-format",
+        "whatsapp_no" => "whsNo",
+        "image" => "img",
+        "id" => "id"
+    ],
+    "bank" => [
+        "name" => "accTitle",
+        "type" => "accGroup",
+        "details" => "otherDetails",
+        "number" => "accNumber",
+        "branch" => "accountBranch",
+        "id" => "id"
+    ],
+    "expense" => [
+        "name" => "accTitle",
+        "type" => "accGroup",
+        "details" => "otherDetails",
+        "sub_group" => "subGroup",
+        "branch" => "accountBranch",
+        "id" => "id"
+    ]
+];
+
+foreach ($account_groups as $group_key => $group_fields) {
+    if ($_POST['accGroup'] == $group_key) {
+        foreach ($group_fields as $key => $field) {
+            $data[$key] = sanitize($conn, $_POST[$field]);
+        }
+    }
 }
 
-echo "<pre>";
-
-// Account Exist or not .. ??
-$query = "SELECT `id` FROM `accounts` WHERE `acc_id` = '".encryptor("decrypt",$_POST['id'])."' AND `type` = '".$_POST['accGroup']."' AND `project_id` = '".$_SESSION['project']."';";
+$query = "SELECT `id` FROM `accounts` WHERE `acc_id` = '" . encryptor("decrypt", $_POST['id']) . "' AND `type` = '" . $data['type'] . "' AND `project_id` = '" . $_SESSION['project'] . "';";
 $result = mysqli_fetch_assoc(mysqli_query($conn, $query));
 
 if (empty($result)) {
-    header("Location: ../account.edit.php?i=".$_POST['id']."&m=edit_false");
+    header("Location: ../account.edit.php?i=" . $_POST['id'] . "&m=edit_false");
     exit();
 } else {
     $result = "";
 }
 
-$data['phoneNo'] = str_replace($phone_format,"",$data['phoneNo']);
-$data['whsNo'] = str_replace($phone_format,"",$data['whsNo']);
-$data['email'] = $data['email'].$data['email-format'];
-$data['cnicNum'] = str_replace($phone_format,"",$data['cnicNum']);
-$data['id'] = encryptor("decrypt", $data['id']);
+if ($data['type'] == 'seller' || $data['type'] == 'investor' || $data['type'] == 'staff' || $data['type'] == 'customer') {
+    $data['phone_no'] = str_replace($phone_format, "", $data['phone_no']);
+    $data['whatsapp_no'] = str_replace($phone_format, "", $data['whatsapp_no']);
+    $data['email'] = $data['email'] . $data['email-format'];
+    $data['cnic'] = str_replace($phone_format, "", $data['cnic']);
+} elseif ($data['type'] == 'bank') {
+    $data['number'] = str_replace($phone_format, "", $data['number']);
+}
+$data['id'] = encryptor("decrypt", $_POST['id']);
 
+// echo "<pre>";
 // print_r($_POST);
 // print_r($data);
+// exit();
 
-if ($data['accGroup'] == 'seller' || $data['accGroup'] == 'investor') {
-    $query = "SELECT `img` FROM `".$data['accGroup']."` WHERE `acc_id` = '".encryptor("decrypt",$_POST['id'])."' AND `project_id` = '".$_SESSION['project']."';";
+if ($data['type'] == 'seller' || $data['type'] == 'investor' || $data['type'] == 'staff' || $data['type'] == 'customer') {
+    $query = "SELECT `img` FROM `" . $data['type'] . "` WHERE `acc_id` = '" . encryptor("decrypt", $_POST['id']) . "' AND `project_id` = '" . $_SESSION['project'] . "';";
     $result = mysqli_fetch_assoc(mysqli_query($conn, $query));
-}
-
-if (!empty($data['img'])) {
     $uploadDirectory = "../uploads/acc-profiles/";
-    if ($data['img'] != $result['img']) {
-        $image['parts'] = explode(";base64,", $data['img']);
+    if ($data['image'] != $result['img']) {
+        $image['parts'] = explode(";base64,", $data['image']);
         $image['type_aux'] = explode("image/", $image['parts'][0]);
         $image['base64'] = base64_decode($image['parts'][1]);
-        $upload['img'] = $result['img'];
-        $upload['path'] = $uploadDirectory . $upload['img'];
+        $upload['image'] = $result['img'];
+        $upload['path'] = $uploadDirectory . $upload['image'];
         if (!file_put_contents($upload['path'], $image['base64'])) {
             $image_err = "false";
         }
-        // print_r($image);
     } else {
-        $upload['img'] = $result['img'];
+        $upload['image'] = $result['img'];
     }
-    // print_r($upload);
 }
 
-// echo "<pre>";
-// print_r($result);
-// exit();
+// Activity Record
+$db_activity['date'] = date("d-m-Y", strtotime($created_date));
+$db_activity['user_id'] = $_SESSION['id'];
+$db_activity['activity'] = strtoupper($data['type']) . " Account &quot;" . $data['name'] . "&quot; with ID &quot;" . $data['id'] . "&quot; has been Updated.";
+$db_activity['project'] = $_SESSION['project'];
+$db_activity['created_date'] = $created_date;
+$db_activity['created_by'] = $created_by;
+activity($conn, $db_activity);
+// Activity Record
 
-if ($data['accGroup'] == 'seller' || $data['accGroup'] == 'investor') {
-    // Activity Record
-    $db_activity['date'] = date("d-m-Y", strtotime($created_date));
-    $db_activity['user_id'] = $_SESSION['id'];
-    $db_activity['activity'] = strtoupper($data['accGroup'])." Account &quot;" . $data['accTitle'] . "&quot; has been Updated.";
-    $db_activity['project'] = $_SESSION['project'];
-    $db_activity['created_date'] = $created_date;
-    $db_activity['created_by'] = $created_by;
-    activity($conn, $db_activity);
-    // Activity Record
+if ($data['type'] == 'customer') {
 
-    // print_r($db_activity);
-
-    $query = "UPDATE `".$data['accGroup']."` SET `name`=?,`prefix`=?,`father_name`=?,`cnic`=?,`address`=?,`city`=?,`province`=?,`country`=?,`phone_no`=?,`email`=?,`whts_no`=?,`img`=? WHERE `acc_id` =? AND `project_id` =?;";
+    $query = "UPDATE `" . $data['type'] . "` SET `name`=?,`prefix`=?,`father_name`=?,`cnic`=?,`address`=?,`city`=?,`province`=?,`country`=?,`phone_no`=?,`email`=?,`whts_no`=?,`kin_name`=?,`kin_relation`=?,`kin_cnic`=?,`guranter_name`=?,`guranter_cnic`=?,`img`=? WHERE `acc_id` =? AND `project_id` =?;";
     $stmt = $conn->prepare($query);
-    $stmt->bind_param("ssssssssssssss", $data['accTitle'], $data['title'], $data['fName'], $data['cnicNum'], $data['address'], $data['city'], $data['province'], $data['country'], $data['phoneNo'], $data['email'], $data['whsNo'], $upload['img'], $data['id'], $_SESSION['project']);
-
-    // print_r($stmt);
-    // exit();
-
+    $stmt->bind_param("sssssssssssssssssss", $data['name'], $data['prefix'], $data['father_name'], $data['cnic'], $data['address'], $data['city'], $data['province'], $data['country'], $data['phone_no'], $data['email'], $data['whatsapp_no'], $data['kin_name'], $data['kin_relation'], $data['kin_cnic'], $data['guranter_name'], $data['guranter_cnic'], $upload['image'], $data['id'], $_SESSION['project']);
     if ($stmt->execute()) {
-        header("Location: ../account.view.php?i=".$_POST['id']."&m=edit_true");
+        header("Location: ../account.view.php?i=" . $_POST['id'] . "&m=edit_true");
         exit();
     } else {
-        header("Location: ../account.edit.php?i=".$_POST['id']."&m=edit_false");
+        header("Location: ../account.edit.php?i=" . $_POST['id'] . "&m=edit_false");
         exit();
     }
+
+} elseif ($data['type'] == 'bank') {
+
+    $query = "UPDATE `" . $data['type'] . "` SET `name`=?,`details`=?,`number`=?,`branch`=? WHERE `acc_id` =? AND `project_id` =?;";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ssssss", $data['name'], $data['details'], $data['number'], $data['branch'], $data['id'], $_SESSION['project']);
+    if ($stmt->execute()) {
+        header("Location: ../account.view.php?i=" . $_POST['id'] . "&m=edit_true");
+        exit();
+    } else {
+        header("Location: ../account.edit.php?i=" . $_POST['id'] . "&m=edit_false");
+        exit();
+    }
+
+} elseif ($data['type'] == 'expense') {
+
+    $query = "UPDATE `expense` SET `name`=?,`details`=?,`sub_group`=? WHERE `acc_id` =? AND `project_id` =?;";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("sssss", $data['name'], $data['details'], $data['sub_group'], $data['id'], $_SESSION['project']);
+    if ($stmt->execute()) {
+        header("Location: ../account.view.php?i=" . $_POST['id'] . "&m=edit_true");
+        exit();
+    } else {
+        header("Location: ../account.edit.php?i=" . $_POST['id'] . "&m=edit_false");
+        exit();
+    }
+
+} elseif ($data['type'] == 'seller' || $data['type'] == 'investor' || $data['type'] == 'staff') {
+
+    $query = "UPDATE `" . $data['type'] . "` SET `name`=?,`prefix`=?,`father_name`=?,`cnic`=?,`address`=?,`city`=?,`province`=?,`country`=?,`phone_no`=?,`email`=?,`whts_no`=?,`img`=? WHERE `acc_id` =? AND `project_id` =?;";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ssssssssssssss", $data['name'], $data['prefix'], $data['father_name'], $data['cnic'], $data['address'], $data['city'], $data['province'], $data['country'], $data['phone_no'], $data['email'], $data['whatsapp_no'], $upload['image'], $data['id'], $_SESSION['project']);
+    if ($stmt->execute()) {
+        header("Location: ../account.view.php?i=" . $_POST['id'] . "&m=edit_true");
+        exit();
+    } else {
+        header("Location: ../account.edit.php?i=" . $_POST['id'] . "&m=edit_false");
+        exit();
+    }
+
 }

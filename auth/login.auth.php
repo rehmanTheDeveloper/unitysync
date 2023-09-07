@@ -8,7 +8,7 @@ if (!isset($_POST['username'], $_POST['password'])) {
     header('Location: ../Dashboard?m=true');
 }
 
-$conn = conn("localhost", "root", "", "communiSync");
+$conn = conn("localhost", "root", "", "unitySync");
 if ($stmt = $conn->prepare('SELECT `u_id`, `password`,`f_name`,`s_name`,`role`,`img`,`project_id` FROM `users` WHERE `username` = ? AND `role` = "super-admin";')) {
     // Bind parameters (s = string, i = int, b = blob, etc), in our case the username is a string so we use "s"
     $stmt->bind_param('s', $_POST['username']);

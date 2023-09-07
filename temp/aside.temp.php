@@ -359,12 +359,12 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
                     class="nav-link 
                     <?php
                     collapse('project.view.php, project.edit.php');
-                    collapse('#');
+                    collapse('surcharge.php');
                     collapse('user.config.php, user.all.php, user.view.php, user.edit.php, user.role.add.php, user.role.edit.php, user.role.all.php'); ?> d-flex justify-content-between align-items-center"
                     data-bs-toggle="collapse" data-bs-target="#configuration"
                     <?php
                         expand('project.view.php, project.edit.php');
-                        expand('#');
+                        expand('surcharge.php');
                         expand('user.config.php, user.all.php, user.view.php, user.edit.php, user.role.add.php, user.role.edit.php, user.role.all.php'); ?>>
                     <span>
                         <span class="sidebar-icon">
@@ -389,7 +389,7 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
                 <div class="multi-level collapse 
                 <?php
                 show('project.view.php, project.edit.php');
-                show('#');
+                show('surcharge.php');
                 show('user.config.php, user.all.php, user.view.php, user.edit.php, user.role.add.php, user.role.edit.php, user.role.all.php'); ?>"
                     role="list" id="configuration" aria-expanded="false">
                     <ul class="flex-column nav">
@@ -404,13 +404,13 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
                                 <span class="sidebar-text">Project</span>
                             </a>
                         </li>
-                        <?php } ?>
-                        <li class="nav-item <?php active('#'); ?>">
-                            <a href="#" class="nav-link">
+                        <li class="nav-item <?php active('surcharge.php'); ?>">
+                            <a href="surcharge.php" class="nav-link">
                                 <span class="sidebar-text-contracted">S</span>
                                 <span class="sidebar-text">Surcharge</span>
                             </a>
                         </li>
+                        <?php } ?>
                         <?php
                         ################################ Role Validation ################################
                         if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "add-user, view-user, edit-user, add-user-role, edit-user-role, view-user-role") === true) { #

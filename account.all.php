@@ -10,12 +10,12 @@ require("temp/validate.license.temp.php");                         #
 ####################### Database Connection #######################
 require("auth/config.php");                                       #
 require("auth/functions.php");                                    #
-$conn = conn("localhost", "root", "", "communiSync");             #
+$conn = conn("localhost", "root", "", "unitySync");             #
 ####################### Database Connection #######################
 
 $accounts = [];
 
-$query = "SELECT * FROM `accounts` WHERE `project_id` = '".$_SESSION['project']."' ORDER BY `id` DESC;";
+$query = "SELECT * FROM `accounts` WHERE `project_id` = '".$_SESSION['project']."' ORDER BY CAST(SUBSTRING_INDEX(`acc_id`, '-', -1) AS UNSIGNED) DESC;";
 $allAcc = fetch_Data($conn, $query);
 
 if (!empty($allAcc)) {
@@ -36,6 +36,12 @@ if (!empty($allAcc)) {
             if (mysqli_num_rows($result) > 0) {
                 $accounts[$key]['delete'] = 0;
             }
+        } elseif ($Acc['type'] == 'bank') {
+            // $query = "SELECT * FROM `area_investor` WHERE `acc_id` IN ('".$Acc['acc_id']."') AND `project_id` = '".$_SESSION['project']."';";
+            // $result = mysqli_query($conn, $query);
+            // if (mysqli_num_rows($result) > 0) {
+            //     $accounts[$key]['delete'] = 0;
+            // }
         }
     }
 } else {

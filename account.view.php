@@ -10,7 +10,7 @@ require("temp/validate.license.temp.php");                         #
 ####################### Database Connection #######################
 require("auth/config.php");                                       #
 require("auth/functions.php");                                    #
-$conn = conn("localhost", "root", "", "communiSync");             #
+$conn = conn("localhost", "root", "", "unitySync");             #
 ####################### Database Connection #######################
 
 ################################ Role Validation ################################
@@ -55,8 +55,14 @@ $query = "SELECT `v-id`,`type`,`remarks`,`credit`,`debit`, @balance := @balance 
 FROM `ledger`, (SELECT @balance := 0) AS vars WHERE `source` = '".encryptor("decrypt", $_GET['i'])."' AND `project_id` = '".$_SESSION['project']."';";
 $ledger = fetch_Data($conn, $query);
 
+if ($type['type'] == 'expense') {
+    $query = "SELECT * FROM `expense_sub_groups` WHERE `id` = '".$account['sub_group']."' AND `project_id` = '".$_SESSION['project']."';";
+    $expense_sub_groups = mysqli_fetch_assoc(mysqli_query($conn, $query));
+    $account['sub_group'] = $expense_sub_groups['name'];
+}
+
 // echo "<pre>";
-// print_r($ledger);
+// print_r($account);
 // exit();
 
 $title = "Account - ".$account['name'];
@@ -66,7 +72,6 @@ $title = "Account - ".$account['name'];
 
 <head>
     <?php include('temp/head.temp.php'); ?>
-    <?php if (!empty($documents)) { ?>
     <script src="vendor/viewerjs/dist/js/viewer.min.js"></script>
     <link rel="stylesheet" href="vendor/viewerjs/dist/css/viewer.min.css" />
     <style>
@@ -78,7 +83,6 @@ $title = "Account - ".$account['name'];
         content: "View Image";
     }
     </style>
-    <?php } ?>
 </head>
 
 <body>
@@ -161,14 +165,23 @@ $title = "Account - ".$account['name'];
                 <div class="card">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-12">
+                            <div class="col-12 position-relative">
                                 <h2 class="text-center mb-3"><?=$account['name']?></h2>
+                                <?php if ($type['type'] == 'seller' || $type['type'] == 'investor' || $type['type'] == 'staff' || $type['type'] == 'customer') { ?>
+                                <a data-bs-toggle="modal" data-bs-target="#otherDetails"
+                                    class="btn btn-outline-primary position-absolute end-0 top-0">
+                                    Other Details
+                                </a>
+                                <?php } ?>
                             </div>
+                            <?php if ($type['type'] == 'seller' || $type['type'] == 'investor' || $type['type'] == 'staff' || $type['type'] == 'customer') { ?>
                             <div class="col-4 d-flex justify-content-center align-items-center">
                                 <img src="<?=(file_exists("uploads/acc-profiles/".$account['img']))?"uploads/acc-profiles/".$account['img']:"uploads/profiles/profile.png"?>"
                                     alt="" srcset="" class="img-fluid rounded rounded-circle" />
                             </div>
-                            <div class="col-8">
+                            <?php } ?>
+                            <div
+                                class="<?=($type['type'] == 'seller' || $type['type'] == 'investor' || $type['type'] == 'staff' || $type['type'] == 'customer')?"col-8":"col-12"?>">
                                 <table class="table table-centered table-nowrap mb-0 rounded">
                                     <thead class="thead-light">
                                         <tr>
@@ -178,9 +191,10 @@ $title = "Account - ".$account['name'];
                                         </tr>
                                     </thead>
                                     <tbody class="fw-bolder">
+                                        <?php if ($type['type'] == 'seller' || $type['type'] == 'investor' || $type['type'] == 'staff' || $type['type'] == 'customer') { ?>
                                         <tr>
-                                            <td>Type</td>
-                                            <td class="text-end text-capitalize"><?=$type['type']?></td>
+                                            <td>Father Name</td>
+                                            <td class="text-end text-capitalize"><?=$account['father_name']?></td>
                                         </tr>
                                         <tr>
                                             <td>CNIC</td>
@@ -195,39 +209,74 @@ $title = "Account - ".$account['name'];
                                             <td class="text-end"><?=$account['address']?></td>
                                         </tr>
                                         <tr>
-                                            <td>Recieved Amount</td>
-                                            <td class="text-success text-end">Rs. <?=(!empty($ledger))?number_format(getSumOfId($ledger, "debit")):"0"?></td>
+                                            <td>Location</td>
+                                            <td class="text-end text-capitalize">
+                                                <?=$account['city'].", ".$account['province'].", ".$account['country']?>
+                                            </td>
                                         </tr>
+                                        <?php } elseif ($type['type'] == 'bank') { ?>
+                                        <tr>
+                                            <td>Other Details</td>
+                                            <td class="text-end text-capitalize"><?=$account['details']?></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Account Number</td>
+                                            <td class="text-end"><?=formatAccountNumber($account['number'])?></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Account Branch</td>
+                                            <td class="text-end text-capitalize"><?=$account['branch']?></td>
+                                        </tr>
+                                        <?php } elseif ($type['type'] == 'expense') { ?>
+                                        <tr>
+                                            <td>Other Details</td>
+                                            <td class="text-end"><?=$account['details']?></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Sub Group</td>
+                                            <td class="text-end"><?=$account['sub_group']?></td>
+                                        </tr>
+                                        <?php } ?>
+                                        <tr>
+                                            <td>Credit Amount</td>
+                                            <td class="text-success text-end">Rs.
+                                                <?=(!empty($ledger))?number_format(getSumOfId($ledger, "debit")):"0"?>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Debit Amount</td>
+                                            <td class="text-danger text-end">Rs.
+                                                <?=(!empty($ledger))?number_format(getSumOfId($ledger, "credit")):"0"?>
+                                            </td>
+                                        </tr>
+                                        <?php if ($type['type'] == 'seller' || $type['type'] == 'investor' || $type['type'] == 'staff' || $type['type'] == 'customer') { ?>
                                         <tr>
                                             <td>Pending Amount</td>
-                                            <td class="text-danger text-end">Rs. <?=(!empty($ledger))?number_format(getSumOfId($ledger, "credit") - getSumOfId($ledger, "debit")):"0"?></td>
+                                            <td class="text-danger text-end">Rs.
+                                                <?=(!empty($ledger))?number_format(getSumOfId($ledger, "credit") - getSumOfId($ledger, "debit")):"0"?>
+                                            </td>
                                         </tr>
-                                        <?php if ($account['balance'] < 0) { ?>
-                                        <tr>
-                                            <td>Balance</td>
-                                            <td class="text-end text-danger">
-                                                <?=$arrow_down."Rs. ".number_format($account['balance'])?></td>
-                                        </tr>
-                                        <?php } else { ?>
+                                        <?php } ?>
                                         <tr>
                                             <td>Balance</td>
                                             <?php 
                                             if (!empty($ledger)) {
                                                 if ($ledger[count($ledger)-1]['balance'] == 0) { ?>
-                                                    <td class="text-end text-success">
-                                                        <?=$arrow_up."Rs. 0"?></td>
-                                                <?php } elseif ($ledger[count($ledger)-1]['balance'] > 0) { ?>
-                                                    <td class="text-end text-success">
-                                                        <?=$arrow_up."Rs. ".number_format($ledger[count($ledger)-1]['balance'])?></td>
-                                                <?php } else { ?>
-                                                    <td class="text-end text-danger">
-                                                        <?=$arrow_down."Rs. ".number_format($ledger[count($ledger)-1]['balance'])?></td>
-                                                <?php } 
+                                            <td class="text-end text-success">
+                                                <?=$arrow_up."Rs. 0"?></td>
+                                            <?php } elseif ($ledger[count($ledger)-1]['balance'] > 0) { ?>
+                                            <td class="text-end text-success">
+                                                <?=$arrow_up."Rs. ".number_format($ledger[count($ledger)-1]['balance'])?>
+                                            </td>
+                                            <?php } else { ?>
+                                            <td class="text-end text-danger">
+                                                <?=$arrow_down."Rs. ".number_format($ledger[count($ledger)-1]['balance'])?>
+                                            </td>
+                                            <?php } 
                                             } else { ?>
-                                                <td class="text-end">Rs. 0</td>
+                                            <td class="text-end">Rs. 0</td>
                                             <?php } ?>
                                         </tr>
-                                        <?php } ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -325,7 +374,7 @@ $title = "Account - ".$account['name'];
             <div class="card-body">
                 <div class="row">
                     <div class="col-12">
-                        
+
                     </div>
                     <div class="col-12">
                         <table class="table table-centered table-nowrap mb-0 rounded" id="datatable">
@@ -371,9 +420,9 @@ $title = "Account - ".$account['name'];
                                     <?php } elseif ($led['balance'] > 0) { ?>
                                     <td class="fw-bold text-end text-success">
                                         Rs. <?=number_format($led['balance'])?>
-                                        <svg class="icon icon-xs me-1" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor"
-                                            stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
-                                            class="css-i6dzq1">
+                                        <svg class="icon icon-xs me-1" viewBox="0 0 24 24" width="24" height="24"
+                                            stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
+                                            stroke-linejoin="round" class="css-i6dzq1">
                                             <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
                                             <polyline points="17 6 23 6 23 12"></polyline>
                                         </svg>
@@ -381,9 +430,9 @@ $title = "Account - ".$account['name'];
                                     <?php } else { ?>
                                     <td class="fw-bold text-end text-danger">
                                         Rs. <?=number_format($led['balance'])?>
-                                        <svg class="icon icon-xs me-1" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor"
-                                            stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"
-                                            class="css-i6dzq1">
+                                        <svg class="icon icon-xs me-1" viewBox="0 0 24 24" width="24" height="24"
+                                            stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
+                                            stroke-linejoin="round" class="css-i6dzq1">
                                             <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
                                             <polyline points="17 18 23 18 23 12"></polyline>
                                         </svg>
@@ -405,6 +454,71 @@ $title = "Account - ".$account['name'];
 
         <?php include('temp/footer.temp.php'); ?>
     </main>
+
+    <?php if ($type['type'] == 'seller' || $type['type'] == 'investor' || $type['type'] == 'staff' || $type['type'] == 'customer') { ?>
+    <div class="modal fade" id="otherDetails" tabindex="-1" role="dialog" aria-labelledby="Kin Details"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="h6 modal-title">Other Details</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <table class="table table-centered table-nowrap mb-0 rounded">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th class="border-0 rounded-start">Other</th>
+                                        <th class="border-0 rounded-end text-end">Details
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="fw-bolder">
+                                    <tr>
+                                        <td>Email</td>
+                                        <td class="text-end"><?=$account['email']?></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Whatsapp No.</td>
+                                        <td class="text-end"><?="+92 ".phone_no_format($account['whts_no'])?></td>
+                                    </tr>
+                                    <?php if ($type['type'] == 'customer') { ?>
+                                    <tr>
+                                        <td>Kin Name</td>
+                                        <td class="text-end text-capitalize"><?=$account['kin_name']?></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Kin Relationship</td>
+                                        <td class="text-end text-capitalize"><?=$account['kin_relation']?></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Kin CNIC</td>
+                                        <td class="text-end"><?=cnic_format($account['kin_cnic'])?></td>
+                                    </tr>
+                                    <tr>
+                                        <!-- Referrer -->
+                                        <td>Guranter Name</td>
+                                        <td class="text-end text-capitalize"><?=$account['guranter_name']?></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Guranter CNIC</td>
+                                        <td class="text-end"><?=cnic_format($account['guranter_cnic'])?></td>
+                                    </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
 
     <?php if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "delete-user") === true) { ?>
     <!-- Modal Content -->

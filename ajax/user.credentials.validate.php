@@ -2,7 +2,7 @@
 
 session_start();
 require("../auth/config.php");
-$conn = conn('localhost', 'root', '', "communiSync");
+$conn = conn('localhost', 'root', '', "unitySync");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];

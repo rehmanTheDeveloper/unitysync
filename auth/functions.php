@@ -15,7 +15,7 @@ function sanitize($conn, $value)
 function selectedTableId($conn, $table, $column, $id, $count)
 {
 	$key = '';
-	$query = "SELECT * FROM `$table` ORDER BY id DESC LIMIT 1 WHERE `project_id` = '" . $_SESSION['project'] . "';";
+	$query = "SELECT * FROM `$table` WHERE `project_id` = '" . $_SESSION['project'] . "' ORDER BY CAST(SUBSTRING_INDEX(`".$column."`, '-', -1) AS UNSIGNED) DESC LIMIT 1;";
 	$sql = mysqli_query($conn, $query);
 	$row = mysqli_fetch_assoc($sql);
 	if (mysqli_num_rows($sql) > 0) {
@@ -268,3 +268,11 @@ function cnic_format($number)
 	return $number; // Return original number if not enough digits for formatting
 }
 // CNIC Formatter
+
+// Account Number Formatter
+function formatAccountNumber($accountNumber) {
+    $formattedNumber = preg_replace('/\D/', '', $accountNumber);
+    $formattedNumber = preg_replace('/(\d{4})(?=\d)/', '$1 ', $formattedNumber);
+    return $formattedNumber;
+}
+// Account Number Formatter

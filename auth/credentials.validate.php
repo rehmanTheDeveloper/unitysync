@@ -12,7 +12,7 @@ $databaseHandler_license = new DatabaseHandler($servername, $username, $password
 $servername = 'localhost';
 $username = 'root';
 $password = '';
-$dbname = "communiSync";
+$dbname = "unitySync";
 
 $databaseHandler_product = new DatabaseHandler($servername, $username, $password, $dbname);
 

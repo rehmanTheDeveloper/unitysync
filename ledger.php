@@ -10,7 +10,7 @@ require("temp/validate.license.temp.php");                         #
 ####################### Database Connection #######################
 require("auth/config.php");                                       #
 require("auth/functions.php");                                    #
-$conn = conn("localhost", "root", "", "communiSync");                   #
+$conn = conn("localhost", "root", "", "unitySync");                   #
 ####################### Database Connection #######################
 
 $query = "SELECT `v-id`,`type`,`source`,`remarks`,`credit`,`debit`, @balance := @balance - debit + credit AS balance

@@ -156,12 +156,20 @@ $(document).on('input', '.phone_no_format', function(e) {
     }, 200);
 });
 
+$(document).on('input', '.acc_no_format', function(e) {
+    setTimeout(() => {
+        var formattedNumber = $(this).val().replace(/[^0-9]\D/g, '');
+        formattedNumber = formattedNumber.replace(/(\d{4})(?=\d)/g, '$1-');
+        $(this).val(formattedNumber);
+    }, 200);
+});
+
 $(document).on('input', '.number', function(e) {
-  const inputValue = $(this).val();
-  const numericValue = inputValue.replace(/[^0-9]/g, '');
-  if (inputValue !== numericValue) {
-    $(this).val(numericValue);
-  }
+    const inputValue = $(this).val();
+    const numericValue = inputValue.replace(/[^0-9]/g, '');
+    if (inputValue !== numericValue) {
+        $(this).val(numericValue);
+    }
 });
 
 $(document).on('input', '.comma', function(e) {
@@ -174,6 +182,7 @@ $(document).on('input', '.comma', function(e) {
         }
     }, 0.3);
 });
+
 function addComma(value) {
     return value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }

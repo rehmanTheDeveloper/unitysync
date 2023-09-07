@@ -10,7 +10,7 @@ require("temp/validate.license.temp.php");                         #
 ####################### Database Connection #######################
 require("auth/config.php");                                       #
 require("auth/functions.php");                                    #
-$conn = conn("localhost", "root", "", "communiSync");                   #
+$conn = conn("localhost", "root", "", "unitySync");                   #
 ####################### Database Connection #######################
 
 $title = "All Paid Payments";

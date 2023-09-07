@@ -10,7 +10,7 @@ require("temp/validate.license.temp.php");                         #
 ####################### Database Connection #######################
 require("auth/config.php");                                       #
 require("auth/functions.php");                                    #
-$conn = conn("localhost", "root", "", "communiSync");                   #
+$conn = conn("localhost", "root", "", "unitySync");                   #
 ####################### Database Connection #######################
 
 if (empty($_GET['i'])) {
@@ -29,12 +29,16 @@ if (empty($account)) {
     exit();
 }
 
+$query = "SELECT `v-id`,`type`,`remarks`,`credit`,`debit`, @balance := @balance - credit + debit AS balance
+FROM `ledger`, (SELECT @balance := 0) AS vars WHERE `source` = '".encryptor("decrypt", $_GET['i'])."' AND `project_id` = '".$_SESSION['project']."' ORDER BY `id` ASC LIMIT 1;";
+$ledger = mysqli_fetch_assoc(mysqli_query($conn, $query));
+
 // echo "<pre>";
-// print_r($account);
+// print_r($ledger);
 // exit();
 
 $acc_types = [
-    "customer", "seller", "investor", "staff", "expenses", "bank"
+    "customer", "seller", "investor", "staff", "expense", "bank"
 ];
 $prefixes = [
     "Mr.", "Mrs."
@@ -58,8 +62,20 @@ $provinces = [
 $emails = [
     "@gmail.com", "@outlook.com", "@icloud.com",
 ];
-$account['email'] = explode("@", $account['email']);
-$account['email_ext'] = "@".$account['email'][1];
+$relationships = [
+    "brother",
+    "sister",
+    "son",
+    "daughter"
+];
+
+if ($type['type'] == 'seller' || $type['type'] == 'investor' || $type['type'] == 'staff' || $type['type'] == 'customer') {
+    $account['email'] = explode("@", $account['email']);
+    $account['email_ext'] = "@".$account['email'][1];
+}
+
+$query = "SELECT * FROM `expense_sub_groups` WHERE `project_id` = '".$_SESSION['project']."';";
+$sub_groups = fetch_Data($conn, $query);
 
 $title = "Edit Account";
 ?>
@@ -109,7 +125,8 @@ $title = "Edit Account";
             <div class="d-flex justify-content-between w-100 flex-wrap align-items-center">
                 <h1 class="h4 mb-0"><?=$account['name']?></h1>
                 <div>
-                    <a id="back" class="btn btn-outline-gray-600 d-inline-flex align-items-center">
+                    <a href="account.view.php?i=<?=$_GET['i']?>"
+                        class="btn btn-outline-gray-600 d-inline-flex align-items-center">
                         Back
                     </a>
                 </div>
@@ -121,7 +138,8 @@ $title = "Edit Account";
                 <div class="card">
                     <div class="card-body">
                         <h6 class="fw-bolder">General Information</h6>
-                        <form method="POST" action="comp/account.edit.php" autocomplete="off" class="row justify-content-center">
+                        <form method="POST" action="comp/account.edit.php" autocomplete="off"
+                            class="row justify-content-center">
                             <div class="col-md-8">
                                 <div class="mb-2">
                                     <label for="accTitle">Account Title</label>
@@ -184,8 +202,7 @@ $title = "Edit Account";
                                             <div class="col-lg-4">
                                                 <div class="mb-2">
                                                     <label for="city">City</label>
-                                                    <select name="city" id="city" class="form-select" required>
-                                                        <option value="" selected>Select City</option>
+                                                    <select name="city" id="city" class="form-select">
                                                         <?php foreach ($cities as $key => $city) { 
                                                             if ($city == $account['city']) {?>
                                                         <option value="<?=$city?>" selected><?=$city?></option>
@@ -198,7 +215,7 @@ $title = "Edit Account";
                                             <div class="col-lg-4">
                                                 <div class="mb-2">
                                                     <label for="province">State</label>
-                                                    <select class="form-select" name="province" id="province" required>
+                                                    <select class="form-select" name="province" id="province">
                                                         <option value="" selected>Select State</option>
                                                         <?php foreach ($provinces as $key => $province) { 
                                                             if ($province == $account['province']) {?>
@@ -212,7 +229,7 @@ $title = "Edit Account";
                                             <div class="col-lg-4">
                                                 <div class="mb-2">
                                                     <label for="country">Country</label>
-                                                    <select name="country" id="country" class="form-select" required>
+                                                    <select name="country" id="country" class="form-select">
                                                         <option value="">Select country</option>
                                                         <option value="pakistan" selected>Pakistan</option>
                                                     </select>
@@ -220,29 +237,32 @@ $title = "Edit Account";
                                             </div>
                                             <div class="col-lg-4 d-none cusDetail">
                                                 <div class="mb-2">
-                                                    <label for="nextKin">Next Kin</label>
+                                                    <label for="nextKin">Kin Name</label>
                                                     <input class="form-control" type="text" name="nextKin" id="nextKin"
-                                                        ariadescribedby="nextKin" />
+                                                        ariadescribedby="nextKin" value="<?=$account['kin_name']?>" />
                                                 </div>
                                             </div>
                                             <div class="col-lg-4 d-none cusDetail">
                                                 <div class="mb-2">
-                                                    <label for="relationship">Relationship</label>
+                                                    <label for="relationship">Kin Relationship</label>
                                                     <select class="form-select" name="relationship" id="relationship">
-                                                        <option value="" selected>Select relationship</option>
-                                                        <option value="brother">Brother</option>
-                                                        <option value="sister">Sister</option>
-                                                        <option value="son">Son</option>
-                                                        <option value="daughter">Daughter</option>
+                                                        <?php foreach ($relationships as $key => $relation) {
+                                                            if ($relation == $account['kin_relation']) { ?>
+                                                        <option value="<?=$relation?>" selected><?=$relation?></option>
+                                                        <?php } else { ?>
+                                                        <option value="<?=$relation?>"><?=$relation?></option>
+                                                        <?php }
+                                                        } ?>
                                                     </select>
                                                 </div>
                                             </div>
                                             <div class="col-lg-4 d-none cusDetail">
                                                 <div class="mb-2">
-                                                    <label for="nextKinCNIC">Next Kin CNIC</label>
+                                                    <label for="nextKinCNIC">Kin CNIC</label>
                                                     <input class="form-control cnic_format" type="text"
                                                         name="nextKinCNIC" id="nextKinCNIC"
-                                                        ariadescribedby="nextKinCNIC" />
+                                                        ariadescribedby="nextKinCNIC"
+                                                        value="<?=cnic_format($account['kin_cnic'])?>" />
                                                 </div>
                                             </div>
                                             <div class="col-lg-4">
@@ -276,48 +296,42 @@ $title = "Edit Account";
                                             </div>
                                             <div class="col-lg-4">
                                                 <div class="mb-2">
-                                                    <label for="whsNo">Whatsapp Number</label>
+                                                    <label for="whtsNo">Whatsapp Number</label>
                                                     <div class="input-group">
                                                         <span class="input-group-text text-primary">+92</span>
-                                                        <input class="form-control phone_no_format" type="tel" name="whsNo" id="whsNo"
-                                                            ariadescribedby="whsNo" value="<?=phone_no_format($account['whts_no'])?>" />
+                                                        <input class="form-control phone_no_format" type="tel"
+                                                            name="whtsNo" id="whtsNo" ariadescribedby="whtsNo"
+                                                            value="<?=phone_no_format($account['whts_no'])?>" />
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-lg-7 d-none cusDetail">
-                                                <div class="row">
-                                                    <div class="col-lg-12">
-                                                        <div class="mb-2">
-                                                            <label for="guranterName">Guranter Name</label>
-                                                            <input class="form-control" type="text" name="guranterName"
-                                                                id="guranterName" ariadescribedby="guranterName" />
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12">
-                                                        <div class="mb-2">
-                                                            <label for="guranterCNIC">Guranter CNIC</label>
-                                                            <input class="form-control" type="text" name="guranterCNIC"
-                                                                id="guranterCNIC" ariadescribedby="guranterCNIC" />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-7">
+                                            <div class="col-lg-6 d-none cusDetail">
                                                 <div class="mb-2">
-                                                    <label for="openingBalance">Opening Balance</label>
-                                                    <input class="form-control comma" type="text" ariadescribedby="openingBalance"
-                                                        value="<?=number_format($account['balance'])?>" readonly />
+                                                    <label for="guranterName">Guranter Name</label>
+                                                    <input class="form-control" type="text" name="guranterName"
+                                                        id="guranterName" ariadescribedby="guranterName" value="<?=$account['guranter_name']?>" />
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 d-none cusDetail">
+                                                <div class="mb-2">
+                                                    <label for="guranterCnic">Guranter CNIC</label>
+                                                    <input class="form-control cnic_format" type="text"
+                                                        name="guranterCnic" id="guranterCnic"
+                                                        ariadescribedby="guranterCnic" value="<?=cnic_format($account['guranter_cnic'])?>" />
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-lg-4">
-                                    <div class="image-section px-4 pt-4">
+                                        <div class="image-section px-4 pt-4">
                                             <img class="img-fluid rounded rounded-3" id="imgPreview"
-                                                src="<?=(file_exists("uploads/acc-profiles/".$account['img']))?"uploads/acc-profiles/".$account['img']:"uploads/profiles/profile.png"?>" alt="" srcset="" />
+                                                src="<?=(file_exists("uploads/acc-profiles/".$account['img']))?"uploads/acc-profiles/".$account['img']:"uploads/profiles/profile.png"?>"
+                                                alt="" srcset="" />
                                             <div class="d-flex align-items-center justify-content-center">
                                                 <input type="file" id="imgUpload" hidden />
-                                                <input type="hidden" name="img" id="img" value="<?=(file_exists("uploads/acc-profiles/".$account['img']))?$account['img']:"uploads/profiles/profile.png"?>" hidden />
+                                                <input type="hidden" name="img" id="img"
+                                                    value="<?=(file_exists("uploads/acc-profiles/".$account['img']))?$account['img']:"uploads/profiles/profile.png"?>"
+                                                    hidden />
                                                 <label class="btn btn-outline-gray-600 my-3" for="imgUpload">Upload
                                                     Image</label>
                                             </div>
@@ -331,65 +345,49 @@ $title = "Edit Account";
                                         <div class="mb-2">
                                             <label for="otherDetails">Other Details</label>
                                             <input class="form-control" type="text" name="otherDetails"
-                                                id="otherDetails" ariadescribedby="otherDetails" />
+                                                id="otherDetails" ariadescribedby="otherDetails"
+                                                value="<?=$account['details']?>" />
                                         </div>
                                     </div>
                                     <div class="col-lg-4 bankSection">
                                         <div class="mb-2">
                                             <label for="accNumber">Account Number</label>
-                                            <input class="form-control" type="number" name="accNumber" id="accNumber"
-                                                ariadescribedby="accNumber" />
+                                            <input class="form-control acc_no_format" type="text" name="accNumber"
+                                                id="accNumber" ariadescribedby="accNumber"
+                                                value="<?=formatAccountNumber($account['number'])?>" />
                                         </div>
                                     </div>
                                     <div class="col-lg-4 d-none expenseSection">
                                         <div class="mb-2">
                                             <label class="form-label" for="subGroup">Sub Group</label>
                                             <div class="input-group">
-                                                <?php if(!empty($sub_groups)): ?>
+                                                <?php if(!empty($sub_groups)) { ?>
                                                 <select class="form-select" name="subGroup" id="subGroup">
-                                                    <?php for ($i = 0; $i < count($sub_groups); $i++): ?>
-                                                    <option value="<?php echo $sub_groups[$i]['id']; ?>">
-                                                        <?php echo $sub_groups[$i]['name']; ?>
-                                                    </option>
-                                                    <?php endfor; ?>
+                                                    <?php foreach ($sub_groups as $key => $group) { 
+                                                        if ($group['id'] == $account['sub_group']) { ?>
+                                                        <option value="<?=$group['id']?>">
+                                                            <?=$group['name']?>
+                                                        </option>
+                                                    <?php } else { ?>
+                                                        <option value="<?=$group['id']?>">
+                                                            <?=$group['name']?>
+                                                        </option>
+                                                    <?php } } ?>
                                                 </select>
-                                                <?php else: ?>
-                                                <select class="form-select bg-white" disabled>
+                                                <?php } else { ?>
+                                                <select class="form-select" disabled>
                                                     <option value="" selected>No Sub Group has been Added</option>
                                                 </select>
-                                                <?php endif; ?>
-                                                <a class="input-group-text" data-bs-toggle="modal"
-                                                    data-bs-target="#addSubGroup">
-                                                    <i class="icon icon-xs" data-feather="plus"></i>
-                                                </a>
+                                                <?php } ?>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-lg-4">
+                                    <div class="col-lg-12 bankSection">
                                         <div class="mb-2">
-                                            <label for="expenseBalance">Opening Balance</label>
-                                            <input class="form-control comma" type="text" name="expenseBalance"
-                                                id="expenseBalance" ariadescribedby="expenseBalance" />
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3">
-                                        <div class="mb-2">
-                                            <label for="paymentAction">Payment Action</label>
-                                            <select class="form-select" name="paymentAction" id="paymentAction">
-                                                <option value="" selected>Select Payment Action</option>
-                                                <option value="receivable">Recievable</option>
-                                                <option value="payable">Payable</option>
-                                            </select>
-                                            <div id="payActionFeedback" class="text-danger d-none">
-                                                Select Payment Action
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-5 bankSection">
-                                        <div class="mb-2">
-                                            <label for="phoneNoBranch">Phone Number Branch</label>
-                                            <input class="form-control" type="tel" name="phoneNoBranch"
-                                                id="phoneNoBranch" ariadescribedby="phoneNoBranch" />
+                                            <label for="accountBranch">Account Branch</label>
+                                            <input class="form-control" type="text" name="accountBranch"
+                                                id="accountBranch" ariadescribedby="accountBranch"
+                                                value="<?=$account['branch']?>" />
                                         </div>
                                     </div>
                                 </div>
@@ -441,9 +439,9 @@ $title = "Edit Account";
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <script>
     <?php if (isset($_GET['m'])) { ?>
-        <?php if ($_GET['m'] == 'edit_false') { ?>
-            notify("error", "Something's Wrong, Report Error ...");
-        <?php } ?>
+    <?php if ($_GET['m'] == 'edit_false') { ?>
+    notify("error", "Something's Wrong, Report Error ...");
+    <?php } ?>
     <?php } ?>
     $(function() {
         $("#back").on("click", function() {
@@ -545,13 +543,13 @@ $title = "Edit Account";
 
         sections.cus_seller_section.toggleClass("d-none", !(acc_type === "investor" || acc_type === "seller" ||
             acc_type === "customer" || acc_type === "staff"));
-        sections.expense_section.toggleClass("d-none", !(acc_type === "expenses" || acc_type === "bank"));
+        sections.expense_section.toggleClass("d-none", !(acc_type === "expense" || acc_type === "bank"));
         sections.submit_btn.toggleClass("d-none", !(acc_type === "investor" || acc_type === "seller" ||
-            acc_type === "customer" || acc_type === "staff" || acc_type === "expenses" || acc_type ===
+            acc_type === "customer" || acc_type === "staff" || acc_type === "expense" || acc_type ===
             "bank"));
         sections.cus_detail.toggleClass("d-none", !(acc_type === "customer"));
-        sections.bank_fields.toggleClass("d-none", !(acc_type === "expenses"));
-        sections.expense_fields.toggleClass("d-none", !(acc_type === "bank"));
+        sections.bank_fields.toggleClass("d-none", !(acc_type === "bank"));
+        sections.expense_fields.toggleClass("d-none", !(acc_type === "expense"));
     });
     </script>
 </body>
