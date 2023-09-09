@@ -27,6 +27,11 @@ $surcharge_groups = [
         "type" => "type",
         "name" => "expenseSubGroup",
         "remarks" => "expenseSubGroupRemarks"
+    ],
+    "addBlock" => [
+        "type" => "type",
+        "name" => "block",
+        "street" => "street",
     ]
 ];
 
@@ -59,6 +64,30 @@ if ($data['type'] == 'subGroup') {
         exit();
     } else {
         header("Location: ../surcharge.php?m=group_add_false");
+        exit();
+    }
+} elseif ($data['type'] == 'addBlock') {
+    // echo "<pre>";
+    // print_r($data);
+    // exit();
+
+    $query = "SELECT * FROM `blocks` WHERE `name` = '".$data['name']."' AND `street` = '".$data['street']."' AND `project_id` = '".$_SESSION['project']."';";
+    $result = $conn->query($query);
+
+    if ($result->num_rows > 0) {
+        header("Location: ../surcharge.php?m=block_exist");
+        exit();
+    }
+
+    $query = "INSERT INTO `blocks`(`name`, `street`, `project_id`, `created_date`, `created_by`) 
+    VALUES (?,?,?,?,?);";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("sssss", $data['name'], $data['street'], $_SESSION['project'], $created_date, $created_by);
+    if ($stmt->execute()) {
+        header("Location: ../surcharge.php?m=block_add_true");
+        exit();
+    } else {
+        header("Location: ../surcharge.php?m=block_add_false");
         exit();
     }
 }

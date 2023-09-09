@@ -157,7 +157,7 @@ $stmt->execute();
 // Activity Record
 $db_activity['date'] = date("d-m-Y", strtotime($created_date));
 $db_activity['user_id'] = $_SESSION['id'];
-$db_activity['activity'] = strtoupper($data['type']) . " Account &quot;" . $data['name'] . "&quot; with &quot;" . $data['id'] . "&quot; has been Created.";
+$db_activity['activity'] = strtoupper($data['type']) . " Account &quot;" . $data['name'] . "&quot; with ID &quot;" . $data['id'] . "&quot; has been Created.";
 $db_activity['project'] = $_SESSION['project'];
 $db_activity['created_date'] = $created_date;
 $db_activity['created_by'] = $created_by;

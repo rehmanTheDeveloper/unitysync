@@ -1,0 +1,28 @@
+<!-- ################### Property Configuration of File ################### -->
+<div class="col-md-4 typeFile d-none">
+<div class="mb-2">
+<label class="form-label" for="fileForArea">File For Area</label>
+<input class="form-control" type="number" name="fileForArea" id="fileForArea"
+placeholder="e.g: 5,etc. marla" />
+</div>
+</div>
+<div class="col-md-4 typeFile d-none">
+<div class="mb-2">
+<label class="form-label" for="fileCategory">Category</label>
+<select class="form-select" name="fileCategory" id="fileCategory">
+<option value="residential">Residential</option>
+<option value="commercial">Commercial</option>
+</select>
+</div>
+</div>
+<div class="col-md-4 typeFile d-none">
+<div class="mb-2">
+<label class="form-label" for="quantityFiles">Quantity of Files</label>
+<input class="form-control" type="number" name="quantityFiles" id="quantityFiles"
+placeholder="Enter files ..." />
+</div>
+</div>
+<!-- ################### Property Configuration of File ################### -->
+
+<!-- ################### Next One ################### -->
+<!-- ################### Next One ################### -->

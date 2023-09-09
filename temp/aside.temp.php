@@ -103,7 +103,7 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
         </div>
         <ul class="nav flex-column pt-3 pt-md-0">
             <li class="nav-item">
-                <a href="index.php" class="nav-link d-flex align-items-center">
+                <a href="dashboard.php" class="nav-link d-flex align-items-center">
                     <span class="sidebar-icon">
                         <img src="assets/img/brand/communiSync-logo.png" width="30" alt="RTD logo" />
                     </span>
@@ -114,7 +114,7 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
             </li>
             <li role="separator" class="dropdown-divider mt-4 mb-3 border-gray-700"></li>
             <li class="nav-item <?php active('index.php'); ?>">
-                <a href="index.php" class="nav-link d-flex align-items-center justify-content-between">
+                <a href="dashboard.php" class="nav-link d-flex align-items-center justify-content-between">
                     <span>
                         <span class="sidebar-icon">
                             <svg class="icon icon-xs me-2" fill="currentColor" viewbox="0 0 20 20"

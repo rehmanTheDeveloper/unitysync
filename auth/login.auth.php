@@ -22,7 +22,7 @@ if ($stmt = $conn->prepare('SELECT `u_id`, `password`,`f_name`,`s_name`,`role`,`
         // Account exists, now we verify the password.
         if ($_POST['password'] != $password) {
             // Incorrect password
-            header('Location: ../Login?m=p_wrong_pass');
+            header('Location: ../index.php?m=p_wrong_pass');
             exit();
         }
     } else {
@@ -37,16 +37,16 @@ if ($stmt = $conn->prepare('SELECT `u_id`, `password`,`f_name`,`s_name`,`role`,`
             if ($status == "1") {
                 if ($_POST['password'] != $password) {
                     // Incorrect password
-                    header('Location: ../Login?m=p_wrong_pass');
+                    header('Location: ../index.php?m=p_wrong_pass');
                     exit();
                 }
             } else {
-                header("Location: ../Login?m=p_user_inactive");
+                header("Location: ../index.php?m=p_user_inactive");
                 exit();
             }
         } else {
             // Incorrect username
-            header('Location: ../Login?m=p_not_exist');
+            header('Location: ../index.php?m=p_not_exist');
             exit();
         }
         $stmt->close();
@@ -97,7 +97,7 @@ if ($stmt = $conn->prepare('SELECT `license` FROM `clients` WHERE `username` = ?
         }
     } else {
         // Incorrect username
-        header('Location: ../Login?m=l_not_reg');
+        header('Location: ../index.php?m=l_not_reg');
         exit();
     }
 }
@@ -135,7 +135,7 @@ if (is_int($license['status'])) {
         file_put_contents($filePath, $jsonString);
     }
 
-    header('Location: ../index.php?m=login_true');
+    header('Location: ../dashboard.php?m=login_true');
     exit();
 
 }

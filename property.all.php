@@ -13,6 +13,43 @@ require("auth/functions.php");                                    #
 $conn = conn("localhost", "root", "", "unitySync");                   #
 ####################### Database Connection #######################
 
+$a = "";
+
+$query = "SELECT * FROM `area_seller` WHERE `project_id` = '".$_SESSION['project']."';";
+$area_sellers = fetch_Data($conn, $query);
+
+$query = "SELECT `sqft_per_marla` FROM `project` WHERE `pro_id` = '".$_SESSION['project']."';";
+$project_details = mysqli_fetch_assoc(mysqli_query($conn, $query));
+
+$query = "SELECT * FROM `blocks` WHERE `project_id` = '".$_SESSION['project']."';";
+$blocks = fetch_Data($conn, $query);
+
+$query = "SELECT * FROM `properties` WHERE `project_id` = '".$_SESSION['project']."' ORDER BY CAST(SUBSTRING_INDEX(`pty_id`, '-', -1) AS UNSIGNED) DESC;";
+$all_properties = fetch_Data($conn, $query);
+
+if (!empty($all_properties)) {
+    foreach ($all_properties as $key => $property) {
+        $query = "SELECT * FROM `".$property['type']."` WHERE `pty_id` = '".$property['pty_id']."' AND `project_id` = '".$_SESSION['project']."';";
+        $properties[$key] = mysqli_fetch_assoc(mysqli_query($conn, $query));
+        $properties[$key]['type'] = $property['type'];
+        $properties[$key]['delete'] = 1;
+        // TODO: Validate any of property type plot or flat
+        // if ($Acc['type'] == 'seller') {
+        //     $query = "SELECT * FROM `area_seller` WHERE `acc_id` = '".$Acc['acc_id']."' AND `project_id` = '".$_SESSION['project']."';";
+        //     $result = mysqli_query($conn, $query);
+        //     if (mysqli_num_rows($result) > 0) {
+        //         $accounts[$key]['delete'] = 0;
+        //     }
+        // }
+    }
+} else {
+    $properties = [];
+}
+
+// echo "<pre>";
+// print_r($properties);
+// exit();
+
 $title = "All Properties";
 ?>
 <!DOCTYPE html>
@@ -50,6 +87,7 @@ $title = "All Properties";
             </nav>
             <div class="d-flex justify-content-between w-100 flex-wrap align-items-center">
                 <h1 class="h4 mb-0">All Property</h1>
+                <?php if (!empty($area_sellers)) { ?>
                 <div class="btn-group">
                     <a href="property.config.php" class="btn btn-outline-gray-800 d-inline-flex align-items-center">
                         <svg class="icon icon-xs me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -59,79 +97,52 @@ $title = "All Properties";
                         </svg>
                         Add Property
                     </a>
-                    <a href="#" class="btn btn-outline-gray-800 d-inline-flex align-items-center">
-                        Export
-                    </a>
                 </div>
+                <?php } ?>
             </div>
         </div>
 
         <div class="row">
-            <div class="col-8">
+            <div class="col-12">
                 <div class="card">
                     <div class="table-responsive py-4">
                         <table class="table table-centered table-nowrap mb-4 rounded table-hover" id="datatable">
                             <thead class="thead-light">
                                 <tr>
                                     <th class="border-0">#</th>
-                                    <th class="border-0 text-center">Street</th>
+                                    <th class="border-0 text-center">No.</th>
+                                    <th class="border-0 text-center">Block</th>
                                     <th class="border-0 text-center">Plot Dimension</th>
                                     <th class="border-0 text-center">Area (Marla - Ft)</th>
-                                    <th class="border-0 text-center">Purchaser</th>
-                                    <th class="border-0 text-center">Phone No.</th>
-                                    <th class="border-0 text-end">Category</th>
+                                    <th class="border-0 text-center">Category</th>
+                                    <th class="border-0 text-center">Status</th>
                                     <th class="border-0 text-end">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php for ($i = 0; $i < 17; $i++) { ?>
+                                <?php if (!empty($properties)) {
+                                foreach ($properties as $key => $property) { ?>
                                 <tr>
                                     <td class="fw-bolder">
-                                        <?=$i+1?>
+                                        <?=$key+1?>
                                     </td>
-                                    <td class="text-center">B-243</td>
-                                    <td class="text-center">24 x 50</td>
-                                    <td class="text-center">5 - 00</td>
-                                    <td class="text-center">Abdul Rehman</td>
-                                    <td class="text-center">+92 306 436322262</td>
-                                    <td class="text-end fw-bold">Residential</td>
-                                    <td style="column-gap: 15px;" class="d-flex justify-content-end align-items-center">
-                                        <button
-                                            class="btn btn-link text-dark dropdown-toggle dropdown-toggle-split m-0 p-0"
-                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <svg class="icon icon-xs" fill="currentColor" viewBox="0 0 20 20"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path
-                                                    d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z">
-                                                </path>
-                                            </svg>
-                                            <span class="visually-hidden">Toggle Dropdown</span>
-                                        </button>
-                                        <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
-                                            style="">
-                                            <a class="dropdown-item d-flex align-items-center" href="property.edit.php">
-                                                <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor"
-                                                    viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                    <path
-                                                        d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z">
-                                                    </path>
-                                                    <path fill-rule="evenodd"
-                                                        d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                                                        clip-rule="evenodd"></path>
-                                                </svg>
-                                                Edit
-                                            </a>
-                                            <a class="dropdown-item d-flex align-items-center" href="property.view.php">
-                                                <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor"
-                                                    viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
-                                                    <path fill-rule="evenodd"
-                                                        d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                                                        clip-rule="evenodd"></path>
-                                                </svg>
-                                                View
-                                            </a>
-                                        </div>
+                                    <td class="text-center text-capitalize"><?=$property['type']." #".$property['number']?></td>
+                                    <td class="text-center">
+                                        <?php foreach ($blocks as $block) {
+                                            if ($property['block'] == $block['id']) {
+                                                echo $block['name']."-".$block['street'];
+                                            }
+                                        } ?>
+                                    </td>
+                                    <td class="text-center"><?=$property['length']?> X <?=$property['width']?></td>
+                                    <td class="text-center"><?=floor($property['sqft'] / $project_details['sqft_per_marla'])?> marla - <?=number_format(($property['sqft'] - floor($property['sqft'] / $project_details['sqft_per_marla']) * $project_details['sqft_per_marla']))?> Sqft.</td>
+                                    <td class="text-capitalize text-center fw-bold"><?=$property['category']?></td>
+                                    <td class="text-capitalize text-center fw-bold">
+                                        <span class="badge bg-success">Sold</span>
+                                        <span class="badge bg-danger">Unsold</span>
+                                        <span class="badge bg-warning">Under Financing</span>
+                                    </td>
+                                    <td class="d-flex justify-content-end align-items-center">
                                         <div class="btn-group">
                                             <button class="btn btn-link dropdown-toggle dropdown-toggle-split m-0 p-0"
                                                 data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
@@ -146,7 +157,7 @@ $title = "All Properties";
                                             </button>
                                             <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
                                                 style="">
-                                                <a class="dropdown-item d-flex align-items-center" href="#">
+                                                <a class="dropdown-item d-flex align-items-center" href="comp/property.delete.php?i=<?=encryptor("encrypt", $property['pty_id'])?>">
                                                     <svg class="icon icon-xs dropdown-icon text-success me-2"
                                                         fill="currentColor" viewBox="0 0 20 20"
                                                         xmlns="http://www.w3.org/2000/svg">
@@ -172,16 +183,20 @@ $title = "All Properties";
                                         </div>
                                     </td>
                                 </tr>
+                                <?php } } else { ?>
+                                    <tr>
+                                        <td class="text-center fw-bold" colspan="6">No Property Created ...</td>
+                                    </tr>
                                 <?php } ?>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-            <div class="col-4 d-flex align-items-center flex-column justify-content-center">
+            <!-- <div class="col-4 d-flex align-items-center flex-column justify-content-center">
                 <h2 class="mb-3 text-center">Total Property</h2>
                 <div class="w-100" id="totalProperty"></div>
-            </div>
+            </div> -->
         </div>
 
         <?php include('temp/footer.temp.php'); ?>
@@ -189,53 +204,64 @@ $title = "All Properties";
     <?php include('temp/script.temp.php'); ?>
 
     <script>
-    var optionsPieChart = {
-        series: [44, 55, 29],
-        chart: {
-            type: 'pie',
-            height: 360,
-        },
-        theme: {
-            monochrome: {
-                enabled: true,
-                color: '#1F2937',
-            }
-        },
-        labels: ['Plots', 'Flats', 'Files'],
-        responsive: [{
-            breakpoint: 480,
-            options: {
-                chart: {
-                    width: 200
-                },
-                legend: {
-                    position: 'bottom'
-                }
-            }
-        }],
-        tooltip: {
-            fillSeriesColor: false,
-            onDatasetHover: {
-                highlightDataSeries: false,
-            },
-            theme: 'light',
-            style: {
-                fontSize: '12px',
-                fontFamily: 'Montserrat',
-            },
-            y: {
-                formatter: function(val) {
-                    return val
-                }
-            }
-        }
-    };
+        <?php if (isset($_GET['m'])) { ?>
+        <?php if ($_GET['m'] == 'add_true') { ?>
+        notify("success", "Property Created Successfully ...");
+        <?php } elseif ($_GET['m'] == 'add_false') { ?>
+        notify("error", "Something's Wrong, Report Error ...");
+        <?php } elseif ($_GET['m'] == 'delete_true') { ?>
+        notify("success", "Property Deleted Successfully ...");
+        <?php } elseif ($_GET['m'] == 'delete_false') { ?>
+        notify("error", "Something's Wrong, Report Error ...");
+        <?php } ?>
+        <?php } ?>
+    // var optionsPieChart = {
+    //     series: [44, 55, 29],
+    //     chart: {
+    //         type: 'pie',
+    //         height: 360,
+    //     },
+    //     theme: {
+    //         monochrome: {
+    //             enabled: true,
+    //             color: '#1F2937',
+    //         }
+    //     },
+    //     labels: ['Plots', 'Flats', 'Files'],
+    //     responsive: [{
+    //         breakpoint: 480,
+    //         options: {
+    //             chart: {
+    //                 width: 200
+    //             },
+    //             legend: {
+    //                 position: 'bottom'
+    //             }
+    //         }
+    //     }],
+    //     tooltip: {
+    //         fillSeriesColor: false,
+    //         onDatasetHover: {
+    //             highlightDataSeries: false,
+    //         },
+    //         theme: 'light',
+    //         style: {
+    //             fontSize: '12px',
+    //             fontFamily: 'Montserrat',
+    //         },
+    //         y: {
+    //             formatter: function(val) {
+    //                 return val
+    //             }
+    //         }
+    //     }
+    // };
 
-    var pieChartEl = document.getElementById('totalProperty');
-    if (pieChartEl) {
-        var pieChart = new ApexCharts(pieChartEl, optionsPieChart);
-        pieChart.render();
-    }
+    // var pieChartEl = document.getElementById('totalProperty');
+    // if (pieChartEl) {
+    //     var pieChart = new ApexCharts(pieChartEl, optionsPieChart);
+    //     pieChart.render();
+    // }
     </script>
 </body>
 

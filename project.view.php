@@ -77,8 +77,12 @@ $insert_sellers = fetch_Data($conn, $query);
 $query = "SELECT COALESCE(SUM(`kanal`), 0) as `kanal`, COALESCE(SUM(`marla`), 0) as `marla`, COALESCE(SUM(`feet`), 0) as `feet`, COALESCE(SUM(`amount`), 0) as `amount` FROM `area_seller` WHERE `project_id` = '".$_SESSION['project']."';";
 $total_area_sellers = mysqli_fetch_assoc(mysqli_query($conn, $query));
 
+$query = "SELECT * FROM `properties` WHERE `project_id` = '".$_SESSION['project']."';";
+$property_exist = $conn->query($query);
+$property_exist = $property_exist->fetch_assoc();
+
 // echo "<pre>";
-// print_r($insert_investors);
+// print_r($insert_sellers);
 // print_r($area_sellers);
 // exit();
 
@@ -554,6 +558,7 @@ $title = "Project - ".$project['name'];
                                                 View
                                             </a>
                                         </div>
+                                        <?php if (empty($property_exist)) { ?>
                                         <div class="btn-group">
                                             <button class="btn btn-link dropdown-toggle dropdown-toggle-split m-0 p-0"
                                                 data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
@@ -593,6 +598,7 @@ $title = "Project - ".$project['name'];
                                                 </a>
                                             </div>
                                         </div>
+                                        <?php } ?>
                                     </td>
                                 </tr>
                                 <?php } ?>

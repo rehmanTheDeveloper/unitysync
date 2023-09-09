@@ -36,6 +36,35 @@ if (!empty($expense_accounts)) {
     }
 }
 
+$query = "SELECT `id`,`name`,`street`, @delete := '1' AS `delete` FROM `blocks`, (SELECT @delete := 0) AS vars WHERE `project_id` = '".$_SESSION['project']."';";
+$blocks = fetch_Data($conn, $query);
+
+// $query = "SELECT `block` FROM `plot` WHERE `project_id` = '".$_SESSION['project']."'";
+// $plot_property = fetch_Data($conn, $query);
+
+// if (!empty($plot_property)) {
+//     foreach ($plot_property as $property) {
+//         foreach ($blocks as $block_key => $block) {
+//             if ($property['block'] == $block['id']) {
+//                 $blocks[$block_key]['delete'] = 0;
+//             }
+//         }
+//     }
+// }
+
+// $query = "SELECT `block` FROM `flat` WHERE `project_id` = '".$_SESSION['project']."'";
+// $flat_property = fetch_Data($conn, $query);
+
+// if (!empty($flat_property)) {
+//     foreach ($flat_property as $account) {
+//         foreach ($blocks as $block_key => $block) {
+//             if ($account['block'] == $block['id']) {
+//                 $blocks[$block_key]['delete'] = 0;
+//             }
+//         }
+//     }
+// }
+
 // echo "<pre>";
 // print_r($expense_sub_groups);
 // exit();
@@ -116,8 +145,9 @@ $title = "Surcharge";
                                                             class="btn btn-link dropdown-toggle dropdown-toggle-split m-0 p-0"
                                                             data-bs-toggle="dropdown" aria-haspopup="true"
                                                             aria-expanded="false" title="Delete">
-                                                            <svg class="icon icon-xs <?=($group['delete'] == 1)?"text-danger":""?>" fill="currentColor"
-                                                                viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                            <svg class="icon icon-xs <?=($group['delete'] == 1)?"text-danger":""?>"
+                                                                fill="currentColor" viewBox="0 0 20 20"
+                                                                xmlns="http://www.w3.org/2000/svg">
                                                                 <path fill-rule="evenodd"
                                                                     d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
                                                                     clip-rule="evenodd"></path>
@@ -127,7 +157,7 @@ $title = "Surcharge";
                                                         <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
                                                             style="">
                                                             <?php if ($group['delete'] == 1) { ?>
-                                                            <a class="dropdown-item d-flex align-items-center deleteBtn"
+                                                            <a class="dropdown-item d-flex align-items-center"
                                                                 href="comp/surcharge.delete.php?i=<?=encryptor("encrypt", $group['id'])?>&type=expenseSubGroup">
                                                                 <svg class="icon icon-xs dropdown-icon text-success me-2"
                                                                     fill="currentColor" viewBox="0 0 20 20"
@@ -179,9 +209,107 @@ $title = "Surcharge";
                     </div>
                 </div>
             </div>
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12 position-relative pb-4 px-2">
+                                <h4 class="text-center mb-0">Blocks</h4>
+                                <a data-bs-toggle="modal" data-bs-target="#addBlock"
+                                    class="btn btn-outline-primary position-absolute end-0 top-0">
+                                    Add
+                                </a>
+                            </div>
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <table class="table table-centered table-nowrap mb-0 rounded">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th class="border-0 rounded-start">Block</th>
+                                                <th class="border-0 rounded-end text-end">Action
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="fw-bolder">
+                                            <?php if (!empty($blocks)) {
+                                            foreach ($blocks as $key => $block) { ?>
+                                            <tr>
+                                                <td>
+                                                    <span data-bs-toggle="tooltip"><?=$block['name']."-".$block['street']?></span>
+                                                </td>
+                                                <td class="text-end">
+                                                    <div class="btn-group">
+                                                        <button
+                                                            class="btn btn-link dropdown-toggle dropdown-toggle-split m-0 p-0"
+                                                            data-bs-toggle="dropdown" aria-haspopup="true"
+                                                            aria-expanded="false" title="Delete">
+                                                            <svg class="icon icon-xs <?=($block['delete'] == 1)?"text-danger":""?>"
+                                                                fill="currentColor" viewBox="0 0 20 20"
+                                                                xmlns="http://www.w3.org/2000/svg">
+                                                                <path fill-rule="evenodd"
+                                                                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                                                    clip-rule="evenodd"></path>
+                                                            </svg>
+                                                            <span class="visually-hidden">Toggle Dropdown</span>
+                                                        </button>
+                                                        <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
+                                                            style="">
+                                                            <?php if ($block['delete'] == 1) { ?>
+                                                            <a class="dropdown-item d-flex align-items-center"
+                                                                href="comp/surcharge.delete.php?i=<?=encryptor("encrypt", $block['id'])?>&type=block">
+                                                                <svg class="icon icon-xs dropdown-icon text-success me-2"
+                                                                    fill="currentColor" viewBox="0 0 20 20"
+                                                                    xmlns="http://www.w3.org/2000/svg">
+                                                                    <path fill-rule="evenodd"
+                                                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                                        clip-rule="evenodd"></path>
+                                                                </svg>
+                                                                Yes
+                                                            </a>
+                                                            <a class="dropdown-item d-flex align-items-center"
+                                                                data-bs-dismiss="dropdown">
+                                                                <svg class="icon icon-xs dropdown-icon text-danger me-2"
+                                                                    fill="currentColor" viewBox="0 0 20 20"
+                                                                    xmlns="http://www.w3.org/2000/svg">
+                                                                    <path fill-rule="evenodd"
+                                                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                                                        clip-rule="evenodd"></path>
+                                                                </svg>
+                                                                No
+                                                            </a>
+                                                            <?php } else { ?>
+                                                            <a class="dropdown-item d-flex align-items-center text-gray-700"
+                                                                data-bs-dismiss="dropdown">
+                                                                <svg class="icon icon-xs dropdown-icon text-gray-400 me-2"
+                                                                    fill="currentColor" viewBox="0 0 20 20"
+                                                                    xmlns="http://www.w3.org/2000/svg">
+                                                                    <path fill-rule="evenodd"
+                                                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                                                        clip-rule="evenodd"></path>
+                                                                </svg>
+                                                                Not Deletable ...
+                                                            </a>
+                                                            <?php } ?>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <?php } } else { ?>
+                                            <tr>
+                                                <td class="text-center" colspan="2">No Block Added ...</td>
+                                            </tr>
+                                            <?php } ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="modal fade" id="addSubGroup" tabindex="-1" role="dialog" aria-labelledby="Kin Details"
+        <div class="modal fade" id="addSubGroup" tabindex="-1" role="dialog" aria-labelledby="Expense Sub Group"
             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg" role="modal">
                 <form method="POST" action="comp/surcharge.add.php" class="modal-content">
@@ -212,8 +340,41 @@ $title = "Surcharge";
                         <button type="button" class="btn btn-link" data-bs-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-outline-primary">Add</button>
                     </div>
+                </form>
             </div>
         </div>
+
+        <div class="modal fade" id="addBlock" tabindex="-1" role="dialog" aria-labelledby="Add Block"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="modal">
+                <form method="POST" action="comp/surcharge.add.php" class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="h6 modal-title">Add Block</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="block" class="form-label d-flex justify-content-between">
+                                        <span>Block</span><span>Street</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="text" name="block" id="block" class="form-control" placeholder="A, etc." required />
+                                        <span class="input-group-text bg-gray-100">-</span>
+                                        <input type="text" name="street" id="street" class="form-control text-end" placeholder="23, etc." required />
+                                    </div>
+                                    <input type="hidden" name="type" value="addBlock" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-link" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-outline-primary">Add</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <?php include('temp/footer.temp.php'); ?>
@@ -233,6 +394,16 @@ $title = "Surcharge";
         notify("error", "Something's Wrong, Report Error ...");
         <?php } elseif ($_GET['m'] == 'group_exist') { ?>
         notify("error", "Expense Sub Group Already Exist ...");
+        <?php } elseif ($_GET['m'] == 'block_add_true') { ?>
+        notify("success", "Property Block Created Successfully ...");
+        <?php } elseif ($_GET['m'] == 'block_add_false') { ?>
+        notify("error", "Something's Wrong, Report Error ...");
+        <?php } elseif ($_GET['m'] == 'block_delete_true') { ?>
+        notify("success", "Property Block Deleted Successfully ...");
+        <?php } elseif ($_GET['m'] == 'block_delete_false') { ?>
+        notify("error", "Something's Wrong, Report Error ...");
+        <?php } elseif ($_GET['m'] == 'block_exist') { ?>
+        notify("error", "Property Block Already Exist ...");
         <?php } ?>
         <?php } ?>
     });

@@ -13,6 +13,23 @@ require("auth/functions.php");                                    #
 $conn = conn("localhost", "root", "", "unitySync");                   #
 ####################### Database Connection #######################
 
+$query = "SELECT `sqft_per_marla` FROM `project` WHERE `pro_id` = '".$_SESSION['project']."';";
+$project_details = mysqli_fetch_assoc(mysqli_query($conn, $query));
+
+$query = "SELECT * FROM `customer` WHERE `project_id` = '".$_SESSION['project']."';";
+$customers = fetch_Data($conn, $query);
+
+$query = "SELECT * FROM `plot` WHERE `project_id` = '".$_SESSION['project']."';";
+$plots = fetch_Data($conn, $query);
+
+$query = "SELECT * FROM `flat` WHERE `project_id` = '".$_SESSION['project']."';";
+$flats = fetch_Data($conn, $query);
+
+// echo "<pre>";
+// print_r($plots);
+// print_r($flats);
+// exit();
+
 $title = "Add Sale";
 ?>
 <!DOCTYPE html>
@@ -48,6 +65,7 @@ $title = "Add Sale";
                     </li>
                 </ol>
             </nav>
+
             <div class="d-flex justify-content-between w-100 flex-wrap align-items-center">
                 <h1 class="h4 mb-0">Add Sale</h1>
                 <div class="btn-group">
@@ -64,118 +82,148 @@ $title = "Add Sale";
                     <div class="card-body">
                         <h6 class="fw-bolder">General Information</h6>
                         <form class="row" action="" method="post">
-                            <div class="col-12">
+                            <div class="col-lg-4">
+                                <div class="mb-3">
+                                    <label for="customer">Select Customer</label>
+                                    <?php if (!empty($customers)) { ?>
+                                    <select class="form-select" name="customer" id="customer">
+                                        <option value="" selected>Select Customer</option>
+                                        <?php foreach ($customers as $customer) { ?>
+                                        <option value="<?=$customer['acc_id']?>"><?=$customer['name']?>,
+                                            <?=cnic_format($customer['cnic'])?></option>
+                                        <?php } ?>
+                                    </select>
+                                    <?php } else { ?>
+                                    <select class="form-select" disabled data-bs-toggle="tooltip"
+                                        data-bs-original-title="No Customer Available ...">
+                                        <option value="" selected>No Customer has been Added</option>
+                                    </select>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between py-1">
+                                        <div class="form-check mb-0">
+                                            <input class="form-check-input mb-0" type="radio" name="propertyType"
+                                                value="plot" id="plot" checked />
+                                            <label class="form-check-label mb-0" for="plot">Select Plot
+                                                <svg class="icon icon-xs ms-2" data-bs-toggle="tooltip"
+                                                    data-bs-original-title="Select Plot to Generate Sale ..."
+                                                    fill="currentColor" viewBox="0 0 20 20"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path fill-rule="evenodd"
+                                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                                        clip-rule="evenodd"></path>
+                                                </svg>
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-0">
+                                            <input class="form-check-input mb-0" type="radio" name="propertyType"
+                                                id="flat" value="flat" />
+                                            <label class="form-check-label mb-0" for="flat">Select Flat
+                                                <svg class="icon icon-xs ms-2" data-bs-toggle="tooltip"
+                                                    data-bs-original-title="Select Flat to Generate Sale ..."
+                                                    fill="currentColor" viewBox="0 0 20 20"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path fill-rule="evenodd"
+                                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                                        clip-rule="evenodd"></path>
+                                                </svg>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="plotSection">
+                                        <?php if (!empty($plots)) { ?>
+                                        <select class="form-select property" name="property">
+                                            <?php foreach ($plots as $key => $property) { ?>
+                                            <option value="<?=encryptor("encrypt", $property['pty_id'])?>">Plot
+                                                #<?=$property['number']?>,
+                                                <?=number_format($property['sqft'] / $project_details['sqft_per_marla'],2)?>
+                                                Marlas</option>
+                                            <?php  ?>
+                                            <?php } ?>
+                                        </select>
+                                        <?php } else { ?>
+                                        <select class="form-select" disabled data-bs-toggle="tooltip"
+                                            data-bs-original-title="No Plot Available ...">
+                                            <option value="" selected>No Property has been Added</option>
+                                        </select>
+                                        <?php } ?>
+                                    </div>
+                                    <div style="display: none;" class="flatSection">
+                                        <?php if (!empty($flats)) { ?>
+                                        <select class="form-select property" name="property">
+                                            <?php foreach ($flats as $key => $property) { ?>
+                                            <option value="<?=encryptor("encrypt", $property['pty_id'])?>">Flat
+                                                #<?=$property['number']?>,
+                                                <?=number_format($property['sqft'] / $project_details['sqft_per_marla'],2)?>
+                                                Marlas</option>
+                                            <?php  ?>
+                                            <?php } ?>
+                                        </select>
+                                        <?php } else { ?>
+                                        <select class="form-select" disabled data-bs-toggle="tooltip"
+                                            data-bs-original-title="No Flat Available ...">
+                                            <option value="" selected>No Property has been Added</option>
+                                        </select>
+                                        <?php } ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="mb-3">
+                                    <label for="paymentType" class="form-label">Payment Type</label>
+                                    <select class="form-select" name="paymentType" id="paymentType">
+                                        <option value="installment">Installments</option>
+                                        <option value="netCash">Net Cash</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-12 installmentSection" style="display: none;">
                                 <div class="row">
                                     <div class="col-lg-4">
-                                        <div class="mb-3">
-                                            <label for="saleCustomer">Select Customer</label>
-                                            <select class="form-select" name="saleCustomer" id="saleCustomer">
-                                                <option value="" selected>Select Customer</option>
-                                                <option value="">Abdul Rehman, 36402-4596230-1</option>
-                                                <option value="">Rao Aleem, 36402-4596230-1</option>
-                                                <option value="">Ali Abdullah, 36402-4596230-1</option>
-                                            </select>
-                                            <!-- <select class="form-select bg-white" disabled>
-                                                <option value="" selected>No Customer has been Added</option>
-                                            </select> -->
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4">
-                                        <div class="mb-3">
-                                            <label for="property">Select Property</label>
-                                            <select class="form-select" name="property" id="property">
-                                                <option value="" selected>Select Property</option>
-                                                <option value=""># 23, 5 Marla</option>
-                                                <option value=""># 24, 10 Marla</option>
-                                                <option value=""># 25, 15 Marla</option>
-                                            </select>
-                                            <!-- <select class="form-select bg-white" disabled>
-                                                <option value="" selected>No Property has been Added</option>
-                                            </select> -->
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4">
-                                        <div class="mb-3">
-                                            <label for="salePaymentType" class="form-label">Payment Type</label>
-                                            <select class="form-select" name="salePaymentType" id="salePaymentType">
-                                                <option value="credit">Credit</option>
-                                                <option value="debit">Debit</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4 methodCredit d-none">
                                         <div class="mb-3">
                                             <label for="propertyPrice" class="form-label">Property Price</label>
                                             <input type="text" class="form-control bg-white" id="propertyPrice"
                                                 name="propertyPrice" aria-describedby="propertyPrice" readonly />
                                         </div>
                                     </div>
-                                    <div class="col-lg-4 methodCredit d-none">
+                                    <div class="col-lg-4">
                                         <div class="mb-3">
                                             <label for="advancePayment" class="form-label">Advance Payment</label>
                                             <input type="text" class="form-control" id="advancePayment"
                                                 name="advancePayment" aria-describedby="advancePayment" />
                                         </div>
                                     </div>
-                                    <div class="col-lg-4 methodCredit d-none saleBalance">
+                                    <div class="col-lg-4 saleBalance">
                                         <div class="mb-3">
                                             <label for="saleBalance" class="form-label">Balance</label>
                                             <input type="text" class="form-control bg-white" id="saleBalance"
                                                 name="saleBalance" aria-describedby="saleBalance" />
                                         </div>
                                     </div>
-                                    <div class="col-4">
-                                        <div class="row">
-                                            <div class="col-lg-12 methodCredit d-none">
-                                                <div class="mb-3">
-                                                    <label for="saleinsts" class="form-label">Total Installments</label>
-                                                    <input type="number" class="form-control" id="saleinsts"
-                                                        name="saleinsts" aria-describedby="saleinsts" />
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-12 methodCredit d-none">
-                                                <div class="mb-3">
-                                                    <label for="saleinstdate" class="form-label">Select Installment
-                                                        Date</label>
-                                                    <input type="date" class="form-control" id="saleinstdate"
-                                                        name="saleinstdate" aria-describedby="saleinstdate" />
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-12 methodCredit d-none">
-                                                <div class="h-100 d-flex justify-content-center align-items-center">
-                                                    <a class="btn btn-outline-gray-600"
-                                                        id="inst_button">Installments</a>
-                                                </div>
-                                            </div>
+                                    <div class="col-lg-4">
+                                        <div class="mb-3">
+                                            <label for="saleinsts" class="form-label">Total Installments</label>
+                                            <input type="number" class="form-control" id="saleinsts" name="saleinsts"
+                                                aria-describedby="saleinsts" />
                                         </div>
                                     </div>
-                                    <div class="col-8 d-none installmentTable">
-                                        <div class="card border-0 shadow mb-4">
-                                            <div class="card-body">
-                                                <div class="table-responsive">
-                                                    <table class="table table-centered table-nowrap mb-0 rounded"
-                                                        id="installmentsTable">
-                                                        <thead class="thead-light">
-                                                            <tr>
-                                                                <th class="border-0 rounded-start">#</th>
-                                                                <th class="border-0">Installment Date</th>
-                                                                <th class="border-0 rounded-end text-end">
-                                                                    Amount
-                                                                </th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody id="installmentTable"></tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
+                                    <div class="col-lg-4">
+                                        <div class="mb-3">
+                                            <label for="saleinstdate" class="form-label">Select Installment
+                                                Date</label>
+                                            <input type="date" class="form-control" id="saleinstdate"
+                                                name="saleinstdate" aria-describedby="saleinstdate" />
                                         </div>
                                     </div>
                                 </div>
-                                <div class="d-none" id="allInstallments"></div>
                             </div>
-                            <div class="col-lg-12 text-center submit d-none">
-                                <input type="hidden" name="pt_id" id="pt_id" />
-                                <input type="hidden" name="accId" id="accId" />
+                            <div class="col-lg-12 netCashSection" style="display: none;">
+
+                            </div>
+                            <div class="col-lg-12 text-center">
                                 <input class="btn btn-outline-gray-600 my-3" type="submit" name="submit"
                                     value="submit" />
                             </div>
@@ -189,74 +237,30 @@ $title = "Add Sale";
     </main>
     <?php include('temp/script.temp.php'); ?>
     <script>
-    var dummyTable = d.getElementById('installmentsTable');
-
     $(function() {
-        $('#salePaymentType').trigger("change");
+        $('#paymentType').trigger("change");
     });
 
-    $("#inst_button").on("click", function() {
-        var $dateInput = $("#saleinstdate");
-        var pt_price = parseInt($('#saleBalance').val());
-        var tot_installments = parseInt($('#saleinsts').val());
-        var installmentAmount = (pt_price / tot_installments).toFixed(0);
-        var table = $('.installmentTable');
+    $('input[name="propertyType"]').change(function() {
+        var selectedMethod = $(this).val();
+        // Hide all sections
+        $('.plotSection').hide();
+        $('.flatSection').hide();
 
-        if ($dateInput.val() != '' || tot_installments != 0) {
-            var startDate = new Date($dateInput.val());
-            var $tableContainer = $("#installmentTable");
-            var allInsts = $('#allInstallments');
-            $tableContainer.empty();
-
-            if (tot_installments <= 60) {
-                table.removeClass('d-none');
-                for (let i = 0; i < tot_installments; i++) {
-                    const installmentDate = new Date(startDate.getFullYear(), startDate.getMonth() + i,
-                        startDate.getDate());
-                    $tableContainer.append(`<tr>
-                    <td><a href="#" class="text-primary fw-bold">${i + 1}</a></td>
-                    <td>${installmentDate.toDateString()}</td>
-                    <td style="text-align: right;">Rs. ${installmentAmount}</td>
-                </tr>`);
-                    $('#allInstallments').append(`<input type="hidden" name="installmentDate${i + 1}" value="${installmentDate.toDateString()}" />
-                    <input type="hidden" name="installmentAmount${i + 1}" value="${installmentAmount}" />`);
-                }
-                if (dummyTable) {
-                    const dataTable = new simpleDatatables.DataTable(dummyTable, {
-                        searchable: false,
-                        // fixedHeight: true
-                    });
-                }
-            } else {
-                notify('error', 'Total Installments cannot be greater than 60');
-                $('#saleinsts').val("");
-                $("#saleinstdate").val("");
-            }
-        } else {
-            table.addClass('d-none');
-        }
+        // Show the selected section
+        $('.' + selectedMethod + 'Section').show();
+        $('.' + selectedMethod + 'Section').val("");
     });
 
+    $('#paymentType').change(function() {
+        var selectedMethod = $(this).val();
+        // Hide all sections
+        $('.installmentSection').hide();
+        $('.netCashSection').hide();
 
-    $('#salePaymentType').on("change", function() {
-        let type = $(this).val();
-        let credit = $(".methodCredit");
-        $(".submit").removeClass("d-none");
-        if (type != "") {
-            if (type == "credit") {
-                credit.removeClass("d-none");
-                $('#saleBalance').attr('readonly', 'readonly');
-            } else if (type == "debit") {
-                credit.addClass("d-none");
-                $(".saleBalance").removeClass("d-none");
-                $('#propertyPrice').val('');
-                $('#saleBalance').val('');
-                $('#saleBalance').removeAttr('readonly');
-            }
-        } else {
-            $(".submit").addClass("d-none");
-            credit.addClass("d-none");
-        }
+        // Show the selected section
+        $('.' + selectedMethod + 'Section').show();
+        $('.' + selectedMethod + 'Section input').val("");
     });
     </script>
 </body>

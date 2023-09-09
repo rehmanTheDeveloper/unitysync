@@ -34,6 +34,13 @@ if (empty($data['i'])) {
 if ($data['type'] == "expenseSubGroup") {
 
     // TODO: Create a query for existance of expense sub group in account expense
+    $query = "SELECT `id` FROM `expense` WHERE `sub_group` = ".$data['i']." AND `project_id` = '".$_SESSION['project']."'";
+    $result = mysqli_query($conn, $query);
+
+    if (mysqli_num_rows($result) > 0) {
+        header("Location: ../surcharge.php?m=group_exist");
+        exit();
+    }
 
     // echo "<pre>";
     // print_r($data);
@@ -48,6 +55,36 @@ if ($data['type'] == "expenseSubGroup") {
         exit();
     }
 
-} elseif ($data['type'] == 'exp') {
+} elseif ($data['type'] == 'block') {
+
+    // TODO: Create a query for existance of expense sub group in account expense
+    // $query = "SELECT `id` FROM `plot` WHERE `block` = ".$data['i']." AND `project_id` = '".$_SESSION['project']."'";
+    // $result = mysqli_query($conn, $query);
+
+    // if (mysqli_num_rows($result) > 0) {
+    //     header("Location: ../surcharge.php?m=block_exist");
+    //     exit();
+    // }
+
+    // $query = "SELECT `id` FROM `flat` WHERE `block` = ".$data['i']." AND `project_id` = '".$_SESSION['project']."'";
+    // $result = mysqli_query($conn, $query);
+
+    // if (mysqli_num_rows($result) > 0) {
+    //     header("Location: ../surcharge.php?m=block_exist");
+    //     exit();
+    // }
+
+    // echo "<pre>";
+    // print_r($data);
+    $query = "DELETE FROM `blocks` WHERE `id` = ?;";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $data['i']);
+    if ($stmt->execute()) {
+        header("Location: ../surcharge.php?m=block_delete_true");
+        exit();
+    } else {
+        header("Location: ../surcharge.php?m=block_delete_false");
+        exit();
+    }
 
 }

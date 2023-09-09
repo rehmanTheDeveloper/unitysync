@@ -59,9 +59,6 @@ $title = "All Sales";
                         </svg>
                         Add Sale
                     </a>
-                    <a href="#" class="btn btn-outline-gray-800 d-inline-flex align-items-center">
-                        Export
-                    </a>
                 </div>
             </div>
         </div>

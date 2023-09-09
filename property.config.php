@@ -13,6 +13,32 @@ require("auth/functions.php");                                    #
 $conn = conn("localhost", "root", "", "unitySync");                   #
 ####################### Database Connection #######################
 
+// Validation for no property purchased
+$query = "SELECT * FROM `area_seller` WHERE `project_id` = '".$_SESSION['project']."';";
+$area_sellers = fetch_Data($conn, $query);
+// Validation for no property purchased
+
+if (empty($area_sellers)) {
+    header("Location: property.all.php?m=not_found");
+    exit();
+}
+
+$query = "SELECT * FROM `blocks` WHERE `project_id` = '".$_SESSION['project']."';";
+$blocks = fetch_Data($conn, $query);
+
+$query = "SELECT SUM(`sqft`) as `sqft` FROM `plot` WHERE `project_id` = '".$_SESSION['project']."';";
+$plot_sqft = mysqli_fetch_assoc(mysqli_query($conn, $query));
+
+$query = "SELECT `sqft_per_marla`,`residential_sqft`,`commercial_sqft` FROM `project` WHERE `pro_id` = '".$_SESSION['project']."';";
+$project_details = mysqli_fetch_assoc(mysqli_query($conn, $query));
+
+$project_details['residential_sqft'] = $project_details['residential_sqft'] - $plot_sqft['sqft'];
+$project_details['commercial_sqft'] = $project_details['commercial_sqft'] - $plot_sqft['sqft'];
+
+// echo "<pre>";
+// print_r($project_details);
+// exit();
+
 $title = "Add Property";
 ?>
 <!DOCTYPE html>
@@ -61,241 +87,316 @@ $title = "Add Property";
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-body">
+                    <form method="POST" action="comp/property.add.php" class="card-body">
                         <h6 class="fw-bolder">General Information</h6>
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-4">
                                 <div class="mb-2">
-                                    <label class="form-label" for="propertyType">Property Type</label>
-                                    <select class="form-select" name="type" id="propertyType">
+                                    <label class="form-label" for="number">Plot/Flat No.</label>
+                                    <input class="form-control" type="number" name="number" id="number"
+                                        placeholder="e.g: 78,etc." required />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-2">
+                                    <label class="form-label" for="type">Property Type</label>
+                                    <select class="form-select" name="type" id="type" required>
                                         <option value="plot">Plot</option>
                                         <option value="flat">Flat</option>
-                                        <option value="file">File</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-4 typePlot d-none">
+                            <div class="col-md-4">
                                 <div class="mb-2">
-                                    <label class="form-label" for="plotNo">Plot No</label>
-                                    <input class="form-control" type="number" name="plotNo" id="plotNo"
-                                        placeholder="e.g: 78,etc." />
-                                </div>
-                            </div>
-                            <div class="col-md-4 typePlot d-none">
-                                <div class="mb-2">
-                                    <label class="form-label" for="plotBlock">Block</label>
-                                    <div class="input-group">
-                                        <?php if(!empty($blocks)): ?>
-                                        <select class="form-select" name="plotBlock" id="plotBlock">
-                                            <?php for ($i = 0; $i < count($blocks); $i++): ?>
-                                            <option value="<?php echo $blocks[$i]['name']; ?>">
-                                                <?php echo $blocks[$i]['name']; ?>
+                                    <label class="d-flex justify-content-between">
+                                        <div class="form-check mb-0">
+                                            <input class="form-check-input mb-0" type="radio" name="blockMethod"
+                                                value="selectBlock" id="selectBlock" checked />
+                                            <label class="form-check-label mb-0" for="selectBlock">Select Block
+                                                <svg class="icon icon-xs ms-2" data-bs-toggle="tooltip"
+                                                    data-bs-original-title="" fill="currentColor" viewBox="0 0 20 20"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path fill-rule="evenodd"
+                                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                                        clip-rule="evenodd"></path>
+                                                </svg>
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-0">
+                                            <input class="form-check-input mb-0" type="radio" name="blockMethod"
+                                                id="typeBlock" value="typeBlock" />
+                                            <label class="form-check-label mb-0" for="typeBlock">Add Block
+                                                <svg class="icon icon-xs ms-2" data-bs-toggle="tooltip"
+                                                    data-bs-original-title="Add Block which isn't defined."
+                                                    fill="currentColor" viewBox="0 0 20 20"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path fill-rule="evenodd"
+                                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                                        clip-rule="evenodd"></path>
+                                                </svg>
+                                            </label>
+                                        </div>
+                                    </label>
+                                    <div class="input-group selectBlockSection">
+                                        <?php if(!empty($blocks)) { ?>
+                                        <select class="form-select" name="block">
+                                            <?php foreach ($blocks as $block){ ?>
+                                            <option value="<?=$block['id']?>">
+                                                <?=$block['name']."-".$block['street']?>
                                             </option>
-                                            <?php endfor; ?>
+                                            <?php } ?>
                                         </select>
-                                        <?php else: ?>
-                                        <select class="form-select bg-white" disabled>
+                                        <?php } else { ?>
+                                        <select class="form-select">
                                             <option value="" selected>No Block has been Added</option>
                                         </select>
-                                        <?php endif; ?>
-                                        <a class="input-group-text" data-bs-toggle="modal" data-bs-target="#addBlock">
-                                            <svg data-bs-toggle="tooltip" data-bs-title="" class="icon icon-xs"
-                                                fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                            </svg>
-                                        </a>
+                                        <?php } ?>
+                                    </div>
+                                    <div class="input-group typeBlockSection" style="display: none;">
+                                        <input type="text" name="blockName" id="blockName" class="form-control"
+                                            placeholder="Block" />
+                                        <span class="input-group-text bg-gray-100">-</span>
+                                        <input type="text" name="street" id="street" class="form-control text-end"
+                                            placeholder="Street" />
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4 typePlot d-none">
+                            <div class="col-md-4">
                                 <div class="mb-2">
-                                    <label class="form-label" for="plotCategory">Category</label>
-                                    <select class="form-select" name="plotCategory" id="plotCategory">
+                                    <label class="form-label" for="category">
+                                        Category
+                                    </label>
+                                    <select class="form-select category" name="category" id="category" required>
                                         <option value="residential">Residential</option>
                                         <option value="commercial">Commercial</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-3 typePlot d-none">
+                            <div class="col-md-4">
                                 <div class="mb-2">
-                                    <label class="form-label" for="plotDimension">Plot Dimension</label>
-                                    <input class="form-control" type="text" name="plotDimension" id="plotDimension"
-                                        placeholder="e.g: 35 X 42,etc." />
+                                    <div class="d-flex justify-content-between">
+                                        <label for="width">Width</label>
+                                        <svg class="icon icon-xs me-2" data-bs-toggle="tooltip"
+                                            data-bs-original-title="Dimension like 43 X 23, etc." fill="currentColor"
+                                            viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd"
+                                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                        <label for="length">Length</label>
+                                    </div>
+                                    <div class="input-group">
+                                        <input type="text" name="width" id="width" class="form-control"
+                                            placeholder="99, etc." required />
+                                        <span class="input-group-text bg-gray-100 text-primary">X</span>
+                                        <input type="text" name="length" id="length" class="form-control text-end"
+                                            placeholder="99, etc." required />
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-3 typePlot d-none">
+                            <div class="col-md-4">
                                 <div class="mb-2">
-                                    <label class="form-label" for="areaTypePlot">Area Type</label>
-                                    <select class="form-select" name="areaTypePlot" id="areaTypePlot">
-                                        <option value="kanal">Kanal</option>
+                                    <label class="form-label" for="rate">Price</label>
+                                    <input class="form-control comma" type="text" name="rate" id="rate"
+                                        placeholder="e.g: 7,800,000,etc." required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="mb-2">
+                                    <label class="form-label" for="areaType">Area Type</label>
+                                    <select class="form-select" name="areaType" id="areaType" required>
+                                        <option value="kanal" selected>Kanal</option>
                                         <option value="marla">Marla</option>
                                         <option value="sqFt">Square Feet</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-3 typePlot d-none">
+                            <div class="col-md-3">
                                 <div class="mb-2">
-                                    <label class="form-label" for="plotArea">Plot Area</label>
-                                    <input class="form-control" type="text" name="plotArea" id="plotArea"
-                                        placeholder="e.g: 45,etc." />
-                                </div>
-                            </div>
-                            <div class="col-md-3 typePlot d-none">
-                                <div class="mb-2">
-                                    <label class="form-label" for="plotMarla">Marla</label>
-                                    <input class="form-control bg-white" type="text" name="plotMarla" id="plotMarla"
-                                        readonly />
-                                </div>
-                            </div>
-                            <div class="col-md-4 typeFlat d-none">
-                                <div class="mb-2">
-                                    <label class="form-label" for="flatNo">Flat No</label>
-                                    <input class="form-control" type="number" name="flatNo" id="flatNo"
-                                        placeholder="e.g: 391,etc." />
-                                </div>
-                            </div>
-                            <div class="col-md-4 typeFlat d-none">
-                                <div class="mb-2">
-                                    <label class="form-label" for="flatBlock">Block</label>
+                                    <label class="form-label d-flex justify-content-between" for="area">
+                                        <span>Area</span>
+                                        <span
+                                            class="category_field"><?=number_format(($project_details['residential_sqft'] / $project_details['sqft_per_marla']),2)." Marlas"?></span>
+                                        <span>Marla</span>
+                                    </label>
                                     <div class="input-group">
-                                        <?php if(!empty($blocks)): ?>
-                                        <select class="form-select" name="flatBlock" id="flatBlock">
-                                            <?php for ($i = 0; $i < count($blocks); $i++): ?>
-                                            <option value="<?php echo $blocks[$i]['name']; ?>">
-                                                <?php echo $blocks[$i]['name']; ?>
-                                            </option>
-                                            <?php endfor; ?>
-                                        </select>
-                                        <?php else: ?>
-                                        <select class="form-select bg-white" disabled>
-                                            <option value="" selected>No Block has been Added</option>
-                                        </select>
-                                        <?php endif; ?>
-                                        <a class="input-group-text" data-bs-toggle="modal" data-bs-target="#addBlock">
-                                            <i class="icon icon-xs" data-feather="plus"></i>
-                                        </a>
+                                        <input class="form-control" type="text" name="area" id="area"
+                                            placeholder="e.g: 45,etc." required />
+                                        <input class="form-control bg-white text-end" type="text" name="marla"
+                                            id="marla" value="0" readonly />
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4 typeFlat d-none">
-                                <div class="mb-2">
-                                    <label class="form-label" for="flatCategory">Category</label>
-                                    <select class="form-select" name="flatCategory" id="flatCategory">
-                                        <option value="residential">Residential</option>
-                                        <option value="commercial">Commercial</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3 typeFlat d-none">
-                                <div class="mb-2">
-                                    <label class="form-label" for="flatDimension">Flat Dimension</label>
-                                    <input class="form-control" type="text" name="flatDimension" id="flatDimension"
-                                        placeholder="e.g: 12 X 24,etc." />
-                                </div>
-                            </div>
-                            <div class="col-md-3 typeFlat d-none">
-                                <div class="mb-2">
-                                    <label class="form-label" for="areaTypeFlat">Area Type</label>
-                                    <select class="form-select" name="areaTypeFlat" id="areaTypeFlat">
-                                        <option value="marla">Marla</option>
-                                        <option value="sqFt">Square Feet</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3 typeFlat d-none">
-                                <div class="mb-2">
-                                    <label class="form-label" for="flatArea">Flat Area</label>
-                                    <input class="form-control" type="text" name="flatArea" id="flatArea"
-                                        placeholder="e.g: 7,etc." />
-                                </div>
-                            </div>
-                            <div class="col-md-3 typeFlat d-none">
-                                <div class="mb-2">
-                                    <label class="form-label" for="flatMarla">Marla</label>
-                                    <input class="form-control bg-white" type="text" name="flatMarla" id="flatMarla"
-                                        readonly />
-                                </div>
-                            </div>
-                            <div class="col-md-4 typeFile d-none">
-                                <div class="mb-2">
-                                    <label class="form-label" for="fileForArea">File For Area</label>
-                                    <input class="form-control" type="number" name="fileForArea" id="fileForArea"
-                                        placeholder="e.g: 5,etc. marla" />
-                                </div>
-                            </div>
-                            <div class="col-md-4 typeFile d-none">
-                                <div class="mb-2">
-                                    <label class="form-label" for="fileCategory">Category</label>
-                                    <select class="form-select" name="fileCategory" id="fileCategory">
-                                        <option value="residential">Residential</option>
-                                        <option value="commercial">Commercial</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-4 typeFile d-none">
-                                <div class="mb-2">
-                                    <label class="form-label" for="quantityFiles">Quantity of Files</label>
-                                    <input class="form-control" type="number" name="quantityFiles" id="quantityFiles"
-                                        placeholder="Enter files ..." />
-                                </div>
-                            </div>
-
-                            <div class="col-12 d-none remarks">
+                            <div class="col-7">
                                 <div class="mb-2">
                                     <label class="form-label" for="remarks">Remarks</label>
                                     <input class="form-control" type="text" name="remarks" id="remarks"
                                         placeholder="Enter Remarks ..." />
                                 </div>
                             </div>
-                            <div class="col-12 text-center submit d-none">
+                            <div class="col-12 text-center submit">
                                 <input class="btn btn-outline-gray-600 my-3" type="submit" name="submit"
                                     value="submit" />
-                                
                             </div>
                         </div>
-                    </div>
                 </div>
             </div>
+        </div>
         </div>
 
         <?php include('temp/footer.temp.php'); ?>
     </main>
     <?php include('temp/script.temp.php'); ?>
     <script>
+    <?php if (isset($_GET['m'])) { ?>
+    <?php if ($_GET['m'] == 'add_false') { ?>
+    notify("error", "Something's Wrong, Report Error ...");
+    <?php } ?>
+    <?php } ?>
     $(function() {
-        $("#propertyType").trigger("change");
-    });
-
-    $("#propertyType").on("change", function() {
-        let type = $(this).val();
-        // Add all the class names to an array
-        let classArray = ["submit", "remarks", "typeFlat", "typeFile", "typePlot"];
-
-        if (type != "") {
-            // Remove "d-none" class from all elements in the classArray
-            classArray.forEach(function(className) {
-                $("." + className).removeClass("d-none");
-            });
-
-            // Based on the selected type, add "d-none" class to specific elements
-            if (type == "plot") {
-                $(".typeFlat").addClass("d-none");
-                $(".typeFile").addClass("d-none");
-            } else if (type == "flat") {
-                $(".typePlot").addClass("d-none");
-                $(".typeFile").addClass("d-none");
-            } else if (type == "file") {
-                $(".typePlot").addClass("d-none");
-                $(".typeFlat").addClass("d-none");
+        var blocks = <?=json_encode($blocks)?>;
+        var category_residential = <?=($project_details['residential_sqft'])?>;
+        var category_commercial = <?=($project_details['commercial_sqft'])?>;
+        $("#street").on("focusout", function() {
+            if ($("#blockName").val()) {
+                blocks.forEach(block => {
+                    if (block['name'] == $("#blockName").val() && block['street'] == $(
+                            "#street").val()) {
+                        notify("error", "Block Already exist ..");
+                        $("#blockName").focus();
+                        $("#blockName").val("");
+                        $("#street").val("");
+                    }
+                });
             }
-        } else {
-            // Add "d-none" class to all elements in the classArray
-            classArray.forEach(function(className) {
-                $("." + className).addClass("d-none");
-            });
-        }
+        });
+
+        $(".category").on("change", function() {
+            if ($(this).val() == "residential") {
+                $(".category_field").text((
+                        category_residential / <?=$project_details['sqft_per_marla']?>).toFixed(1) +
+                    " Marlas");
+                $("#marla").val("0");
+                $("#area").val("");
+            } else if ($(this).val() == "commercial") {
+                $(".category_field").text((
+                        category_commercial / <?=$project_details['sqft_per_marla']?>).toFixed(1) +
+                    " Marlas");
+                $("#marla").val("0");
+                $("#area").val("");
+            }
+        });
+
+        $('input[name="blockMethod"]').change(function() {
+            var selectedMethod = $(this).val();
+            // Hide all sections
+            $('.selectBlockSection').hide();
+            $('.typeBlockSection').hide();
+
+            // Show the selected section
+            $('.' + selectedMethod + 'Section').show();
+            $('.' + selectedMethod + 'Section input').val("");
+        });
+
+        $("#area").on("keyup", function() {
+            if ($("#areaType").val() == "kanal") {
+                $("#marla").val($(this).val() * 20);
+                if ($(".category").val() == "residential") {
+                    if ((<?=$project_details['residential_sqft']?> - ($(this).val() * 20 *
+                            <?=$project_details['sqft_per_marla']?>)) < 0) {
+                        notify("error",
+                            "Limit is <?=number_format($project_details['residential_sqft'] / $project_details['sqft_per_marla'],2)?> Marlas."
+                        );
+                        $(this).addClass("is-invalid");
+                        $("#marla").addClass("is-invalid");
+                        $(this).val("");
+                        $("#marla").val("0");
+                    } else {
+                        $(this).removeClass("is-invalid");
+                        $("#marla").removeClass("is-invalid");
+                    }
+                }
+                if ($(".category").val() == "commercial") {
+                    if ((<?=$project_details['commercial_sqft']?> - ($(this).val() * 20 *
+                            <?=$project_details['sqft_per_marla']?>)) < 0) {
+                        notify("error",
+                            "Limit is <?=number_format($project_details['commercial_sqft'] / $project_details['sqft_per_marla'],2)?> Marlas."
+                        );
+                        $(this).addClass("is-invalid");
+                        $("#marla").addClass("is-invalid");
+                        $(this).val("");
+                        $("#marla").val("0");
+                    } else {
+                        $(this).removeClass("is-invalid");
+                        $("#marla").removeClass("is-invalid");
+                    }
+                }
+            } else if ($("#areaType").val() == "marla") {
+                $("#marla").val($(this).val());
+                if ($(".category").val() == "residential") {
+                    if ((<?=$project_details['residential_sqft']?> - ($(this).val() *
+                            <?=$project_details['sqft_per_marla']?>)) < 0) {
+                        notify("error",
+                            "Limit is <?=number_format($project_details['residential_sqft'] / $project_details['sqft_per_marla'],2)?> Marlas."
+                        );
+                        $(this).addClass("is-invalid");
+                        $("#marla").addClass("is-invalid");
+                        $(this).val("");
+                        $("#marla").val("0");
+                    } else {
+                        $(this).removeClass("is-invalid");
+                        $("#marla").removeClass("is-invalid");
+                    }
+                }
+                if ($(".category").val() == "commercial") {
+                    if ((<?=$project_details['commercial_sqft']?> - ($(this).val() *
+                            <?=$project_details['sqft_per_marla']?>)) < 0) {
+                        notify("error",
+                            "Limit is <?=number_format($project_details['commercial_sqft'] / $project_details['sqft_per_marla'],2)?> Marlas."
+                        );
+                        $(this).addClass("is-invalid");
+                        $("#marla").addClass("is-invalid");
+                        $(this).val("");
+                        $("#marla").val("0");
+                    } else {
+                        $(this).removeClass("is-invalid");
+                        $("#marla").removeClass("is-invalid");
+                    }
+                }
+            } else if ($("#areaType").val() == "sqFt") {
+                $("#marla").val(($(this).val() /
+                    <?=$project_details['sqft_per_marla']?>).toFixed(
+                    2));
+                if ($(".category").val() == "residential") {
+                    if ((<?=$project_details['residential_sqft']?> - ($(this).val())) < 0) {
+                        notify("error",
+                            "Limit is <?=number_format($project_details['residential_sqft'] / $project_details['sqft_per_marla'],2)?> Marlas."
+                        );
+                        $(this).addClass("is-invalid");
+                        $("#marla").addClass("is-invalid");
+                        $(this).val("");
+                        $("#marla").val("0");
+                    } else {
+                        $(this).removeClass("is-invalid");
+                        $("#marla").removeClass("is-invalid");
+                    }
+                }
+                if ($(".category").val() == "commercial") {
+                    if ((<?=$project_details['commercial_sqft']?> - ($(this).val())) < 0) {
+                        notify("error",
+                            "Limit is <?=number_format($project_details['commercial_sqft'] / $project_details['sqft_per_marla'],2)?> Marlas."
+                        );
+                        $(this).addClass("is-invalid");
+                        $("#marla").addClass("is-invalid");
+                        $(this).val("");
+                        $("#marla").val("0");
+                    } else {
+                        $(this).removeClass("is-invalid");
+                        $("#marla").removeClass("is-invalid");
+                    }
+                }
+            }
+        });
     });
     </script>
 </body>
