@@ -2,7 +2,7 @@
 session_start();
 #################### Login & License Validation ####################
 require("temp/validate.login.temp.php");                           #
-$license_path = "licenses/".$_SESSION['license_username']."/license.json"; #
+$license_path = "license/".$_SESSION['license_username']."/license.json"; #
 require("auth/license.validate.functions.php");                    #
 require("temp/validate.license.temp.php");                         #
 #################### Login & License Validation ####################
@@ -11,18 +11,22 @@ require("temp/validate.license.temp.php");                         #
 require("auth/config.php");                                       #
 require("auth/functions.php");                                    #
 $conn = conn("localhost", "root", "", "unitySync");                   #
+$DB_Connection = new DB("localhost", "unitySync", "root", ""); #
+$PDO_conn = $DB_Connection->getConnection(); #
 ####################### Database Connection #######################
 
-$query = "SELECT `v-id`,`type`,`source`,`remarks`,`credit`,`debit`, @balance := @balance - debit + credit AS balance
-FROM `ledger`, (SELECT @balance := 0) AS vars WHERE `project_id` = '".$_SESSION['project']."';";
-$ledger = fetch_Data($conn, $query);
+$query = "SELECT * FROM `accounts` WHERE `project_id` = '".$_SESSION['project']."';";
+$all_accounts = fetch_Data($conn, $query);
 
-// echo "<pre>";
-// print_r($ledger);
-// exit();
+foreach ($all_accounts as $key => $Acc) {
+    $query = "SELECT `name`, `acc_id` FROM `".$Acc['type']."` WHERE `acc_id` = '".$Acc['acc_id']."' AND `project_id` = '".$_SESSION['project']."';";
+    $acc = mysqli_fetch_assoc(mysqli_query($conn, $query));
+
+    $accounts[$key] = $acc;
+    $accounts[$key]['type'] = $Acc['type'];
+}
 
 $title = "Ledger";
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -71,75 +75,44 @@ $title = "Ledger";
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <table class="table table-centered table-hover table-nowrap mb-0 rounded" id="datatable">
+                        <div class="row">
+                            <div class="col-md-9">
+                                <div class="mb-3">
+                                    <label class="form-label" for="account">Account</label>
+                                    <select class="form-select" name="account" id="account">
+                                        <option value="" selected>Select Account</option>
+                                        <?php foreach ($accounts as $key => $account) { ?>
+                                        <option value="<?=encryptor("encrypt", $account['acc_id'])?>">
+                                            <?=$account['name']." - ".$account['type']?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end pb-3">
+                                <button class="btn btn-primary w-100" id="checkLedger">Check Ledger</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table table-centered table-hover table-nowrap mb-0 rounded" id="ledger">
                             <thead class="thead-light">
                                 <tr>
                                     <th class="border-0 rounded-start">#</th>
                                     <th class="border-0 text-center">V-ID</th>
                                     <th class="border-0 text-center">Source</th>
                                     <th class="border-0">Remarks</th>
-                                    <th class="border-0">Credit</th>
-                                    <th class="border-0 text-end">Debit</th>
+                                    <th class="border-0 text-end">Dr./Cr.</th>
                                     <th class="border-0 text-end rounded-end">Balance</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php if(!empty($ledger)){
-                                    foreach ($ledger as $key => $led) { ?>
                                 <tr>
-                                    <td class="fw-bolder">
-                                        <?=$key+1?>
-                                    </td>
-                                    <td><?=$led['v-id']?></td>
-                                    <td class="fw-bold text-center"><?=$led['source']?></td>
-                                    <td><?=$led['remarks']?></td>
-                                    <?php if (!empty($led['credit'])) { ?>
-                                    <td class="text-success"><?=$arrow_up?> Rs. <?=number_format($led['credit'])?></td>
-                                    <td></td>
-                                    <?php } else { ?>
-                                    <td></td>
-                                    <td class="text-end text-danger">Rs. <?=number_format($led['debit'])?>
-                                        <?=$arrow_down?></td>
-                                    <?php } ?>
-                                    <?php if ($led['balance'] == 0) { ?>
-                                    <td class="fw-bold text-end text-success">
-                                        Rs. <?=number_format($led['balance'])?>
-                                        <svg class="icon icon-xs me-1" viewBox="0 0 24 24" width="24" height="24"
-                                            stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
-                                            stroke-linejoin="round" class="css-i6dzq1">
-                                            <circle cx="12" cy="12" r="4"></circle>
-                                            <line x1="1.05" y1="12" x2="7" y2="12"></line>
-                                            <line x1="17.01" y1="12" x2="22.96" y2="12"></line>
-                                        </svg>
-
-                                    </td>
-                                    <?php } elseif ($led['balance'] > 0) { ?>
-                                    <td class="fw-bold text-end text-success">
-                                        Rs. <?=number_format($led['balance'])?>
-                                        <svg class="icon icon-xs me-1" viewBox="0 0 24 24" width="24" height="24"
-                                            stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
-                                            stroke-linejoin="round" class="css-i6dzq1">
-                                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                                            <polyline points="17 6 23 6 23 12"></polyline>
-                                        </svg>
-                                    </td>
-                                    <?php } else { ?>
-                                    <td class="fw-bold text-end text-danger">
-                                        Rs. <?=number_format($led['balance'])?>
-                                        <svg class="icon icon-xs me-1" viewBox="0 0 24 24" width="24" height="24"
-                                            stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
-                                            stroke-linejoin="round" class="css-i6dzq1">
-                                            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
-                                            <polyline points="17 18 23 18 23 12"></polyline>
-                                        </svg>
-                                    </td>
-                                    <?php } ?>
+                                    <td colspan="6" class="text-center fw-bold">No History ...</td>
                                 </tr>
-                                <?php } } else { ?>
-                                <tr>
-                                    <td class="text-center" colspan="7">No ledger history ...</td>
-                                </tr>
-                                <?php } ?>
                             </tbody>
                         </table>
                     </div>
@@ -152,13 +125,49 @@ $title = "Ledger";
     <?php include('temp/script.temp.php'); ?>
 
     <script>
-    var dummyTable = d.getElementById('datatable');
-    if (dummyTable) {
-        const dataTable = new simpleDatatables.DataTable(dummyTable, {
-            // searchable: false,
-            // fixedHeight: true
-        });
-    }
+    var table = document.getElementById("ledger");
+    var dataTable = null;
+    var account = document.getElementById("account");
+
+    document.getElementById('checkLedger').addEventListener('click', function() {
+        var account_id = account.value;
+        if (account_id) {
+            account.disabled = true;
+            table.querySelector('tbody').innerHTML =
+                '<tr><td class="text-center" colspan="6"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span><span class="ms-1">Loading...</span></td></tr>';
+            $.ajax({
+                url: 'ajax/ledger.php',
+                method: 'POST',
+                data: {
+                    account: account_id
+                },
+                success: function(response) {
+                    // console.log(response);
+                    account.disabled = false;
+                    if (dataTable) {
+                        dataTable.destroy();
+                    }
+                    table.querySelector('tbody').innerHTML = '';
+                    dataTable = new simpleDatatables.DataTable(table);
+
+                    if (response === 'empty') {
+                        if (table.querySelector("tbody")) {
+                            table.querySelector("tbody").innerHTML = '<tr>' +
+                                '<td class="text-center" colspan="6">No ledger history ...</td>' +
+                                '</tr>';
+                        }
+                    } else {
+                        table.querySelector('tbody').innerHTML = response;
+                    }
+                }
+            });
+        } else {
+            if (table.querySelector("tbody")) {
+                table.querySelector("tbody").innerHTML = '<tr>' +
+                    '<td class="text-center" colspan="6">No ledger history ...</td>' + '</tr>';
+            }
+        }
+    });
     </script>
 </body>
 

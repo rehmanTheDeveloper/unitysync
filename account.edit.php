@@ -2,7 +2,7 @@
 session_start();
 #################### Login & License Validation ####################
 require("temp/validate.login.temp.php");                           #
-$license_path = "licenses/".$_SESSION['license_username']."/license.json"; #
+$license_path = "license/".$_SESSION['license_username']."/license.json"; #
 require("auth/license.validate.functions.php");                    #
 require("temp/validate.license.temp.php");                         #
 #################### Login & License Validation ####################
@@ -28,14 +28,6 @@ if (empty($account)) {
     header("Location: account.all.php?m=not_found");
     exit();
 }
-
-$query = "SELECT `v-id`,`type`,`remarks`,`credit`,`debit`, @balance := @balance - credit + debit AS balance
-FROM `ledger`, (SELECT @balance := 0) AS vars WHERE `source` = '".encryptor("decrypt", $_GET['i'])."' AND `project_id` = '".$_SESSION['project']."' ORDER BY `id` ASC LIMIT 1;";
-$ledger = mysqli_fetch_assoc(mysqli_query($conn, $query));
-
-// echo "<pre>";
-// print_r($ledger);
-// exit();
 
 $acc_types = [
     "customer", "seller", "investor", "staff", "expense", "bank"

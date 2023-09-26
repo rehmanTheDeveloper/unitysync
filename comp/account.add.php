@@ -3,7 +3,7 @@
 session_start();
 ###################### Login & License Validation ######################
 require("../temp/validate.login.temp.php"); #
-$license_path = "../licenses/" . $_SESSION['license_username'] . "/license.json"; #
+$license_path = "../license/" . $_SESSION['license_username'] . "/license.json"; #
 require("../auth/license.validate.functions.php"); #
 require("../temp/validate.license.temp.php"); #
 ###################### Login & License Validation ######################
@@ -12,7 +12,11 @@ require("../temp/validate.license.temp.php"); #
 require("../auth/config.php"); #
 require("../auth/functions.php"); #
 $conn = conn("localhost", "root", "", "unitySync"); #
+$DB_Connection = new DB("localhost", "unitySync", "root", ""); #
+$PDO_conn = $DB_Connection->getConnection(); #
 ######################## Database Connection #######################
+
+require "../object/ledger.php";
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "add-account") != true) {
@@ -136,17 +140,16 @@ $formatter = [
 if ($data['type'] == 'staff' || $data['type'] == 'seller' || $data['type'] == 'investor' || $data['type'] == 'customer') {
     $data['phone_no'] = str_replace($formatter, "", $data['phone_no']);
     $data['cnic'] = str_replace($formatter, "", $data['cnic']);
-    $data['kin_cnic'] = str_replace($formatter, "", $data['kin_cnic']);
-    $data['guranter_cnic'] = str_replace($formatter, "", $data['guranter_cnic']);
+    if ($data['type'] == 'customer') {
+        $data['kin_cnic'] = str_replace($formatter, "", $data['kin_cnic']);
+        $data['guranter_cnic'] = str_replace($formatter, "", $data['guranter_cnic']);
+    }
     $data['whtsNo'] = str_replace($formatter, "", $data['whatsapp_no']);
-    $data['balance'] = str_replace(",", "", $data['balance']);
     $data['email'] = $data['email'] . $data['email-format'];
 } elseif ($data['type'] == 'bank') {
     $data['number'] = str_replace($formatter, "", $data['number']);
-    $data['balance'] = str_replace($formatter, "", $data['balance']);
-} elseif ($data['type'] == 'expense') {
-    $data['balance'] = str_replace($formatter, "", $data['balance']);
 }
+$data['balance'] = str_replace(",", "", $data['balance']);
 
 $query = "INSERT INTO `accounts`(`acc_id`, `type`, `project_id`, `created_date`, `created_by`) 
 VALUES (?,?,?,?,?);";
@@ -164,6 +167,22 @@ $db_activity['created_by'] = $created_by;
 activity($conn, $db_activity);
 // Activity Record
 
+if (!empty($data['balance']) && $data['balance'] != '0') {
+    $ledger = [
+        'v-id' => ledgerVoucherId($conn),
+        'type' => 'defined',
+        'source' => "balance",
+        'pay_to' => $data['id'],
+        'remarks' => 'Balance Opened ...',
+        'amount' => $data['balance'],
+        'project' => $_SESSION['project'],
+        'created_date' => $created_date,
+        'created_by' => $created_by
+    ];
+    $ledger_obj = new Ledger($PDO_conn);
+    $ledger_validation = $ledger_obj->insert($ledger);
+}
+
 if ($data['type'] == "customer") {
 
     if (!empty($data['image']) && $data['image'] != 'profile.png') {
@@ -178,21 +197,6 @@ if ($data['type'] == "customer") {
         }
     } else {
         $upload['img'] = "profile.png";
-    }
-
-    if (!empty($data['balance']) && $data['balance'] != '0') {
-        $ledger = [
-            'v-id' => ledgerVoucherId($conn),
-            'type' => 'AccCreated',
-            'source' => $data['id'],
-            'remarks' => 'Recieveable Amount from Account &quot;' . $data['name'] . '&quot;',
-            'credit' => "",
-            'debit' => $data['balance'],
-            'project' => $_SESSION['project'],
-            'created_date' => $created_date,
-            'created_by' => $created_by
-        ];
-        ledger($conn, $ledger);
     }
 
     $query = "INSERT INTO `customer`(`acc_id`, `name`, `prefix`, `father_name`, `cnic`, `address`, `city`, `province`, `country`, `phone_no`, `email`, `whts_no`, `kin_name`, `kin_relation`, `kin_cnic`, `guranter_name`, `guranter_cnic`, `img`, `project_id`, `created_date`, `created_by`) 
@@ -213,21 +217,6 @@ if ($data['type'] == "customer") {
 
 } elseif ($data['type'] == "bank") {
 
-    if (!empty($data['balance']) && $data['balance'] != '0') {
-        $ledger = [
-            'v-id' => ledgerVoucherId($conn),
-            'type' => 'AccCreated',
-            'source' => $data['id'],
-            'remarks' => ($data['action'] == 'credit') ? 'Payable amount to ' : 'Recieveable amount from' . ' Account &quot;' . $data['name'] . '&quot;',
-            'credit' => ($data['action'] == 'credit') ? $data['balance'] : '',
-            'debit' => ($data['action'] == 'debit') ? $data['balance'] : '',
-            'project' => $_SESSION['project'],
-            'created_date' => $created_date,
-            'created_by' => $created_by,
-        ];
-        ledger($conn, $ledger);
-    }
-
     $query = "INSERT INTO `bank`(`acc_id`, `name`, `details`, `number`, `branch`, `project_id`, `created_date`, `created_by`) 
     VALUES (?,?,?,?,?,?,?,?);";
     $stmt = $conn->prepare($query);
@@ -241,21 +230,6 @@ if ($data['type'] == "customer") {
     }
 
 } elseif ($data['type'] == "expense") {
-
-    if (!empty($data['balance']) && $data['balance'] != '0') {
-        $ledger = [
-            'v-id' => ledgerVoucherId($conn),
-            'type' => 'AccCreated',
-            'source' => $data['id'],
-            'remarks' => 'Paid Amount to Account &quot;' . $data['name'] . '&quot;',
-            'credit' => ($data['action'] == 'credit') ? $data['balance'] : '',
-            'debit' => ($data['action'] == 'debit') ? $data['balance'] : '',
-            'project' => $_SESSION['project'],
-            'created_date' => $created_date,
-            'created_by' => $created_by,
-        ];
-        ledger($conn, $ledger);
-    }
 
     $query = "INSERT INTO `expense`(`acc_id`, `name`, `details`, `sub_group`, `project_id`, `created_date`, `created_by`) 
     VALUES (?,?,?,?,?,?,?);";
@@ -284,21 +258,6 @@ if ($data['type'] == "customer") {
         }
     } else {
         $upload['img'] = "profile.png";
-    }
-
-    if (!empty($data['balance']) && $data['balance'] != '0') {
-        $ledger = [
-            'v-id' => ledgerVoucherId($conn),
-            'type' => 'AccCreated',
-            'source' => $data['id'],
-            'remarks' => 'Recieveable Amount from Account &quot;' . $data['name'] . '&quot;',
-            'credit' => "",
-            'debit' => $data['balance'],
-            'project' => $_SESSION['project'],
-            'created_date' => $created_date,
-            'created_by' => $created_by
-        ];
-        ledger($conn, $ledger);
     }
 
     // echo "<pre>";

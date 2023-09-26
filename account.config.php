@@ -2,7 +2,7 @@
 session_start();
 #################### Login & License Validation ####################
 require("temp/validate.login.temp.php");                           #
-$license_path = "licenses/".$_SESSION['license_username']."/license.json"; #
+$license_path = "license/".$_SESSION['license_username']."/license.json"; #
 require("auth/license.validate.functions.php");                    #
 require("temp/validate.license.temp.php");                         #
 #################### Login & License Validation ####################
@@ -110,11 +110,11 @@ $title = "Add Account";
                                 <div class="mb-2">
                                     <label for="category">Account Group</label>
                                     <select class="form-select" name="category" id="category" required>
-                                        <option value="customer">Customer</option>
+                                        <option value="customer" selected>Customer</option>
                                         <option value="seller">Seller</option>
                                         <option value="investor">Investor</option>
                                         <option value="staff">Staff</option>
-                                        <option value="expense" selected>Expense</option>
+                                        <option value="expense">Expense</option>
                                         <option value="bank">Bank</option>
                                     </select>
                                 </div>

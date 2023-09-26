@@ -3,17 +3,19 @@
 session_start();
 #################### Login & License Validation ####################
 require("temp/validate.login.temp.php");                           #
-$license_path = "licenses/".$_SESSION['license_username']."/license.json"; #
+$license_path = "license/".$_SESSION['license_username']."/license.json"; #
 require("auth/license.validate.functions.php");                    #
 #################### Login & License Validation ####################
 
 $license_json = json_decode(file_get_contents($license_path), true);
 
 $title = "License | Expired";
-if (validateLicenseKey($license_json['key'], $license_json['product']) != "expired" || $license_json['status'] != "2") {
+
+if ($license_json['status'] !== 2) {
     header("Location: index.php");
     exit();
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

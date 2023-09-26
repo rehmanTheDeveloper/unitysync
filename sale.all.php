@@ -2,7 +2,7 @@
 session_start();
 #################### Login & License Validation ####################
 require("temp/validate.login.temp.php");                           #
-$license_path = "licenses/".$_SESSION['license_username']."/license.json"; #
+$license_path = "license/".$_SESSION['license_username']."/license.json"; #
 require("auth/license.validate.functions.php");                    #
 require("temp/validate.license.temp.php");                         #
 #################### Login & License Validation ####################
@@ -10,8 +10,77 @@ require("temp/validate.license.temp.php");                         #
 ####################### Database Connection #######################
 require("auth/config.php");                                       #
 require("auth/functions.php");                                    #
-$conn = conn("localhost", "root", "", "unitySync");                   #
-####################### Database Connection #######################
+$conn = conn("localhost", "root", "", "unitySync"); #
+$DB_Connection = new DB("localhost", "unitySync", "root", ""); #
+$PDO_conn = $DB_Connection->getConnection(); #
+######################## Database Connection #######################
+
+require "object/ledger.php";
+$ledger_obj = new Ledger($PDO_conn);
+
+$query = "SELECT * FROM `sales` WHERE `project_id` = '".$_SESSION['project']."';";
+$all_sales = fetch_Data($conn, $query);
+
+$query = "SELECT `name`,`acc_id`,`phone_no` FROM `customer` WHERE `project_id` = '".$_SESSION['project']."';";
+$customers = fetch_Data($conn, $query);
+
+if (!empty($all_sales)) {
+    foreach ($all_sales as $key => $sale) {
+        $query = "SELECT * FROM `sale_".$sale['type']."` WHERE `sale_id` = '".$sale['sale_id']."' AND `project_id` = '".$_SESSION['project']."';";
+        $sales[$key] = mysqli_fetch_assoc(mysqli_query($conn, $query));
+        $sales[$key]['sale_type'] = $sale['type'];
+    }
+    foreach ($sales as $key => $sale) {
+        $query = "SELECT `type` FROM `properties` WHERE `pty_id` = '".$sale['pty_id']."' AND `project_id` = '".$_SESSION['project']."';";
+        $property_type = mysqli_fetch_assoc(mysqli_query($conn, $query));
+
+        $query = "SELECT `number`,`block`,`number`,`sqft`,`category` FROM `".$property_type['type']."` WHERE `pty_id` = '".$sale['pty_id']."' AND `project_id` = '".$_SESSION['project']."';";
+        $property = mysqli_fetch_assoc(mysqli_query($conn, $query));
+
+        $query = "SELECT `name`,`street` FROM `blocks` WHERE `id` = '".$property['block']."' AND `project_id` = '".$_SESSION['project']."';";
+        $block = mysqli_fetch_assoc(mysqli_query($conn, $query));
+
+        $sales[$key]['property'] = $property['number'];
+        $sales[$key]['property_type'] = $property_type['type'];
+        $sales[$key]['property_sqft'] = $property['sqft'];
+        $sales[$key]['property_category'] = $property['category'];
+        $sales[$key]['property_block'] = $block['name'];
+        $sales[$key]['property_street'] = $block['street'];
+        $sales[$key]['property_status'] = 0;
+
+        $sale['debit'] = 0;
+        $sale['credit'] = $sales[$key]['price'];
+        $fetch_ledger = [
+            'type' => "sale",
+            'sale_id' => $sale['sale_id'],
+            'source' => $sale['acc_id'],
+            'pay_to' => $sale['acc_id'],
+            'project' => $_SESSION['project']
+        ];
+        $sale_ledger = $ledger_obj->fetch($fetch_ledger);
+        foreach ($sale_ledger as $single_ledger) {
+            $sale['debit'] += $single_ledger['debit'];
+            $sale['credit'] += $single_ledger['credit'];
+        }
+        if (($sale['debit'] - $sale['credit']) != 0) {
+            $sales[$key]['property_status'] = 2;
+        } elseif (($sale['debit'] - $sale['credit']) == 0) {
+            $sales[$key]['property_status'] = 1;
+        }
+        // print_r($property);
+    }
+} else {
+    $sales = [];
+}
+
+$query = "SELECT `sqft_per_marla` FROM `project` WHERE `pro_id` = '".$_SESSION['project']."';";
+$project_details = mysqli_fetch_assoc(mysqli_query($conn, $query));
+
+// echo "<pre>";
+// print_r($all_sales);
+// print_r($sales);
+// print_r($customers);
+// exit();
 
 $title = "All Sales";
 ?>
@@ -69,111 +138,74 @@ $title = "All Sales";
                     <thead class="thead-light">
                         <tr>
                             <th class="border-0">#</th>
+                            <th class="border-0 text-center">Sale Id</th>
+                            <th class="border-0 text-center">Sale Type</th>
                             <th class="border-0 text-center">Purchaser</th>
                             <th class="border-0 text-center">Phone No.</th>
-                            <th class="border-0 text-center">Block</th>
                             <th class="border-0 text-center">Property</th>
-                            <th class="border-0 text-center">Property Dimension</th>
-                            <th class="border-0 text-center">Area (Marla - Ft)</th>
-                            <th class="border-0 text-end">Property Type</th>
+                            <th class="border-0 text-center">Area</th>
+                            <th class="border-0 text-center">Status</th>
                             <th class="border-0 text-end">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php for ($i = 0; $i < 17; $i++) { ?>
+                        <?php if (!empty($sales)) {
+                        foreach ($sales as $key => $sale) { ?>
                         <tr>
                             <td class="fw-bolder">
-                                <?=$i+1?>
+                                <?=$key+1?>
                             </td>
-                            <td class="text-center">Abdul Rehman</td>
-                            <td class="text-center">+92 306 436322262</td>
-                            <td class="text-center fw-bolder">B</td>
-                            <td class="text-center">Plot - #23</td>
-                            <td class="text-center">24 x 50</td>
-                            <td class="text-center">5 - 00</td>
-                            <td class="text-end fw-bold">Residential</td>
+                            <td class="text-center"><?=$sale['sale_id']?></td>
+                            <td class="text-center text-capitalize">
+                                <?=($sale['sale_type'] == "net_cash")?"net cash":"installment"?></td>
+                            <td class="text-center">
+                                <?php 
+                                    foreach ($customers as $customer) {
+                                        if ($customer['acc_id'] == $sale['acc_id']) {
+                                            echo $customer['name'];
+                                        }
+                                    }
+                                ?>
+                            </td>
+                            <td class="text-center">
+                                <?php 
+                                    foreach ($customers as $customer) {
+                                        if ($customer['acc_id'] == $sale['acc_id']) {
+                                            echo "+92 ".phone_no_format($customer['phone_no']);
+                                        }
+                                    }
+                                ?>
+                            </td>
+                            <td class="text-center text-capitalize"><?=$sale['property_type']?> #<?=$sale['property']?>
+                                / <?=$sale['property_block']?>-<?=$sale['property_street']?></td>
+                            <td class="text-center">
+                                <?=floor($sale['property_sqft'] / $project_details['sqft_per_marla'])?> marla -
+                                <?=number_format(($sale['property_sqft'] - floor($sale['property_sqft'] / $project_details['sqft_per_marla']) * $project_details['sqft_per_marla']))?>
+                                Sqft.</td>
+                            <td class="text-capitalize text-center fw-bold">
+                                <?php if ($sale['property_status'] == 0) { ?>
+                                <span class="badge bg-danger">Unsold</span>
+                                <?php } elseif ($sale['property_status'] == 1) { ?>
+                                <span class="badge bg-success">Sold</span>
+                                <?php } elseif ($sale['property_status'] == 2) { ?>
+                                <span class="badge bg-warning">Under Financing</span>
+                                <?php } ?>
+                            </td>
                             <td style="column-gap: 15px;" class="d-flex justify-content-end align-items-center">
-                                <button class="btn btn-link text-dark dropdown-toggle dropdown-toggle-split m-0 p-0"
-                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <svg class="icon icon-xs" fill="currentColor" viewBox="0 0 20 20"
+                                <a class="btn p-0" href="#" data-bs-toggle="tooltip" data-bs-original-title="Select Flat to Generate Sale ...">
+                                    <svg class="icon icon-sm" fill="currentColor" viewBox="0 0 20 20"
                                         xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z">
-                                        </path>
+                                        <path fill-rule="evenodd"
+                                            d="M2 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 002 2H4a2 2 0 01-2-2V5zm3 1h6v4H5V6zm6 6H5v2h6v-2z"
+                                            clip-rule="evenodd"></path>
+                                        <path d="M15 7h1a2 2 0 012 2v5.5a1.5 1.5 0 01-3 0V7z"></path>
                                     </svg>
-                                    <span class="visually-hidden">Toggle Dropdown</span>
-                                </button>
-                                <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1" style="">
-                                    <a class="dropdown-item d-flex align-items-center" href="#">
-                                        <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor"
-                                            viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                            <path
-                                                d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z">
-                                            </path>
-                                            <path fill-rule="evenodd"
-                                                d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-                                                clip-rule="evenodd"></path>
-                                        </svg>
-                                        Edit
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="sale.view.php">
-                                        <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor"
-                                            viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
-                                            <path fill-rule="evenodd"
-                                                d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                                                clip-rule="evenodd"></path>
-                                        </svg>
-                                        View
-                                    </a>
-                                    <a class="dropdown-item d-flex align-items-center" href="sale.print.php">
-                                        <svg class="dropdown-icon text-gray-400 me-2" fill="currentColor" viewBox="0 0 20 20"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path fill-rule="evenodd"
-                                                d="M2 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 002 2H4a2 2 0 01-2-2V5zm3 1h6v4H5V6zm6 6H5v2h6v-2z"
-                                                clip-rule="evenodd"></path>
-                                            <path d="M15 7h1a2 2 0 012 2v5.5a1.5 1.5 0 01-3 0V7z"></path>
-                                        </svg>
-                                        Print
-                                    </a>
-                                </div>
-                                <div class="btn-group">
-                                    <button class="btn btn-link dropdown-toggle dropdown-toggle-split m-0 p-0"
-                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                        title="Delete">
-                                        <svg class="icon icon-xs text-danger" fill="currentColor" viewBox="0 0 20 20"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path fill-rule="evenodd"
-                                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                                clip-rule="evenodd"></path>
-                                        </svg>
-                                        <span class="visually-hidden">Toggle Dropdown</span>
-                                    </button>
-                                    <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
-                                        style="">
-                                        <a class="dropdown-item d-flex align-items-center" href="#">
-                                            <svg class="icon icon-xs dropdown-icon text-success me-2"
-                                                fill="currentColor" viewBox="0 0 20 20"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd"
-                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                                    clip-rule="evenodd"></path>
-                                            </svg>
-                                            Yes
-                                        </a>
-                                        <a class="dropdown-item d-flex align-items-center" data-bs-dismiss="dropdown">
-                                            <svg class="icon icon-xs dropdown-icon text-danger me-2" fill="currentColor"
-                                                viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd"
-                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                                    clip-rule="evenodd"></path>
-                                            </svg>
-                                            
-                                            No
-                                        </a>
-                                    </div>
-                                </div>
+                                </a>
                             </td>
+                        </tr>
+                        <?php } } else { ?>
+                        <tr>
+                            <td class="text-center fw-bold" colspan="9">No Sale Generated ...</td>
                         </tr>
                         <?php } ?>
                     </tbody>
@@ -183,16 +215,109 @@ $title = "All Sales";
 
         <?php include('temp/footer.temp.php'); ?>
     </main>
-    <?php include('temp/script.temp.php'); ?>
 
+    <div class="modal fade" id="deleteSale" tabindex="-1" role="dialog" aria-labelledby="delete sale"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="h6 modal-title">Delete Sale</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete Sale ( <span id="selectedSale"></span> ) ?</p>
+                    <input type="hidden" id="saleID" value="" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-bs-dismiss="modal">No</button>
+                    <button type="button" id="confirmDeleteBtn" data-target="#confirmationCode"
+                        class="btn btn-danger">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="confirmationCode" tabindex="-1" role="dialog" aria-labelledby="delete user"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="h6 modal-title">Confirmation Code</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Please enter the sum of the following numbers:</p>
+                    <p><span class="number1"></span> + <span class="number2"></span> =</p>
+                    <div class="mb-3">
+                        <input class="form-control" type="text" id="confirmation-input" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" id="confirmCodeAns" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <?php include('temp/script.temp.php'); ?>
     <script>
-    var dummyTable = d.getElementById('datatable');
-    if (dummyTable) {
-        const dataTable = new simpleDatatables.DataTable(dummyTable, {
-            // searchable: false,
-            // fixedHeight: true
+    <?php if (isset($_GET['m'])) { ?>
+    <?php if ($_GET['m'] == 'add_true') { ?>
+    notify("success", "Sale Generated Successfully ...");
+    <?php } elseif ($_GET['m'] == 'add_false') { ?>
+    notify("error", "Something's Wrong, Report Error ...");
+    <?php } ?>
+    <?php } ?>
+
+    $(function() {
+        // Randomly generate two numbers
+        var number1 = Math.floor(Math.random() * 10) + 1;
+        var number2 = Math.floor(Math.random() * 10) + 1;
+        $('.number1').text(number1);
+        $('.number2').text(number2);
+
+        // Show confirmation dialog on delete button click
+        $('.deleteBtn').click(function() {
+            var saleId = $(this).data('id');
+            var userName = $(this).data('name');
+
+            // Set user name in delete confirmation modal
+            $('#selectedSale').text(userName);
+            $('#saleID').val(saleId);
+
+            console.log(userName);
+            console.log(saleId);
+
+            $('#deleteSale').modal('show');
         });
-    }
+
+        // Show confirmation code dialog on confirm delete button click
+        $('#confirmDeleteBtn').click(function() {
+            $('#deleteSale').modal('hide');
+            $('#confirmationCode').modal('show');
+        });
+
+        // Handle confirmation code submission
+        $('#confirmCodeAns').click(function() {
+            // Get user input and calculate expected result
+            var input = $('#confirmation-input').val();
+            var expected = number1 + number2;
+
+            // Check if input is correct
+            if (input == expected) {
+                var saleId = $('#saleID').val();
+                window.location.href = 'comp/sale.delete.php?i=' + saleId;
+            } else {
+                // Show error message and generate new numbers
+                notify("error", "The sum is incorrect. Please try again.");
+                number1 = Math.floor(Math.random() * 10) + 1;
+                number2 = Math.floor(Math.random() * 10) + 1;
+                $('.number1').text(number1);
+                $('.number2').text(number2);
+                $('#confirmation-input').val('');
+            }
+        });
+    });
     </script>
 </body>
 

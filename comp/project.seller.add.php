@@ -3,7 +3,7 @@
 session_start();
 ###################### Login & License Validation ######################
 require("../temp/validate.login.temp.php"); #
-$license_path = "../licenses/" . $_SESSION['license_username'] . "/license.json"; #
+$license_path = "../license/" . $_SESSION['license_username'] . "/license.json"; #
 require("../auth/license.validate.functions.php"); #
 require("../temp/validate.license.temp.php"); #
 ###################### Login & License Validation ######################
@@ -12,7 +12,11 @@ require("../temp/validate.license.temp.php"); #
 require("../auth/config.php"); #
 require("../auth/functions.php"); #
 $conn = conn("localhost", "root", "", "unitySync"); #
+$DB_Connection = new DB("localhost", "unitySync", "root", ""); #
+$PDO_conn = $DB_Connection->getConnection(); #
 ######################## Database Connection #######################
+
+require "../object/ledger.php";
 
 ################################ Role Validation ################################
 if ($_SESSION['role'] != 'super-admin') {
@@ -74,16 +78,17 @@ if ($result) {
 
     $ledger = [
         'v-id' => ledgerVoucherId($conn),
-        'type' => 'ProjectSeller',
+        'type' => 'purchase',
         'source' => $data['seller'],
-        'remarks' => number_format((($data['kanal'] * 20) * 272.25) + ($data['marla'] * 272.25) + $data['feet']).' Sqft. are purchased from &quot'.$result['name'].'&quot',
-        'credit' => $data['amount'],
-        'debit' => '',
+        'pay_to' => "colony",
+        'remarks' => number_format((($data['kanal'] * 20) * 272.25) + ($data['marla'] * 272.25) + $data['feet']).' Sqft. are purchased from "'.$result['name'].'"',
+        'amount' => $data['amount'],
         'project' => $_SESSION['project'],
         'created_date' => $created_date,
-        'created_by' => $created_by,
+        'created_by' => $created_by
     ];
-    ledger($conn, $ledger);
+    $ledger_obj = new Ledger($PDO_conn);
+    $ledger_validation = $ledger_obj->insert($ledger);
 
     // Activity Record
     $db_activity['date'] = date("d-m-Y", strtotime($created_date));

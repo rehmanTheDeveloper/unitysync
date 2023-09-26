@@ -2,7 +2,7 @@
 session_start();
 #################### Login & License Validation ####################
 require("temp/validate.login.temp.php");                           #
-$license_path = "licenses/".$_SESSION['license_username']."/license.json"; #
+$license_path = "license/".$_SESSION['license_username']."/license.json"; #
 require("auth/license.validate.functions.php");                    #
 require("temp/validate.license.temp.php");                         #
 #################### Login & License Validation ####################
@@ -36,12 +36,17 @@ if (!empty($allAcc)) {
             if (mysqli_num_rows($result) > 0) {
                 $accounts[$key]['delete'] = 0;
             }
-        } elseif ($Acc['type'] == 'bank') {
-            // $query = "SELECT * FROM `area_investor` WHERE `acc_id` IN ('".$Acc['acc_id']."') AND `project_id` = '".$_SESSION['project']."';";
-            // $result = mysqli_query($conn, $query);
-            // if (mysqli_num_rows($result) > 0) {
-            //     $accounts[$key]['delete'] = 0;
-            // }
+        } elseif ($Acc['type'] == 'customer') {
+            $query = "SELECT * FROM `sale_installment` WHERE `acc_id` = '".$Acc['acc_id']."' AND `project_id` = '".$_SESSION['project']."';";
+            $result = mysqli_query($conn, $query);
+            if (mysqli_num_rows($result) > 0) {
+                $accounts[$key]['delete'] = 0;
+            }
+            $query = "SELECT * FROM `sale_net_cash` WHERE `acc_id` = '".$Acc['acc_id']."' AND `project_id` = '".$_SESSION['project']."';";
+            $result = mysqli_query($conn, $query);
+            if (mysqli_num_rows($result) > 0) {
+                $accounts[$key]['delete'] = 0;
+            }
         }
     }
 } else {

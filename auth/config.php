@@ -4,10 +4,46 @@ date_default_timezone_set("Asia/Karachi");
 $created_date = date("Y-m-d") . " " . date("h:i:sa");
 $created_by = (isset($_SESSION['id'])) ? $_SESSION['id'] : "";
 $current_month = date('F, Y');
-define("LICENSE_PATH", "licenses/".$created_by."/license.json");
+define("LICENSE_PATH", "license/".$created_by."/license.json");
 
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
+
+class DB
+{
+    private $host;
+    private $db;
+    private $user;
+    private $pass;
+    private $pdo;
+
+    public function __construct($host, $db, $user, $pass)
+    {
+        $this->host = $host;
+        $this->db = $db;
+        $this->user = $user;
+        $this->pass = $pass;
+        $this->connect();
+    }
+
+    private function connect()
+    {
+        $dsn = "mysql:host=$this->host;dbname=$this->db;charset=utf8mb4";
+
+        try {
+            $this->pdo = new PDO($dsn, $this->user, $this->pass);
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            die("Connection failed: " . $e->getMessage());
+        }
+    }
+
+    public function getConnection()
+    {
+        return $this->pdo;
+    }
+}
 
 function conn($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME)
 {

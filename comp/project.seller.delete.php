@@ -3,7 +3,7 @@
 session_start();
 ###################### Login & License Validation ######################
 require("../temp/validate.login.temp.php");                            #
-$license_path = "../licenses/".$_SESSION['license_username']."/license.json";  #
+$license_path = "../license/".$_SESSION['license_username']."/license.json";  #
 require("../auth/license.validate.functions.php");                     #
 require("../temp/validate.license.temp.php");                          #
 ###################### Login & License Validation ######################
@@ -12,7 +12,11 @@ require("../temp/validate.license.temp.php");                          #
 require("../auth/config.php");                                     #
 require("../auth/functions.php");                                  #
 $conn = conn("localhost", "root", "", "unitySync");              #
+$DB_Connection = new DB("localhost", "unitySync", "root", ""); #
+$PDO_conn = $DB_Connection->getConnection(); #
 ######################## Database Connection #######################
+
+require "../object/ledger.php";
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "delete-user") != true) {
@@ -29,9 +33,6 @@ if (empty($_GET['i'])) {
 $query = "SELECT * FROM `seller` WHERE `acc_id` = '".$_GET['i']."' AND `project_id` = '".$_SESSION['project']."';";
 $result = mysqli_fetch_assoc(mysqli_query($conn, $query));
 
-$query = "SELECT * FROM `area_seller` WHERE `acc_id` = '".$_GET['i']."' AND `project_id` = '".$_SESSION['project']."';";
-$area_seller = mysqli_fetch_assoc(mysqli_query($conn, $query));
-
 // Activity Record
 $db_activity['date'] = date("d-m-Y", strtotime($created_date));
 $db_activity['user_id'] = $_SESSION['id'];
@@ -43,17 +44,12 @@ activity($conn, $db_activity);
 // Activity Record
 
 $ledger = [
-    'v-id' => ledgerVoucherId($conn),
-    'type' => 'ProjectSeller',
+    'type' => 'purchase',
     'source' => $result['acc_id'],
-    'remarks' => number_format((($area_seller['kanal'] * 20) * 272.25) + ($area_seller['marla'] * 272.25) + $area_seller['feet']).' Sqft. are returned to &quot'.$result['name'].'&quot',
-    'credit' => '',
-    'debit' => $area_seller['amount'],
-    'project' => $_SESSION['project'],
-    'created_date' => $created_date,
-    'created_by' => $created_by,
+    'project' => $_SESSION['project']
 ];
-ledger($conn, $ledger);
+$ledger_obj = new Ledger($PDO_conn);
+$ledger_validation = $ledger_obj->delete($ledger);
 
 $query = "UPDATE `project` SET `commercial_sqft` = '0', `residential_sqft` = '0', `sqft_per_marla` = '0' WHERE `pro_id` = '".$_SESSION['project']."';";
 mysqli_query($conn, $query);

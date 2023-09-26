@@ -243,7 +243,7 @@ exports.push([module.i, "/**\n * @license\n * Copyright Akveo. All Rights Reserv
 /***/ (function(module, exports) {
 
 /*
-	MIT License http://www.opensource.org/licenses/mit-license.php
+	MIT License http://www.opensource.org/license/mit-license.php
 	Author Tobias Koppers @sokra
 */
 // css base code, injected by the css-loader

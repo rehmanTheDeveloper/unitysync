@@ -2,7 +2,7 @@
 session_start();
 #################### Login & License Validation ####################
 require("temp/validate.login.temp.php");                           #
-$license_path = "licenses/".$_SESSION['license_username']."/license.json"; #
+$license_path = "license/".$_SESSION['license_username']."/license.json"; #
 require("auth/license.validate.functions.php");                    #
 require("temp/validate.license.temp.php");                         #
 #################### Login & License Validation ####################
@@ -32,9 +32,8 @@ $plot_sqft = mysqli_fetch_assoc(mysqli_query($conn, $query));
 $query = "SELECT `sqft_per_marla`,`residential_sqft`,`commercial_sqft` FROM `project` WHERE `pro_id` = '".$_SESSION['project']."';";
 $project_details = mysqli_fetch_assoc(mysqli_query($conn, $query));
 
-$project_details['residential_sqft'] = $project_details['residential_sqft'] - $plot_sqft['sqft'];
-$project_details['commercial_sqft'] = $project_details['commercial_sqft'] - $plot_sqft['sqft'];
-
+$project_details['residential_sqft'] = (!empty($project_details['residential_sqft'])?$project_details['residential_sqft']:0) - $plot_sqft['sqft'];
+$project_details['commercial_sqft'] = (!empty($project_details['commercial_sqft'])?$project_details['commercial_sqft']:0) - $plot_sqft['sqft'];
 // echo "<pre>";
 // print_r($project_details);
 // exit();
@@ -101,8 +100,8 @@ $title = "Add Property";
                                 <div class="mb-2">
                                     <label class="form-label" for="type">Property Type</label>
                                     <select class="form-select" name="type" id="type" required>
-                                        <option value="plot">Plot</option>
-                                        <option value="flat">Flat</option>
+                                        <option value="plot" selected>Plot</option>
+                                        <!-- <option value="flat">Flat</option> -->
                                     </select>
                                 </div>
                             </div>
@@ -216,7 +215,7 @@ $title = "Add Property";
                                     <label class="form-label d-flex justify-content-between" for="area">
                                         <span>Area</span>
                                         <span
-                                            class="category_field"><?=number_format(($project_details['residential_sqft'] / $project_details['sqft_per_marla']),2)." Marlas"?></span>
+                                            class="category_field"><?=(($project_details['residential_sqft'] != 0)?number_format(($project_details['residential_sqft'] / $project_details['sqft_per_marla']),2):0)." Marlas"?></span>
                                         <span>Marla</span>
                                     </label>
                                     <div class="input-group">
@@ -259,7 +258,8 @@ $title = "Add Property";
         var category_commercial = <?=($project_details['commercial_sqft'])?>;
         $("#street").on("focusout", function() {
             if ($("#blockName").val()) {
-                blocks.forEach(block => {
+                if (blocks) {
+                    blocks.forEach(block => {
                     if (block['name'] == $("#blockName").val() && block['street'] == $(
                             "#street").val()) {
                         notify("error", "Block Already exist ..");
@@ -268,6 +268,7 @@ $title = "Add Property";
                         $("#street").val("");
                     }
                 });
+                }
             }
         });
 
@@ -287,8 +288,9 @@ $title = "Add Property";
             }
         });
 
-        $('input[name="blockMethod"]').change(function() {
+        $('input[name="blockMethod"]').on("change", function() {
             var selectedMethod = $(this).val();
+            console.log("working");
             // Hide all sections
             $('.selectBlockSection').hide();
             $('.typeBlockSection').hide();

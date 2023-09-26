@@ -3,7 +3,7 @@
 session_start();
 ###################### Login & License Validation ######################
 require("../temp/validate.login.temp.php"); #
-$license_path = "../licenses/" . $_SESSION['license_username'] . "/license.json"; #
+$license_path = "../license/" . $_SESSION['license_username'] . "/license.json"; #
 require("../auth/license.validate.functions.php"); #
 require("../temp/validate.license.temp.php"); #
 ###################### Login & License Validation ######################
@@ -12,7 +12,11 @@ require("../temp/validate.license.temp.php"); #
 require("../auth/config.php"); #
 require("../auth/functions.php"); #
 $conn = conn("localhost", "root", "", "unitySync"); #
+$DB_Connection = new DB("localhost", "unitySync", "root", ""); #
+$PDO_conn = $DB_Connection->getConnection(); #
 ######################## Database Connection #######################
+
+require "../object/ledger.php";
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "delete-user") != true) {
@@ -66,10 +70,14 @@ if ($type['type'] == 'bank' || $type['type'] == 'expense') {
     activity($conn, $db_activity);
     // Activity Record
 
-    $query = "DELETE FROM `ledger` WHERE `source` = ? AND `project_id` = ?;";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("ss", $refined, $_SESSION['project']);
-    $stmt->execute();
+    // TODO: Create validation or modal for confirming user to delete ledger history or not .. ??
+    $ledger = [
+        'source' => $account['acc_id'],
+        'pay_to' => $account['acc_id'],
+        'project' => $_SESSION['project']
+    ];
+    $ledger_obj = new Ledger($PDO_conn);
+    $ledger_validation = $ledger_obj->delete($ledger);
 
     $query = "DELETE FROM `" . $type['type'] . "` WHERE `acc_id` = ? AND `project_id` = '" . $_SESSION['project'] . "';";
     $stmt = $conn->prepare($query);

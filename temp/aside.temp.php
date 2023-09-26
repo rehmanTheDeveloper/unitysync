@@ -360,11 +360,13 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
                     <?php
                     collapse('project.view.php, project.edit.php');
                     collapse('surcharge.php');
+                    collapse('others.php');
                     collapse('user.config.php, user.all.php, user.view.php, user.edit.php, user.role.add.php, user.role.edit.php, user.role.all.php'); ?> d-flex justify-content-between align-items-center"
                     data-bs-toggle="collapse" data-bs-target="#configuration"
                     <?php
                         expand('project.view.php, project.edit.php');
                         expand('surcharge.php');
+                        expand('others.php');
                         expand('user.config.php, user.all.php, user.view.php, user.edit.php, user.role.add.php, user.role.edit.php, user.role.all.php'); ?>>
                     <span>
                         <span class="sidebar-icon">
@@ -390,6 +392,7 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
                 <?php
                 show('project.view.php, project.edit.php');
                 show('surcharge.php');
+                show('others.php');
                 show('user.config.php, user.all.php, user.view.php, user.edit.php, user.role.add.php, user.role.edit.php, user.role.all.php'); ?>"
                     role="list" id="configuration" aria-expanded="false">
                     <ul class="flex-column nav">
@@ -423,6 +426,18 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
                                 <span class="sidebar-text">User Mng.</span>
                             </a>
                         </li>
+                        <?php
+                        ################################ Role Validation ################################ 
+                        if ($_SESSION['role'] === "super-admin") {
+                        ################################ Role Validation ################################
+                        ?>
+                        <li class="nav-item <?php active('others.php'); ?>">
+                            <a href="others.php" class="nav-link">
+                                <span class="sidebar-text-contracted">O</span>
+                                <span class="sidebar-text">Others</span>
+                            </a>
+                        </li>
+                        <?php } ?>
                         <?php } ?>
                     </ul>
                 </div>
@@ -441,8 +456,8 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
             ?>
             <li class="nav-item">
                 <span
-                    class="nav-link <?php collapse('ledger.php'); ?> d-flex justify-content-between align-items-center"
-                    data-bs-toggle="collapse" data-bs-target="#reports" <?php expand('ledger.php'); ?>>
+                    class="nav-link <?php collapse('outstanding.report.php'); collapse('ledger.php'); collapse('ledger.purchase.php'); collapse('ledger.sale.php'); ?> d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse" data-bs-target="#reports" <?php expand('outstanding.report.php'); expand('ledger.php'); expand('ledger.purchase.php'); expand('ledger.sale.php'); ?>>
                     <span>
                         <span class="sidebar-icon">
                             <svg class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20"
@@ -464,13 +479,31 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
                         </svg>
                     </span>
                 </span>
-                <div class="multi-level collapse <?php show('ledger.php'); ?>" role="list" id="reports"
+                <div class="multi-level collapse <?php show('outstanding.report.php'); show('ledger.php'); show('ledger.purchase.php'); show('ledger.sale.php'); ?>" role="list" id="reports"
                     aria-expanded="false">
                     <ul class="flex-column nav">
                         <li class="nav-item <?php active('ledger.php'); ?>">
                             <a href="ledger.php" class="nav-link">
                                 <span class="sidebar-text-contracted">L</span>
                                 <span class="sidebar-text">Ledger</span>
+                            </a>
+                        </li>
+                        <li class="nav-item <?php active('ledger.purchase.php'); ?>">
+                            <a href="ledger.purchase.php" class="nav-link">
+                                <span class="sidebar-text-contracted">P</span>
+                                <span class="sidebar-text">Purchase Ledger</span>
+                            </a>
+                        </li>
+                        <li class="nav-item <?php active('ledger.sale.php'); ?>">
+                            <a href="ledger.sale.php" class="nav-link">
+                                <span class="sidebar-text-contracted">S</span>
+                                <span class="sidebar-text">Sale Ledger</span>
+                            </a>
+                        </li>
+                        <li class="nav-item <?php active('outstanding.report.php'); ?>">
+                            <a href="outstanding.report.php" class="nav-link">
+                                <span class="sidebar-text-contracted">L</span>
+                                <span class="sidebar-text">Outstandings</span>
                             </a>
                         </li>
                     </ul>
@@ -500,7 +533,8 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
             <?php } ?>
             <?php } ?>
 
-            <!-- <li role="separator" class="dropdown-divider mt-4 mb-3 border-gray-700"></li>
+            <li role="separator" class="dropdown-divider mt-4 mb-3 border-gray-700"></li>
+            
             <li class="nav-item">
                 <a href="#"
                     target="_blank" class="nav-link d-flex align-items-center">
@@ -513,11 +547,11 @@ $aside_project_name = mysqli_fetch_assoc(mysqli_query($conn, $query));
                         </svg>
                     </span>
                     <span class="sidebar-text">
-                        Docs.
-                        <span class="badge bg-secondary ms-1 text-gray-800 badge-sm">v1.4</span>
+                        UnitySync
+                        <span class="badge bg-secondary ms-1 text-gray-800 badge-sm">v1.0</span>
                     </span>
                 </a>
-            </li> -->
+            </li>
         </ul>
     </div>
 </nav>

@@ -2,7 +2,7 @@
 session_start();
 #################### Login & License Validation ####################
 require("temp/validate.login.temp.php");                           #
-$license_path = "licenses/".$_SESSION['license_username']."/license.json"; #
+$license_path = "license/".$_SESSION['license_username']."/license.json"; #
 require("auth/license.validate.functions.php");                    #
 require("temp/validate.license.temp.php");                         #
 #################### Login & License Validation ####################
@@ -11,7 +11,12 @@ require("temp/validate.license.temp.php");                         #
 require("auth/config.php");                                       #
 require("auth/functions.php");                                    #
 $conn = conn("localhost", "root", "", "unitySync");             #
+$DB_Connection = new DB("localhost", "unitySync", "root", ""); #
+$PDO_conn = $DB_Connection->getConnection(); #
 ####################### Database Connection #######################
+
+include "object/ledger.php";
+$ledger_obj = new Ledger($PDO_conn);
 
 ################################ Role Validation ################################
 if (validationRole($conn, $_SESSION['project'], $_SESSION['role'], "view-account") != true) {
@@ -24,6 +29,8 @@ if (empty($_GET['i'])) {
     header("Location: account.all.php?m=not_found");
     exit();
 }
+
+$project_details = mysqli_fetch_assoc(mysqli_query($conn, "SELECT `sqft_per_marla` FROM `project` WHERE `pro_id` = '".$_SESSION['project']."';"));
 
 $query = "SELECT `type` FROM `accounts` WHERE `acc_id` = '".encryptor("decrypt", $_GET['i'])."' AND `project_id` = '".$_SESSION['project']."';";
 $type = mysqli_fetch_assoc(mysqli_query($conn, $query));
@@ -51,9 +58,16 @@ if ($type['type'] == 'seller') {
     }
 }
 
-$query = "SELECT `v-id`,`type`,`remarks`,`credit`,`debit`, @balance := @balance - credit + debit AS balance
-FROM `ledger`, (SELECT @balance := 0) AS vars WHERE `source` = '".encryptor("decrypt", $_GET['i'])."' AND `project_id` = '".$_SESSION['project']."';";
-$ledger = fetch_Data($conn, $query);
+$fetch_ledger = [
+    'source' => encryptor("decrypt", $_GET['i']),
+    'pay_to' => encryptor("decrypt", $_GET['i']),
+    'project' => $_SESSION['project']
+];
+$ledger = $ledger_obj->fetch($fetch_ledger);
+
+// echo "<pre>";
+// print_r($ledger);
+// exit();
 
 if ($type['type'] == 'expense') {
     $query = "SELECT * FROM `expense_sub_groups` WHERE `id` = '".$account['sub_group']."' AND `project_id` = '".$_SESSION['project']."';";
@@ -61,8 +75,79 @@ if ($type['type'] == 'expense') {
     $account['sub_group'] = $expense_sub_groups['name'];
 }
 
+if ($type['type'] == 'customer') {
+    $query = "SELECT `pty_id`,`sale_id`,`price`,`advance_payment`,`installments` FROM `sale_installment` WHERE `acc_id` = '".encryptor("decrypt", $_GET['i'])."' AND `project_id` = '".$_SESSION['project']."';";
+    $sale_installment = fetch_Data($conn, $query);
+    $a = 0;
+    if (!empty($sale_installment)) {
+        foreach ($sale_installment as $sale) {
+            $sale['debit'] = 0;
+            $sale['credit'] = 0;
+            $fetch_ledger = [
+                'type' => "sale",
+                'sale_id' => $sale['sale_id'],
+                'source' => encryptor("decrypt", $_GET['i']),
+                'pay_to' => encryptor("decrypt", $_GET['i']),
+                'project' => $_SESSION['project']
+            ];
+            // $properties[$key]['ledger'] = $fetch_ledger;
+            $sale_ledger = $ledger_obj->fetch($fetch_ledger);
+            foreach ($sale_ledger as $single_ledger) {
+                $sale['debit'] += $single_ledger['debit'];
+                $sale['credit'] += $single_ledger['credit'];
+            }
+            // print_r($sale_ledger);
+            $query = "SELECT `type` FROM `properties` WHERE `pty_id` = '".$sale['pty_id']."' AND `project_id` = '".$_SESSION['project']."';";
+            $property_type = mysqli_fetch_assoc(mysqli_query($conn, $query));
+            $query = "SELECT * FROM `".$property_type['type']."` WHERE `pty_id` = '".$sale['pty_id']."' AND `project_id` = '".$_SESSION['project']."';";
+            $properties[$a] = mysqli_fetch_assoc(mysqli_query($conn, $query));
+            $properties[$a]['type'] = $property_type['type'];
+            $properties[$a]['sale_type'] = "installment";
+            $properties[$a]['rate'] = $sale['price'];
+            $properties[$a]['advance_payment'] = intval($sale['advance_payment']);
+            $properties[$a]['installments'] = intval($sale['installments']);
+            $properties[$a]['credit'] = $sale['credit'];
+            $properties[$a]['debit'] = $sale['debit'];
+            $a++;
+        }
+    }
+    $query = "SELECT `pty_id`,`sale_id`,`price`,`net_amount` FROM `sale_net_cash` WHERE `acc_id` = '".encryptor("decrypt", $_GET['i'])."' AND `project_id` = '".$_SESSION['project']."';";
+    $sale_net_cash = fetch_Data($conn, $query);
+    if (!empty($sale_net_cash)) {
+        foreach ($sale_net_cash as $sale) {
+            $sale['debit'] = 0;
+            $sale['credit'] = 0;
+            $fetch_ledger = [
+                'type' => "sale",
+                'sale_id' => $sale['sale_id'],
+                'source' => encryptor("decrypt", $_GET['i']),
+                'pay_to' => encryptor("decrypt", $_GET['i']),
+                'project' => $_SESSION['project']
+            ];
+            $sale_ledger = $ledger_obj->fetch($fetch_ledger);
+            foreach ($sale_ledger as $single_ledger) {
+                $sale['debit'] += $single_ledger['debit'];
+                $sale['credit'] += $single_ledger['credit'];
+            }
+            // print_r($sale_ledger);
+            $query = "SELECT `type` FROM `properties` WHERE `pty_id` = '".$sale['pty_id']."' AND `project_id` = '".$_SESSION['project']."';";
+            $property_type = mysqli_fetch_assoc(mysqli_query($conn, $query));
+            $query = "SELECT * FROM `".$property_type['type']."` WHERE `pty_id` = '".$sale['pty_id']."' AND `project_id` = '".$_SESSION['project']."';";
+            $properties[$a] = mysqli_fetch_assoc(mysqli_query($conn, $query));
+            $properties[$a]['type'] = $property_type['type'];
+            $properties[$a]['sale_type'] = 'net_cash';
+            $properties[$a]['credit'] = $sale['credit'];
+            $properties[$a]['debit'] = $sale['debit'];
+            $a++;
+        }
+    }
+    if (empty($sale_installment) && empty($sale_net_cash)) {
+        $properties = [];
+    }
+}
+
 // echo "<pre>";
-// print_r($account);
+// print_r($properties);
 // exit();
 
 $title = "Account - ".$account['name'];
@@ -162,7 +247,7 @@ $title = "Account - ".$account['name'];
 
         <div style="row-gap: 20px;" class="row">
             <div class="col-8">
-                <div class="card">
+                <div class="card h-100">
                     <div class="card-body">
                         <div class="row">
                             <div class="col-12 position-relative">
@@ -240,23 +325,15 @@ $title = "Account - ".$account['name'];
                                         <tr>
                                             <td>Credit Amount</td>
                                             <td class="text-success text-end">Rs.
-                                                <?=(!empty($ledger))?number_format(getSumOfId($ledger, "debit")):"0"?>
+                                                <?=(!empty($ledger))?number_format(getSumOfId($ledger, "credit")):"0"?>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>Debit Amount</td>
                                             <td class="text-danger text-end">Rs.
-                                                <?=(!empty($ledger))?number_format(getSumOfId($ledger, "credit")):"0"?>
+                                                <?=(!empty($ledger))?number_format(getSumOfId($ledger, "debit")):"0"?>
                                             </td>
                                         </tr>
-                                        <?php if ($type['type'] == 'seller' || $type['type'] == 'investor' || $type['type'] == 'staff' || $type['type'] == 'customer') { ?>
-                                        <tr>
-                                            <td>Pending Amount</td>
-                                            <td class="text-danger text-end">Rs.
-                                                <?=(!empty($ledger))?number_format(getSumOfId($ledger, "credit") - getSumOfId($ledger, "debit")):"0"?>
-                                            </td>
-                                        </tr>
-                                        <?php } ?>
                                         <tr>
                                             <td>Balance</td>
                                             <?php 
@@ -288,7 +365,7 @@ $title = "Account - ".$account['name'];
                 <?php if ($type['type'] == 'customer') { ?>
                 <div class="card">
                     <div class="card-body">
-                        <?php if (TRUE/*condition for property existance*/) { ?>
+                        <?php if (empty($properties)) { ?>
                         <div class="row">
                             <div class="col-lg-12 text-center">
                                 <h4>No Property</h4>
@@ -302,9 +379,12 @@ $title = "Account - ".$account['name'];
                             </div>
                             <div class="col-lg-12">
                                 <div class="mb-2">
-                                    <select class="form-select" name="properties" id="properties">
-                                        <option value="">Select Property</option>
-                                        <option value="pt-321">Flat #321</option>
+                                    <select class="form-select" name="selectProperty" id="selectProperty">
+                                        <?php foreach ($properties as $key => $property) { ?>
+                                        <option value="<?=$property['pty_id']?>"><?=strtoupper($property['type'])?>
+                                            #<?=$property['number']?>
+                                        </option>
+                                        <?php } ?>
                                     </select>
                                 </div>
                             </div>
@@ -320,43 +400,45 @@ $title = "Account - ".$account['name'];
                                     <tbody class="fw-bold">
                                         <tr>
                                             <td>Type</td>
-                                            <td style="text-align: right;">
-                                                flat </td>
+                                            <td id="propertyType" class="text-capitalize text-end"></td>
                                         </tr>
                                         <tr>
                                             <td>No.</td>
-                                            <td style="text-align: right;">
-                                                # 391 </td>
+                                            <td class="text-end" id="propertyNumber"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Purchase Type</td>
+                                            <td class="text-end text-capitalize fw-bold" id="propertySaleType"></td>
                                         </tr>
                                         <tr>
                                             <td>Total Insts</td>
-                                            <td style="text-align: right;">
-                                                24 </td>
+                                            <td class="text-end" id="propertyInstallments"></td>
                                         </tr>
                                         <tr>
                                             <td>Paid Insts.</td>
-                                            <td style="text-align: right;">
-                                                0 </td>
+                                            <td class="text-end" id="propertyPaidInstallments"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Installment Amount</td>
+                                            <td class="text-end" id="propertyInstallmentAmount"></td>
                                         </tr>
                                         <tr>
                                             <td>Price</td>
-                                            <td style="text-align: right;">
-                                                Rs. 3,300,000 </td>
+                                            <td class="text-end" id="propertyPrice"></td>
                                         </tr>
                                         <tr>
                                             <td>Paid</td>
-                                            <td class="text-success" style="text-align: right;">
-                                                Rs. 459,500 </td>
+                                            <td id="propertyPaidAmount" class="text-success text-end"></td>
                                         </tr>
                                         <tr>
                                             <td>Pending</td>
-                                            <td class="text-danger" style="text-align: right;">
-                                                Rs. 2,840,500 </td>
+                                            <td id="propertyRemainingAmount" class="text-danger text-end"></td>
                                         </tr>
                                         <tr>
                                             <td>Status</td>
-                                            <td class="text-danger" style="text-align: right;">
-                                                Under Financing </td>
+                                            <td class="text-capitalize text-end">
+                                                <span style="font-size: 13px;" class="badge" id="propertyStatus"></span>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -369,7 +451,7 @@ $title = "Account - ".$account['name'];
             </div>
         </div>
 
-        <?php if(!empty ($ledger) || TRUE) { ?>
+        <?php if(!empty($ledger)) { ?>
         <div class="card my-3">
             <div class="card-body">
                 <div class="row">
@@ -382,6 +464,8 @@ $title = "Account - ".$account['name'];
                                 <tr>
                                     <th class="border-0 rounded-start">#</th>
                                     <th class="border-0 text-center">V-ID</th>
+                                    <th class="border-0 text-center">Type</th>
+                                    <th class="border-0 text-center">Source</th>
                                     <th class="border-0">Remarks</th>
                                     <th class="border-0">Credit</th>
                                     <th class="border-0 text-end">Debit</th>
@@ -396,13 +480,15 @@ $title = "Account - ".$account['name'];
                                         <?=$key+1?>
                                     </td>
                                     <td><?=$led['v-id']?></td>
+                                    <td class="text-capitalize"><?=$led['type']?></td>
+                                    <td><?=$led['account']?></td>
                                     <td><?=$led['remarks']?></td>
-                                    <?php if (!empty($led['debit'])) { ?>
-                                    <td class="text-success"><?=$arrow_up?> Rs. <?=number_format($led['debit'])?></td>
+                                    <?php if (!empty($led['credit'])) { ?>
+                                    <td class="text-success"><?=$arrow_up?> Rs. <?=number_format($led['credit'])?></td>
                                     <td></td>
                                     <?php } else { ?>
                                     <td></td>
-                                    <td class="text-end text-danger">Rs. <?=number_format($led['credit'])?>
+                                    <td class="text-end text-danger">Rs. <?=number_format($led['debit'])?>
                                         <?=$arrow_down?></td>
                                     <?php } ?>
                                     <?php if ($led['balance'] == 0) { ?>
@@ -573,6 +659,68 @@ $title = "Account - ".$account['name'];
     <?php if ($_GET['m'] == 'edit_true') { ?>
     notify("success", "Account Updated ...");
     <?php } ?>
+    <?php } ?>
+
+    <?php if (count($properties) >= 1) { ?>
+    var properties = <?=(!empty($properties)?json_encode($properties):json_encode([]))?>;
+
+    $("#selectProperty").change(function() {
+        // console.log($(this).val());
+        if ($(this).val()) {
+            for (var key in properties) {
+                if (properties.hasOwnProperty(key)) {
+                    if (properties[key].pty_id === $(this).val()) {
+                        var property = properties[key];
+                        // $("#instPropertyPrice").val(parseInt(properties[key]['rate'])
+                        //     .toLocaleString());
+
+                        var installment_amount = (property.rate - property.advance_payment) / property.installments;
+                        var paid_installments = (property.debit - property.advance_payment) / ((property.rate - property.advance_payment) / property.installments);
+                        $("#propertyType").text(property.type);
+                        $("#propertyNumber").text("#" + property.number);
+                        $("#propertySaleType").text(property.sale_type == 'net_cash'?"net cash":"Installments");
+                        if (property.sale_type == "installment") {
+                            $("#propertyInstallments").parent().removeClass("d-none");
+                            $("#propertyPaidInstallments").parent().removeClass("d-none");
+                            $("#propertyInstallmentAmount").parent().removeClass("d-none");
+                            $("#propertyInstallments").text(property.installments);
+                            $("#propertyPaidInstallments").text(Math.floor(paid_installments));
+                            $("#propertyInstallmentAmount").text("Rs. " + parseInt(installment_amount).toLocaleString());
+                        } 
+                        else if (property.sale_type == "net_cash") {
+                            $("#propertyInstallments").parent().addClass("d-none");
+                            $("#propertyPaidInstallments").parent().addClass("d-none");
+                            $("#propertyInstallmentAmount").parent().addClass("d-none");
+                        }
+                        $("#propertyPrice").text("Rs. " + parseInt(property.rate).toLocaleString());
+                        $("#propertyPaidAmount").text("Rs. " + parseInt(property.debit).toLocaleString());
+                        $("#propertyRemainingAmount").text("Rs. " + parseInt(property.rate - property.debit).toLocaleString());
+                        if (property.sale_type == "installment") {
+                            if ((property.rate - property.debit) == 0) {
+                                $("#propertyStatus").addClass("bg-success");
+                                $("#propertyStatus").text("purchased");
+                            } else {
+                                $("#propertyStatus").addClass("bg-warning");
+                                $("#propertyStatus").text("under financing");
+                            }
+                        } else if (property.sale_type == "net_cash") {
+                            if ((property.rate - property.debit) == 0) {
+                                $("#propertyStatus").removeClass("bg-warning");
+                                $("#propertyStatus").addClass("bg-success");
+                                $("#propertyStatus").text("purchased");
+                            } else {
+                                $("#propertyStatus").removeClass("bg-success");
+                                $("#propertyStatus").addClass("bg-warning");
+                                $("#propertyStatus").text("under financing");
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    });
+    $("#selectProperty").trigger("change");
     <?php } ?>
 
     // Randomly generate two numbers

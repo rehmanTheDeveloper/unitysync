@@ -2,7 +2,7 @@
 session_start();
 #################### Login & License Validation ####################
 require("temp/validate.login.temp.php");                           #
-$license_path = "licenses/".$_SESSION['license_username']."/license.json"; #
+$license_path = "license/".$_SESSION['license_username']."/license.json"; #
 require("auth/license.validate.functions.php");                    #
 require("temp/validate.license.temp.php");                         #
 #################### Login & License Validation ####################
@@ -10,8 +10,13 @@ require("temp/validate.license.temp.php");                         #
 ####################### Database Connection #######################
 require("auth/config.php");                                       #
 require("auth/functions.php");                                    #
-$conn = conn("localhost", "root", "", "unitySync");                   #
+$conn = conn("localhost", "root", "", "unitySync"); #
+$DB_Connection = new DB("localhost", "unitySync", "root", ""); #
+$PDO_conn = $DB_Connection->getConnection(); #
 ####################### Database Connection #######################
+
+include("object/ledger.php");
+$ledger_obj = new Ledger($PDO_conn);
 
 $a = "";
 
@@ -33,14 +38,62 @@ if (!empty($all_properties)) {
         $properties[$key] = mysqli_fetch_assoc(mysqli_query($conn, $query));
         $properties[$key]['type'] = $property['type'];
         $properties[$key]['delete'] = 1;
+        $properties[$key]['status'] = 0;
         // TODO: Validate any of property type plot or flat
-        // if ($Acc['type'] == 'seller') {
-        //     $query = "SELECT * FROM `area_seller` WHERE `acc_id` = '".$Acc['acc_id']."' AND `project_id` = '".$_SESSION['project']."';";
-        //     $result = mysqli_query($conn, $query);
-        //     if (mysqli_num_rows($result) > 0) {
-        //         $accounts[$key]['delete'] = 0;
-        //     }
-        // }
+        $query = "SELECT `price`,`acc_id`,`sale_id` FROM `sale_installment` WHERE `pty_id` = '".$property['pty_id']."' AND `project_id` = '".$_SESSION['project']."';";
+        $sale_installment = mysqli_query($conn, $query);
+        if (mysqli_num_rows($sale_installment) > 0) {
+            $properties[$key]['delete'] = 0;
+            $sale_installment = mysqli_fetch_assoc($sale_installment);
+
+            $sale_installment['debit'] = 0;
+            $sale_installment['credit'] = 0;
+            $fetch_ledger = [
+                'type' => "sale",
+                'sale_id' => $sale_installment['sale_id'],
+                'source' => $sale_installment['acc_id'],
+                'pay_to' => $sale_installment['acc_id'],
+                'project' => $_SESSION['project']
+            ];
+            // $properties[$key]['ledger'] = $fetch_ledger;
+            $sale_ledger = $ledger_obj->fetch($fetch_ledger);
+            foreach ($sale_ledger as $single_ledger) {
+                $sale_installment['debit'] += $single_ledger['debit'];
+                $sale_installment['credit'] += $single_ledger['credit'];
+            }
+            if (($sale_installment['debit'] - $sale_installment['credit']) != 0) {
+                $properties[$key]['status'] = 2;
+            } elseif (($sale_installment['debit'] - $sale_installment['credit']) == 0) {
+                $properties[$key]['status'] = 1;
+            }
+        }
+        $query = "SELECT `price`,`acc_id`,`sale_id` FROM `sale_net_cash` WHERE `pty_id` = '".$property['pty_id']."' AND `project_id` = '".$_SESSION['project']."';";
+        $sale_net_cash = mysqli_query($conn, $query);
+        if (mysqli_num_rows($sale_net_cash) > 0) {
+            $properties[$key]['delete'] = 0;
+            $sale_net_cash = mysqli_fetch_assoc($sale_net_cash);
+            
+            $sale_net_cash['debit'] = 0;
+            $sale_net_cash['credit'] = $sale_net_cash['price'];
+            $fetch_ledger = [
+                'type' => "sale",
+                'sale_id' => $sale_net_cash['sale_id'],
+                'source' => $sale_net_cash['acc_id'],
+                'pay_to' => $sale_net_cash['acc_id'],
+                'project' => $_SESSION['project']
+            ];
+            // $properties[$key]['ledger'] = $fetch_ledger;
+            $sale_ledger = $ledger_obj->fetch($fetch_ledger);
+            foreach ($sale_ledger as $single_ledger) {
+                $sale_net_cash['debit'] += $single_ledger['debit'];
+                $sale_net_cash['credit'] += $single_ledger['credit'];
+            }
+            if (($sale_net_cash['debit'] - $sale_net_cash['credit']) != 0) {
+                $properties[$key]['status'] = 2;
+            } elseif (($sale_net_cash['debit'] - $sale_net_cash['credit']) == 0) {
+                $properties[$key]['status'] = 1;
+            }
+        }
     }
 } else {
     $properties = [];
@@ -126,7 +179,8 @@ $title = "All Properties";
                                     <td class="fw-bolder">
                                         <?=$key+1?>
                                     </td>
-                                    <td class="text-center text-capitalize"><?=$property['type']." #".$property['number']?></td>
+                                    <td class="text-center text-capitalize">
+                                        <?=$property['type']." #".$property['number']?></td>
                                     <td class="text-center">
                                         <?php foreach ($blocks as $block) {
                                             if ($property['block'] == $block['id']) {
@@ -135,19 +189,35 @@ $title = "All Properties";
                                         } ?>
                                     </td>
                                     <td class="text-center"><?=$property['length']?> X <?=$property['width']?></td>
-                                    <td class="text-center"><?=floor($property['sqft'] / $project_details['sqft_per_marla'])?> marla - <?=number_format(($property['sqft'] - floor($property['sqft'] / $project_details['sqft_per_marla']) * $project_details['sqft_per_marla']))?> Sqft.</td>
+                                    <td class="text-center">
+                                        <?=floor($property['sqft'] / $project_details['sqft_per_marla'])?> marla -
+                                        <?=number_format(($property['sqft'] - floor($property['sqft'] / $project_details['sqft_per_marla']) * $project_details['sqft_per_marla']))?>
+                                        Sqft.</td>
                                     <td class="text-capitalize text-center fw-bold"><?=$property['category']?></td>
                                     <td class="text-capitalize text-center fw-bold">
-                                        <span class="badge bg-success">Sold</span>
+                                        <?php if ($property['status'] == 0) { ?>
                                         <span class="badge bg-danger">Unsold</span>
+                                        <?php } elseif ($property['status'] == 1) { ?>
+                                        <span class="badge bg-success">Sold</span>
+                                        <?php } elseif ($property['status'] == 2) { ?>
                                         <span class="badge bg-warning">Under Financing</span>
+                                        <?php } ?>
                                     </td>
-                                    <td class="d-flex justify-content-end align-items-center">
+                                    <td style="column-gap: 15px;" class="d-flex justify-content-end align-items-center">
+                                        <a class="btn p-0" href="property.view.php?i=<?=encryptor("encrypt", $property['pty_id'])?>">
+                                            <svg class="icon icon-xs text-gray-600" fill="currentColor" viewBox="0 0 20 20"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                                                <path fill-rule="evenodd"
+                                                    d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                                                    clip-rule="evenodd"></path>
+                                            </svg>
+                                        </a>
                                         <div class="btn-group">
                                             <button class="btn btn-link dropdown-toggle dropdown-toggle-split m-0 p-0"
                                                 data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                                 title="Delete">
-                                                <svg class="icon icon-xs text-danger" fill="currentColor"
+                                                <svg class="icon icon-xs <?=($property['delete'] == 1)?"text-danger":"text-gray-400"?>" fill="currentColor"
                                                     viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                                     <path fill-rule="evenodd"
                                                         d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
@@ -157,7 +227,9 @@ $title = "All Properties";
                                             </button>
                                             <div class="dropdown-menu dashboard-dropdown dropdown-menu-start mt-2 py-1"
                                                 style="">
-                                                <a class="dropdown-item d-flex align-items-center" href="comp/property.delete.php?i=<?=encryptor("encrypt", $property['pty_id'])?>">
+                                                <?php if ($property['delete'] == 1) { ?>
+                                                <a class="dropdown-item d-flex align-items-center"
+                                                    href="comp/property.delete.php?i=<?=encryptor("encrypt", $property['pty_id'])?>">
                                                     <svg class="icon icon-xs dropdown-icon text-success me-2"
                                                         fill="currentColor" viewBox="0 0 20 20"
                                                         xmlns="http://www.w3.org/2000/svg">
@@ -176,17 +248,30 @@ $title = "All Properties";
                                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
                                                             clip-rule="evenodd"></path>
                                                     </svg>
-                                                    
+
                                                     No
                                                 </a>
+                                                <?php } else { ?>
+                                                <a class="dropdown-item d-flex align-items-center text-gray-700"
+                                                    data-bs-dismiss="dropdown">
+                                                    <svg class="icon icon-xs dropdown-icon text-gray-400 me-2"
+                                                        fill="currentColor" viewBox="0 0 20 20"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <path fill-rule="evenodd"
+                                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                                            clip-rule="evenodd"></path>
+                                                    </svg>
+                                                    Not Deletable ...
+                                                </a>
+                                                <?php } ?>
                                             </div>
                                         </div>
                                     </td>
                                 </tr>
                                 <?php } } else { ?>
-                                    <tr>
-                                        <td class="text-center fw-bold" colspan="6">No Property Created ...</td>
-                                    </tr>
+                                <tr>
+                                    <td class="text-center fw-bold" colspan="8">No Property Created ...</td>
+                                </tr>
                                 <?php } ?>
                             </tbody>
                         </table>
@@ -204,17 +289,17 @@ $title = "All Properties";
     <?php include('temp/script.temp.php'); ?>
 
     <script>
-        <?php if (isset($_GET['m'])) { ?>
-        <?php if ($_GET['m'] == 'add_true') { ?>
-        notify("success", "Property Created Successfully ...");
-        <?php } elseif ($_GET['m'] == 'add_false') { ?>
-        notify("error", "Something's Wrong, Report Error ...");
-        <?php } elseif ($_GET['m'] == 'delete_true') { ?>
-        notify("success", "Property Deleted Successfully ...");
-        <?php } elseif ($_GET['m'] == 'delete_false') { ?>
-        notify("error", "Something's Wrong, Report Error ...");
-        <?php } ?>
-        <?php } ?>
+    <?php if (isset($_GET['m'])) { ?>
+    <?php if ($_GET['m'] == 'add_true') { ?>
+    notify("success", "Property Created Successfully ...");
+    <?php } elseif ($_GET['m'] == 'add_false') { ?>
+    notify("error", "Something's Wrong, Report Error ...");
+    <?php } elseif ($_GET['m'] == 'delete_true') { ?>
+    notify("success", "Property Deleted Successfully ...");
+    <?php } elseif ($_GET['m'] == 'delete_false') { ?>
+    notify("error", "Something's Wrong, Report Error ...");
+    <?php } ?>
+    <?php } ?>
     // var optionsPieChart = {
     //     series: [44, 55, 29],
     //     chart: {

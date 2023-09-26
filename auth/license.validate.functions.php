@@ -219,17 +219,24 @@ function updateLicenseFile($license, $license_path)
             $stmt->bind_result($license_data['product'], $license_data['key'], $license_data['validity'], $license_data['status'], $license_data['registered_date']);
             $stmt->fetch();
             $stmt->close();
+
             // Convert the registration date string to a timestamp
             $registrationTimestamp = strtotime($license_data['registered_date']);
 
-            // Get the number of validity months from the $validity variable
-            $validityMonths = $license_data['validity'];
+            // Get the current timestamp
+            $currentTimestamp = time();
 
-            // Calculate the expiration date by adding the validity months to the registration date
-            $expirationTimestamp = strtotime("+$validityMonths months", $registrationTimestamp);
+            // Check if the license is expired (registered date + validity is less than current time)
+            if (($registrationTimestamp + ($license_data['validity'] * 30 * 24 * 60 * 60)) < $currentTimestamp) {
+                if ($updateStmt = $conn->prepare('UPDATE `licenses` SET `status` = 2 WHERE `product` = ? AND `id` = ?;')) {
+                    $updateStmt->bind_param('ss', $license_file_details['product'], $license_file_details['key']);
+                    $updateStmt->execute();
+                    $updateStmt->close();
+                }
+            }
 
             // Convert the expiration timestamp back to a date string
-            $license_data['expiration_date'] = date('Y-m-d h:ia', $expirationTimestamp);
+            $license_data['expiration_date'] = date('Y-m-d h:ia', $registrationTimestamp + ($license_data['validity'] * 30 * 24 * 60 * 60));
             $jsonString = json_encode($license_data, JSON_PRETTY_PRINT);
             file_put_contents($license_path, $jsonString);
         }

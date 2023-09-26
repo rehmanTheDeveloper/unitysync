@@ -103,7 +103,7 @@ function fetch_Data($conn, $query)
 		}
 		return $return;
 	} else {
-		return "";
+		return [];
 	}
 }
 // Fetch Data From Database
@@ -145,7 +145,10 @@ function activity($conn, $activity)
 // Ledger Record
 function ledger($conn, $ledger)
 {
-	$query = "INSERT INTO `ledger`(`v-id`, `type`, `source`, `remarks`";
+	if (empty($ledger['sale_id'])) {
+		$ledger['sale_id'] = "";
+	}
+	$query = "INSERT INTO `ledger`(`v-id`, `sale_id`, `type`, `source`, `remarks`";
 	if (!empty($ledger['credit'])) {
 		$query .= ", `credit`";
 		$ledger['amount'] = $ledger['credit'];
@@ -157,9 +160,9 @@ function ledger($conn, $ledger)
 		unset($ledger['credit']);
 		unset($ledger['debit']);
 	}
-	$query .= ", `project_id`, `created_date`, `created_by`) VALUES (?,?,?,?,?,?,?,?);";
+	$query .= ", `project_id`, `created_date`, `created_by`) VALUES (?,?,?,?,?,?,?,?,?);";
 	$stmt = $conn->prepare($query);
-	$stmt->bind_param("ssssssss", $ledger['v-id'], $ledger['type'], $ledger['source'], $ledger['remarks'], $ledger['amount'], $ledger['project'], $ledger['created_date'], $ledger['created_by']);
+	$stmt->bind_param("sssssssss", $ledger['v-id'], $ledger['sale_id'], $ledger['type'], $ledger['source'], $ledger['remarks'], $ledger['amount'], $ledger['project'], $ledger['created_date'], $ledger['created_by']);
 	// print_r($ledger);
 	$stmt->execute();
 }

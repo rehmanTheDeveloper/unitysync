@@ -3,7 +3,7 @@
 session_start();
 ###################### Login & License Validation ######################
 require("../temp/validate.login.temp.php"); #
-$license_path = "../licenses/" . $_SESSION['license_username'] . "/license.json"; #
+$license_path = "../license/" . $_SESSION['license_username'] . "/license.json"; #
 require("../auth/license.validate.functions.php"); #
 require("../temp/validate.license.temp.php"); #
 ###################### Login & License Validation ######################
@@ -149,26 +149,21 @@ if ($data['type'] == 'seller' || $data['type'] == 'investor' || $data['type'] ==
 }
 $data['id'] = encryptor("decrypt", $_POST['id']);
 
-// echo "<pre>";
-// print_r($_POST);
-// print_r($data);
-// exit();
-
 if ($data['type'] == 'seller' || $data['type'] == 'investor' || $data['type'] == 'staff' || $data['type'] == 'customer') {
     $query = "SELECT `img` FROM `" . $data['type'] . "` WHERE `acc_id` = '" . encryptor("decrypt", $_POST['id']) . "' AND `project_id` = '" . $_SESSION['project'] . "';";
     $result = mysqli_fetch_assoc(mysqli_query($conn, $query));
     $uploadDirectory = "../uploads/acc-profiles/";
-    if ($data['image'] != $result['img']) {
-        $image['parts'] = explode(";base64,", $data['image']);
-        $image['type_aux'] = explode("image/", $image['parts'][0]);
-        $image['base64'] = base64_decode($image['parts'][1]);
-        $upload['image'] = $result['img'];
-        $upload['path'] = $uploadDirectory . $upload['image'];
-        if (!file_put_contents($upload['path'], $image['base64'])) {
-            $image_err = "false";
-        }
+    $image['parts'] = explode(";base64,", $data['image']);
+    $image['type_aux'] = explode("image/", $image['parts'][0]);
+    $image['base64'] = base64_decode($image['parts'][1]);
+    if ($result['img'] == "profile.png") {
+        $upload['image'] = uniqid($data['id'] . "-", true) . ".jpg";
     } else {
         $upload['image'] = $result['img'];
+    }
+    $upload['path'] = $uploadDirectory . $upload['image'];
+    if (!file_put_contents($upload['path'], $image['base64'])) {
+        $image_err = "false";
     }
 }
 

@@ -2,6 +2,7 @@
 session_start();
 include('config.php');
 include('functions.php');
+include('license.validate.functions.php');
 // Now we check if the data from the login form was submitted, isset() will check if the data exists.
 if (!isset($_POST['username'], $_POST['password'])) {
     // Could not get the data that should have been sent.
@@ -89,10 +90,6 @@ if ($stmt = $conn->prepare('SELECT `license` FROM `clients` WHERE `username` = ?
                 $stmt->fetch();
                 $license['productKey'] = $_POST['productKey'];
                 $stmt->close();
-                if (isLicenseExpired($license['registered_date'], $license['validity']) && $license['status'] > 0) {
-                    header("Location: ../license.expired.php");
-                    exit();
-                }
             }
         }
     } else {
@@ -108,8 +105,10 @@ if (is_int($license['status'])) {
     $_SESSION['loggedin'] = TRUE;
     if ($role == "super-admin") {
         $_SESSION['license_username'] = $_POST['username'];
+        $directoryPath = '../license/' . $_POST['username'];
     } else {
         $_SESSION['license_username'] = $admin_user_of_project['username'];
+        $directoryPath = '../license/' . $admin_user_of_project['username'];
     }
     $_SESSION['username'] = $_POST['username'];
     $_SESSION['name'] = "$f_name $s_name";
@@ -118,21 +117,24 @@ if (is_int($license['status'])) {
     $_SESSION['project'] = $project;
     $_SESSION['img'] = $img;
 
-    if ($role == 'super-admin') {
-        $license_json['key'] = $license['key'];
-        $license_json['product'] = $license['productKey'];
-        $license_json['status'] = $license['status'];
-        $license_json['validity'] = $license['validity'];
-        $license_json['registered_date'] = date("Y-m-d h:ia", strtotime($license['registered_date']));
-        $license_json['expiration_date'] = licenseExpirationDate($license['registered_date'], $license['validity']);
+    $license_json['key'] = $license['key'];
+    $license_json['product'] = $license['productKey'];
+    $license_json['status'] = $license['status'];
+    $license_json['validity'] = $license['validity'];
+    $license_json['registered_date'] = date("Y-m-d h:ia", strtotime($license['registered_date']));
+    $license_json['expiration_date'] = licenseExpirationDate($license['registered_date'], $license['validity']);
 
-        $jsonString = json_encode($license_json, JSON_PRETTY_PRINT);
-        $directoryPath = '../licenses/' . $_POST['username'];
-        if (!is_dir($directoryPath)) {
-            mkdir($directoryPath, 0777, true);
-        }
-        $filePath = $directoryPath . '/license.json';
-        file_put_contents($filePath, $jsonString);
+    $jsonString = json_encode($license_json, JSON_PRETTY_PRINT);
+    if (!is_dir($directoryPath)) {
+        mkdir($directoryPath, 0777, true);
+    }
+    $filePath = $directoryPath . '/license.json';
+    $license_json = json_decode(file_get_contents($filePath), true);
+    updateLicenseFile($license_json, $filePath);
+
+    if (isLicenseExpired($license['registered_date'], $license['validity']) && $license['status'] > 0) {
+        header("Location: ../license.expired.php");
+        exit();
     }
 
     header('Location: ../dashboard.php?m=login_true');
